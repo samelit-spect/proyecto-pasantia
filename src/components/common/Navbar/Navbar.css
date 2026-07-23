@@ -1,0 +1,19 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.navbar__logo {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.navbar__links a {
+  color: white;
+  text-decoration: none;
+}
