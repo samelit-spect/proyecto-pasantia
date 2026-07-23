@@ -1,19 +1,77 @@
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0 2rem;
+  height: 60px;
   background-color: var(--primary-color);
   color: white;
+  z-index: 100;
 }
 
 .navbar__logo {
   color: white;
   text-decoration: none;
   font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.navbar__links {
+  display: flex;
+  gap: 1.5rem;
 }
 
 .navbar__links a {
-  color: white;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar__links a:hover {
+  color: white;
+}
+
+.navbar__links a.active {
+  color: white;
+  border-bottom: 2px solid white;
+}
+
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.navbar__role {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  text-transform: capitalize;
+}
+
+.navbar__logout {
+  padding: 0.375rem 0.75rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.navbar__logout:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }

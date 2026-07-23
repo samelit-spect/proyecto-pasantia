@@ -1,0 +1,234 @@
+# 05 - Base de Datos
+
+## 1. Tecnología
+
+**Firestore** — Base de datos NoSQL en la nube de Firebase.
+- Modelo de documentos y colecciones.
+- Consultas por campos, rangos de fechas y subcolecciones.
+- Soporte para offline (escritura local + sincronización automática).
+
+## 2. Colecciones
+
+```
+firestore/
+├── escuelas/                  # Una documento por escuela
+├── usuarios/                  # Un documento por usuario
+├── asistencias/               # Un documento por cada carga de formulario
+├── novedades/                 # Un documento por cada novedad registrada
+└── incidentes/                # Un documento por cada incidente registrado
+```
+
+## 3. Estructura de documentos
+
+### 3.1 `escuelas/{schoolId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `nombre` | string | Nombre de la escuela | Sí |
+| `turno` | string | Turno (mañana, tarde, noche) | Sí |
+| `direccion` | string | Dirección de la escuela | No |
+| `activa` | boolean | Si la escuela está activa en el sistema | Sí |
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Escuela N° 123",
+  "turno": "mañana",
+  "direccion": "Calle Falsa 123",
+  "activa": true
+}
+```
+
+### 3.2 `usuarios/{userId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `nombre` | string | Nombre completo del usuario | Sí |
+| `email` | string | Correo electrónico (usado para login) | Sí |
+| `rol` | string | Rol del usuario en el sistema | Sí |
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `cargo` | string | Cargo específico (director, vice, preceptor, secretario, conserje) | Sí |
+
+**Valores permitidos para `rol`:**
+- `"director"`
+- `"vice"`
+- `"preceptor"`
+- `"secretario"`
+- `"conserje"`
+- `"supervisor"`
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@escuela123.edu.ar",
+  "rol": "director",
+  "escuelaId": "abc123",
+  "cargo": "director"
+}
+```
+
+### 3.3 `asistencias/{attendanceId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `fecha` | timestamp | Fecha del registro de asistencia | Sí |
+| `cargadoPor` | string | UID del usuario que completó el formulario | Sí |
+| `cargadoPorNombre` | string | Nombre del usuario que cargó (para vista) | Sí |
+| `registros` | array | Array con la asistencia de cada integrante | Sí |
+| `createdAt` | timestamp | Fecha de creación del documento | Sí |
+
+**Estructura de cada elemento en `registros[]`:**
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `nombre` | string | Nombre del integrante | Sí |
+| `cargo` | string | Cargo del integrante | Sí |
+| `presente` | boolean | `true` = presente, `false` = ausente | Sí |
+| `motivo` | string | Motivo de ausencia (solo si `presente = false`) | No |
+
+**Ejemplo:**
+```json
+{
+  "escuelaId": "abc123",
+  "fecha": "2026-07-23T00:00:00Z",
+  "cargadoPor": "user123",
+  "cargadoPorNombre": "Juan Pérez",
+  "registros": [
+    { "nombre": "Juan Pérez", "cargo": "director", "presente": true },
+    { "nombre": "María López", "cargo": "vice", "presente": true },
+    { "nombre": "Carlos García", "cargo": "preceptor", "presente": false, "motivo": "Enfermedad" },
+    { "nombre": "Ana Martínez", "cargo": "secretario", "presente": true },
+    { "nombre": "Pedro Ruiz", "cargo": "conserje", "presente": true }
+  ],
+  "createdAt": "2026-07-23T08:30:00Z"
+}
+```
+
+### 3.4 `novedades/{newsId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `fecha` | timestamp | Fecha de la novedad | Sí |
+| `descripcion` | string | Descripción de la novedad | Sí |
+| `cargadoPor` | string | UID del usuario que registró la novedad | Sí |
+| `cargadoPorNombre` | string | Nombre del usuario que cargó | Sí |
+| `createdAt` | timestamp | Fecha de creación del documento | Sí |
+
+**Ejemplo:**
+```json
+{
+  "escuelaId": "abc123",
+  "fecha": "2026-07-23T00:00:00Z",
+  "descripcion": "Se realizó el acto de inauguración del nuevo espacio de informática.",
+  "cargadoPor": "user123",
+  "cargadoPorNombre": "Juan Pérez",
+  "createdAt": "2026-07-23T09:00:00Z"
+}
+```
+
+### 3.5 `incidentes/{incidentId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `fecha` | timestamp | Fecha del incidente | Sí |
+| `descripcion` | string | Descripción del incidente | Sí |
+| `estado` | string | Estado actual del incidente | Sí |
+| `cargadoPor` | string | UID del usuario que registró el incidente | Sí |
+| `cargadoPorNombre` | string | Nombre del usuario que cargó | Sí |
+| `createdAt` | timestamp | Fecha de creación del documento | Sí |
+| `updatedAt` | timestamp | Última actualización de estado | No |
+
+**Valores permitidos para `estado`:**
+- `"pendiente"` — Estado inicial por defecto
+- `"en_analisis"` — En revisión por el Supervisor
+- `"en_gestion"` — Acción en curso
+- `"resuelto"` — Caso cerrado
+
+**Ejemplo:**
+```json
+{
+  "escuelaId": "abc123",
+  "fecha": "2026-07-23T00:00:00Z",
+  "descripcion": "Filtración de agua en el techo del aula 3.",
+  "estado": "pendiente",
+  "cargadoPor": "user456",
+  "cargadoPorNombre": "María López",
+  "createdAt": "2026-07-23T10:15:00Z",
+  "updatedAt": "2026-07-23T10:15:00Z"
+}
+```
+
+## 4. Relaciones entre colecciones
+
+```
+escuelas ←──── usuarios.escuelaId
+escuelas ←──── asistencias.escuelaId
+escuelas ←──── novedades.escuelaId
+escuelas ←──── incidentes.escuelaId
+
+usuarios ←──── asistencias.cargadoPor
+usuarios ←──── novedades.cargadoPor
+usuarios ←──── incidentes.cargadoPor
+```
+
+**Nota:** Firestore no tiene joins nativos. Las referencias se resuelven en el frontend mediante consultas separadas o al momento de carga.
+
+## 5. Índices recomendados
+
+| Colección | Campos indexados | Motivo |
+|---|---|---|
+| `asistencias` | `escuelaId` + `fecha` | Consultar asistencias de una escuela en un rango de fechas |
+| `novedades` | `escuelaId` + `fecha` | Consultar novedades de una escuela en un rango de fechas |
+| `incidentes` | `escuelaId` + `fecha` | Consultar incidentes de una escuela en un rango de fechas |
+| `incidentes` | `estado` + `fecha` | Filtrar incidentes por estado |
+| `usuarios` | `escuelaId` + `rol` | Obtener todos los usuarios de una escuela por rol |
+
+## 6. Reglas de seguridad (Firestore Rules)
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Escuelas - solo lectura autenticada
+    match /escuelas/{schoolId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Solo se crean desde Firebase Console o admin
+    }
+
+    // Usuarios - cada usuario lee su propio perfil, admin escribe
+    match /usuarios/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.uid == userId;
+    }
+
+    // Asistencias - solo autenticados pueden leer/escribir
+    match /asistencias/{attendanceId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // Novedades - solo autenticados pueden leer/escribir
+    match /novedades/{newsId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // Incidentes - lectura autenticada, escritura autenticada
+    match /incidentes/{incidentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null; // Supervisor cambia estado
+      allow delete: if false;
+    }
+  }
+}
+```
+
+**Nota:** Estas son reglas básicas para MVP. En producción se recomienda validar el rol del usuario en las reglas de Firestore para mayor seguridad.

@@ -1,11 +1,17 @@
 :root {
-  --primary-color: #2563eb;
-  --secondary-color: #64748b;
-  --background-color: #ffffff;
-  --text-color: #111827;
+  --primary-color: #1e40af;
+  --primary-light: #3b82f6;
+  --secondary-color: #16a34a;
+  --secondary-light: #22c55e;
+  --background-color: #f8fafc;
+  --surface-color: #ffffff;
+  --text-color: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
 }
 
 body {
   background-color: var(--background-color);
   color: var(--text-color);
+  font-family: Inter, system-ui, sans-serif;
 }
