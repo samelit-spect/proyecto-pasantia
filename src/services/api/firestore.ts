@@ -60,6 +60,21 @@ export async function getSchoolById(schoolId: string): Promise<School | null> {
   return { id: docSnap.id, ...docSnap.data() } as School;
 }
 
+export async function addSchool(data: {
+  nombre: string;
+  turno: string;
+  direccion?: string;
+}): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTIONS.schools), {
+    nombre: data.nombre,
+    turno: data.turno,
+    direccion: data.direccion || '',
+    activa: true,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
 export async function getUsersBySchool(schoolId: string): Promise<UserProfile[]> {
   const q = query(
     collection(db, COLLECTIONS.users),
