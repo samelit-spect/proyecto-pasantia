@@ -1,0 +1,28 @@
+.status-badge {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge--pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge--analisis {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge--gestion {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.status-badge--resuelto {
+  background-color: #dcfce7;
+  color: #166534;
+}

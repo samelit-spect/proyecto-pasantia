@@ -30,7 +30,9 @@ const Login = () => {
     <div className="login">
       <div className="login__card">
         <h1 className="login__title">SIPNAM</h1>
-        <p className="login__subtitle">Sistema Integrado de Partes de Novedades y Asistencias Móvil</p>
+        <p className="login__subtitle">
+          Sistema Integrado de Partes de Novedades y Asistencias Móvil
+        </p>
 
         <form onSubmit={handleSubmit} className="login__form">
           <div className="login__field">
@@ -65,11 +67,7 @@ const Login = () => {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="login__button"
-            disabled={isLoading}
-          >
+          <button type="submit" className="login__button" disabled={isLoading}>
             {isLoading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
         </form>

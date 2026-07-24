@@ -1,17 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from 'react';
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  type User,
-} from 'firebase/auth';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/services/firebase';
 import type { UserProfile, UserRole } from '@/types/models/user';
@@ -85,17 +73,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [loadUserProfile]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    const profile = await loadUserProfile(result.user);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const profile = await loadUserProfile(result.user);
 
-    setState({
-      user: result.user,
-      profile,
-      isLoading: false,
-      isAuthenticated: true,
-    });
-  }, [loadUserProfile]);
+      setState({
+        user: result.user,
+        profile,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+    },
+    [loadUserProfile]
+  );
 
   const logout = useCallback(async () => {
     await signOut(auth);

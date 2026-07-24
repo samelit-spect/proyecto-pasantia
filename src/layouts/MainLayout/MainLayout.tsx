@@ -5,12 +5,14 @@ import Navbar from '@/components/common/Navbar/Navbar';
 const PROTECTED_ROUTES = ['/asistencia', '/novedades', '/incidentes', '/supervisor'];
 
 const MainLayout = () => {
-  const { isAuthenticated, isLoading, profile, canAccess } = useAuth();
+  const { isAuthenticated, isLoading, canAccess } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
         <p>Cargando...</p>
       </div>
     );
@@ -28,7 +30,14 @@ const MainLayout = () => {
   return (
     <>
       <Navbar />
-      <main style={{ paddingTop: '80px', maxWidth: '1200px', margin: '0 auto', padding: '80px 1rem 2rem' }}>
+      <main
+        style={{
+          paddingTop: '80px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '80px 1rem 2rem',
+        }}
+      >
         <Outlet />
       </main>
     </>

@@ -21,6 +21,10 @@ export default defineConfig([
     },
     rules: {
       'prettier/prettier': 'warn',
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
     },
     languageOptions: {
       globals: globals.browser,
