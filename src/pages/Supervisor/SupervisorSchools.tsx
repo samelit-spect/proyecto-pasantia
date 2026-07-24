@@ -1,14 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { School, Settings, Plus, X } from 'lucide-react';
-import { getSchools, addSchool } from '@/services/api/firestore';
-import type { School as SchoolType } from '@/types';
+import { School, Settings, Plus, X, ClipboardCheck, Newspaper, AlertTriangle } from 'lucide-react';
+import {
+  getSchools,
+  addSchool,
+  getAllAttendances,
+  getAllNews,
+  getAllIncidents,
+} from '@/services/api/firestore';
+import type { School as SchoolType, Attendance, News, Incident } from '@/types';
+import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import './SupervisorSchools.css';
 
 const TURNOS = ['mañana', 'tarde', 'vespertino', 'nocturno'];
 
 const SupervisorSchools = () => {
   const [schools, setSchools] = useState<SchoolType[]>([]);
+  const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
+  const [recentNews, setRecentNews] = useState<News[]>([]);
+  const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,10 +34,18 @@ const SupervisorSchools = () => {
 
   const loadSchools = async () => {
     try {
-      const data = await getSchools();
-      setSchools(data);
+      const [schoolsData, attendancesData, newsData, incidentsData] = await Promise.all([
+        getSchools(),
+        getAllAttendances(),
+        getAllNews(),
+        getAllIncidents(),
+      ]);
+      setSchools(schoolsData);
+      setRecentAttendances(attendancesData.slice(0, 5));
+      setRecentNews(newsData.slice(0, 5));
+      setRecentIncidents(incidentsData.slice(0, 5));
     } catch {
-      setError('No se pudieron cargar las escuelas. Intentá de nuevo.');
+      setError('No se pudieron cargar los datos. Intentá de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -163,24 +181,115 @@ const SupervisorSchools = () => {
       )}
 
       {!isLoading && !error && schools.length > 0 && (
-        <div className="supervisor-schools__grid">
-          {schools.map((school) => (
-            <Link
-              key={school.id}
-              to={`/supervisor/escuela/${school.id}`}
-              className="supervisor-schools__card"
-            >
-              <div className="supervisor-schools__card-icon">
-                <School size={24} strokeWidth={1.5} />
+        <>
+          <div className="supervisor-schools__summary">
+            <div className="supervisor-schools__summary-card">
+              <div className="supervisor-schools__summary-header">
+                <div className="supervisor-schools__summary-icon supervisor-schools__summary-icon--asistencia">
+                  <ClipboardCheck size={20} strokeWidth={1.5} />
+                </div>
+                <div className="supervisor-schools__summary-info">
+                  <span className="supervisor-schools__summary-title">Asistencias</span>
+                  <span className="supervisor-schools__summary-count">
+                    {recentAttendances.length} recientes
+                  </span>
+                </div>
               </div>
-              <div className="supervisor-schools__card-content">
-                <h3 className="supervisor-schools__card-name">{school.nombre}</h3>
-                <span className="supervisor-schools__card-turno">{school.turno}</span>
+              <div className="supervisor-schools__summary-list">
+                {recentAttendances.length === 0 ? (
+                  <span className="supervisor-schools__summary-empty">Sin registros</span>
+                ) : (
+                  recentAttendances.map((att) => (
+                    <div key={att.id} className="supervisor-schools__summary-item">
+                      <span className="supervisor-schools__summary-item-date">
+                        {att.fecha.toDate().toLocaleDateString('es-AR')}
+                      </span>
+                      <span className="supervisor-schools__summary-item-author">
+                        {att.cargadoPorNombre}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
-              <span className="supervisor-schools__card-arrow">→</span>
-            </Link>
-          ))}
-        </div>
+            </div>
+
+            <div className="supervisor-schools__summary-card">
+              <div className="supervisor-schools__summary-header">
+                <div className="supervisor-schools__summary-icon supervisor-schools__summary-icon--novedades">
+                  <Newspaper size={20} strokeWidth={1.5} />
+                </div>
+                <div className="supervisor-schools__summary-info">
+                  <span className="supervisor-schools__summary-title">Novedades</span>
+                  <span className="supervisor-schools__summary-count">
+                    {recentNews.length} recientes
+                  </span>
+                </div>
+              </div>
+              <div className="supervisor-schools__summary-list">
+                {recentNews.length === 0 ? (
+                  <span className="supervisor-schools__summary-empty">Sin registros</span>
+                ) : (
+                  recentNews.map((n) => (
+                    <div key={n.id} className="supervisor-schools__summary-item">
+                      <span className="supervisor-schools__summary-item-date">
+                        {n.fecha.toDate().toLocaleDateString('es-AR')}
+                      </span>
+                      <span className="supervisor-schools__summary-item-desc">{n.descripcion}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="supervisor-schools__summary-card">
+              <div className="supervisor-schools__summary-header">
+                <div className="supervisor-schools__summary-icon supervisor-schools__summary-icon--incidentes">
+                  <AlertTriangle size={20} strokeWidth={1.5} />
+                </div>
+                <div className="supervisor-schools__summary-info">
+                  <span className="supervisor-schools__summary-title">Incidentes</span>
+                  <span className="supervisor-schools__summary-count">
+                    {recentIncidents.length} recientes
+                  </span>
+                </div>
+              </div>
+              <div className="supervisor-schools__summary-list">
+                {recentIncidents.length === 0 ? (
+                  <span className="supervisor-schools__summary-empty">Sin registros</span>
+                ) : (
+                  recentIncidents.map((inc) => (
+                    <div key={inc.id} className="supervisor-schools__summary-item">
+                      <span className="supervisor-schools__summary-item-date">
+                        {inc.fecha.toDate().toLocaleDateString('es-AR')}
+                      </span>
+                      <StatusBadge status={inc.estado} />
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <h3 className="supervisor-schools__section-title">Escuelas</h3>
+          <div className="supervisor-schools__grid">
+            {schools.map((school) => (
+              <Link
+                key={school.id}
+                to={`/supervisor/escuela/${school.id}`}
+                className="supervisor-schools__card"
+              >
+                <div className="supervisor-schools__card-icon">
+                  <School size={24} strokeWidth={1.5} />
+                </div>
+                <div className="supervisor-schools__card-content">
+                  <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
+                  <span className="supervisor-schools__card-turno">{school.turno}</span>
+                </div>
+                <span className="supervisor-schools__card-arrow">→</span>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </>
   );
