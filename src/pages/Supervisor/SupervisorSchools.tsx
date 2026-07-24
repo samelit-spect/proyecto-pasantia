@@ -41,9 +41,14 @@ const SupervisorSchools = () => {
         getAllIncidents(),
       ]);
       setSchools(schoolsData);
-      setRecentAttendances(attendancesData.slice(0, 5));
-      setRecentNews(newsData.slice(0, 5));
-      setRecentIncidents(incidentsData.slice(0, 5));
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const isToday = (d: Date) => d >= today;
+
+      setRecentAttendances(attendancesData.filter((a) => isToday(a.fecha.toDate())).slice(0, 10));
+      setRecentNews(newsData.filter((n) => isToday(n.fecha.toDate())).slice(0, 10));
+      setRecentIncidents(incidentsData.filter((i) => isToday(i.fecha.toDate())).slice(0, 10));
     } catch {
       setError('No se pudieron cargar los datos. Intentá de nuevo.');
     } finally {
@@ -191,7 +196,7 @@ const SupervisorSchools = () => {
                 <div className="supervisor-schools__summary-info">
                   <span className="supervisor-schools__summary-title">Asistencias</span>
                   <span className="supervisor-schools__summary-count">
-                    {recentAttendances.length} recientes
+                    {recentAttendances.length} hoy
                   </span>
                 </div>
               </div>
@@ -220,9 +225,7 @@ const SupervisorSchools = () => {
                 </div>
                 <div className="supervisor-schools__summary-info">
                   <span className="supervisor-schools__summary-title">Novedades</span>
-                  <span className="supervisor-schools__summary-count">
-                    {recentNews.length} recientes
-                  </span>
+                  <span className="supervisor-schools__summary-count">{recentNews.length} hoy</span>
                 </div>
               </div>
               <div className="supervisor-schools__summary-list">
@@ -249,7 +252,7 @@ const SupervisorSchools = () => {
                 <div className="supervisor-schools__summary-info">
                   <span className="supervisor-schools__summary-title">Incidentes</span>
                   <span className="supervisor-schools__summary-count">
-                    {recentIncidents.length} recientes
+                    {recentIncidents.length} hoy
                   </span>
                 </div>
               </div>
