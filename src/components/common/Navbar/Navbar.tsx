@@ -12,6 +12,8 @@ import {
   ClipboardCheck,
   Newspaper,
   AlertTriangle,
+  School,
+  Settings,
 } from 'lucide-react';
 import './Navbar.css';
 
@@ -126,14 +128,32 @@ const Navbar = () => {
           )}
 
           {hasRole('supervisor') && (
-            <Link
-              to="/supervisor"
-              className="navbar__drawer-link"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <Eye size={18} strokeWidth={1.5} />
-              Panel Supervisor
-            </Link>
+            <>
+              <Link
+                to="/supervisor"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Eye size={18} strokeWidth={1.5} />
+                Panel Supervisor
+              </Link>
+              <Link
+                to="/supervisor"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <School size={18} strokeWidth={1.5} />
+                Gestionar Escuelas
+              </Link>
+              <Link
+                to="/supervisor/usuarios"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Settings size={18} strokeWidth={1.5} />
+                Configuración de Usuarios
+              </Link>
+            </>
           )}
         </div>
 
