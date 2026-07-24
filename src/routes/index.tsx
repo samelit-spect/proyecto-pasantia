@@ -6,10 +6,9 @@ import Asistencia from '@/pages/Asistencia/Asistencia';
 import Novedades from '@/pages/Novedades/Novedades';
 import Incidentes from '@/pages/Incidentes/Incidentes';
 import Supervisor from '@/pages/Supervisor/Supervisor';
-import SupervisorDashboard from '@/pages/Supervisor/SupervisorDashboard';
-import SupervisorAttendances from '@/pages/Supervisor/SupervisorAttendances/SupervisorAttendances';
-import SupervisorNews from '@/pages/Supervisor/SupervisorNews/SupervisorNews';
-import SupervisorIncidents from '@/pages/Supervisor/SupervisorIncidents/SupervisorIncidents';
+import SupervisorSchools from '@/pages/Supervisor/SupervisorSchools';
+import SupervisorSchoolDetail from '@/pages/Supervisor/SupervisorSchoolDetail';
+import SupervisorUsers from '@/pages/Supervisor/SupervisorUsers';
 import NotFound from '@/pages/NotFound/NotFound';
 
 const router = createBrowserRouter([
@@ -43,19 +42,15 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <SupervisorDashboard />,
+            element: <SupervisorSchools />,
           },
           {
-            path: 'asistencias',
-            element: <SupervisorAttendances />,
+            path: 'escuela/:schoolId',
+            element: <SupervisorSchoolDetail />,
           },
           {
-            path: 'novedades',
-            element: <SupervisorNews />,
-          },
-          {
-            path: 'incidentes',
-            element: <SupervisorIncidents />,
+            path: 'usuarios',
+            element: <SupervisorUsers />,
           },
         ],
       },

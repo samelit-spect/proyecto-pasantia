@@ -132,8 +132,28 @@ export async function getAllAttendances(): Promise<Attendance[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
 }
 
+export async function getAllAttendancesBySchool(schoolId: string): Promise<Attendance[]> {
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
+}
+
 export async function getAllNews(): Promise<News[]> {
   const q = query(collection(db, COLLECTIONS.news), orderBy('fecha', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
+}
+
+export async function getAllNewsBySchool(schoolId: string): Promise<News[]> {
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc')
+  );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
 }
