@@ -114,6 +114,18 @@ export async function getNewsBySchool(
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as News);
 }
 
+export async function getAllAttendances(): Promise<Attendance[]> {
+  const q = query(collection(db, COLLECTIONS.attendances), orderBy('fecha', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
+}
+
+export async function getAllNews(): Promise<News[]> {
+  const q = query(collection(db, COLLECTIONS.news), orderBy('fecha', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
+}
+
 export async function addIncident(data: AddIncidentDTO): Promise<string> {
   const now = Timestamp.now();
   const docRef = await addDoc(collection(db, COLLECTIONS.incidents), {
