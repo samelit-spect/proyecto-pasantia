@@ -117,6 +117,28 @@
   color: #dc2626;
 }
 
+.supervisor-detail__user {
+  border-left: 3px solid #16a34a;
+}
+
+.supervisor-detail__user-role {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--primary-color);
+  background-color: #dbeafe;
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.supervisor-detail__user-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 640px) {
   .supervisor-detail__section-header {
     padding: 0.875rem 1rem;
