@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /escuelas/{schoolId} {
+      allow read: if request.auth != null;
+      allow create: if isSupervisor();
+      allow update, delete: if isSupervisor();
+    }
+
+    match /usuarios/{userId} {
+      allow read: if request.auth != null;
+      allow create: if isSupervisor();
+      allow update: if request.auth.uid == userId || isSupervisor();
+      allow delete: if isSupervisor();
+    }
+
+    match /asistencias/{attendanceId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    match /novedades/{newsId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    match /incidentes/{incidentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    function isSupervisor() {
+      let userData = get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+      return request.auth != null && userData.rol == 'supervisor';
+    }
+  }
+}

@@ -44,13 +44,11 @@ const COLLECTIONS = {
 } as const;
 
 export async function getSchools(): Promise<School[]> {
-  const q = query(
-    collection(db, COLLECTIONS.schools),
-    where('activa', '==', true),
-    orderBy('nombre')
-  );
+  const q = query(collection(db, COLLECTIONS.schools), where('activa', '==', true));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as School);
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as School)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 }
 
 export async function getSchoolById(schoolId: string): Promise<School | null> {
