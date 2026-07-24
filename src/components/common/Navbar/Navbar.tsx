@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Home, LogOut, Menu, X, Eye, User, Shield } from 'lucide-react';
+import {
+  Home,
+  LogOut,
+  Menu,
+  X,
+  Eye,
+  User,
+  Shield,
+  ClipboardCheck,
+  Newspaper,
+  AlertTriangle,
+} from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -81,6 +92,38 @@ const Navbar = () => {
             <Home size={18} strokeWidth={1.5} />
             Inicio
           </Link>
+
+          {hasRole('director', 'vice', 'preceptor') && (
+            <Link
+              to="/asistencia"
+              className="navbar__drawer-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <ClipboardCheck size={18} strokeWidth={1.5} />
+              Asistencia
+            </Link>
+          )}
+
+          {hasRole('director', 'vice') && (
+            <>
+              <Link
+                to="/novedades"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Newspaper size={18} strokeWidth={1.5} />
+                Novedades
+              </Link>
+              <Link
+                to="/incidentes"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <AlertTriangle size={18} strokeWidth={1.5} />
+                Incidentes
+              </Link>
+            </>
+          )}
 
           {hasRole('supervisor') && (
             <Link

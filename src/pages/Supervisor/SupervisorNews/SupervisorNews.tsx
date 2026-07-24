@@ -14,6 +14,7 @@ interface GroupedNews {
 const SupervisorNews = () => {
   const [grouped, setGrouped] = useState<GroupedNews>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const SupervisorNews = () => {
 
         setGrouped(groups);
       } catch {
-        // Error silenciado
+        setError('No se pudieron cargar las novedades. Intentá de nuevo.');
       } finally {
         setIsLoading(false);
       }
@@ -51,6 +52,10 @@ const SupervisorNews = () => {
 
   if (isLoading) {
     return <div className="supervisor-sub__loading">Cargando novedades...</div>;
+  }
+
+  if (error) {
+    return <div className="supervisor-sub__loading supervisor-sub__loading--error">{error}</div>;
   }
 
   const schoolIds = Object.keys(grouped);

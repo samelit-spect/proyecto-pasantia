@@ -41,6 +41,17 @@
   min-height: 200px;
 }
 
+.supervisor__loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.supervisor__loading--error {
+  color: #dc2626;
+}
+
 @media (max-width: 640px) {
   .supervisor__tabs {
     overflow-x: auto;

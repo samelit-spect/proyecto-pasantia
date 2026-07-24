@@ -6,6 +6,10 @@
   color: var(--text-secondary);
 }
 
+.supervisor-sub__loading--error {
+  color: #dc2626;
+}
+
 .supervisor-sub {
   display: flex;
   flex-direction: column;

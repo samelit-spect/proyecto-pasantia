@@ -24,6 +24,7 @@ const SupervisorDashboard = () => {
     escuelasCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -41,7 +42,7 @@ const SupervisorDashboard = () => {
           escuelasCount: schools.length,
         });
       } catch {
-        // Error silenciado
+        setError('No se pudieron cargar las estadísticas. Intentá de nuevo.');
       } finally {
         setIsLoading(false);
       }
@@ -52,6 +53,10 @@ const SupervisorDashboard = () => {
 
   if (isLoading) {
     return <div className="supervisor__loading">Cargando datos...</div>;
+  }
+
+  if (error) {
+    return <div className="supervisor__loading supervisor__loading--error">{error}</div>;
   }
 
   return (

@@ -17,6 +17,7 @@ const INCIDENT_STATUSES: IncidentStatus[] = ['pendiente', 'en_analisis', 'en_ges
 const SupervisorIncidents = () => {
   const [grouped, setGrouped] = useState<GroupedIncidents>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const initialized = useRef(false);
@@ -44,7 +45,7 @@ const SupervisorIncidents = () => {
 
       setGrouped(groups);
     } catch {
-      // Error silenciado
+      setError('No se pudieron cargar los incidentes. Intentá de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +74,7 @@ const SupervisorIncidents = () => {
         return next;
       });
     } catch {
-      // Error silenciado
+      setError('Error al actualizar el estado. Intentá de nuevo.');
     } finally {
       setUpdatingId(null);
     }
@@ -81,6 +82,10 @@ const SupervisorIncidents = () => {
 
   if (isLoading) {
     return <div className="supervisor-sub__loading">Cargando incidentes...</div>;
+  }
+
+  if (error) {
+    return <div className="supervisor-sub__loading supervisor-sub__loading--error">{error}</div>;
   }
 
   const schoolIds = Object.keys(grouped);
@@ -137,7 +142,7 @@ const SupervisorIncidents = () => {
                       >
                         {INCIDENT_STATUSES.map((s) => (
                           <option key={s} value={s}>
-                            {s.replace('_', ' ')}
+                            {s.replaceAll('_', ' ')}
                           </option>
                         ))}
                       </select>

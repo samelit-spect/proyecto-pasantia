@@ -13,6 +13,7 @@ interface GroupedAttendances {
 const SupervisorAttendances = () => {
   const [grouped, setGrouped] = useState<GroupedAttendances>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedSchool, setExpandedSchool] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const SupervisorAttendances = () => {
 
         setGrouped(groups);
       } catch {
-        // Error silenciado
+        setError('No se pudieron cargar las asistencias. Intentá de nuevo.');
       } finally {
         setIsLoading(false);
       }
@@ -51,6 +52,10 @@ const SupervisorAttendances = () => {
 
   if (isLoading) {
     return <div className="supervisor-sub__loading">Cargando asistencias...</div>;
+  }
+
+  if (error) {
+    return <div className="supervisor-sub__loading supervisor-sub__loading--error">{error}</div>;
   }
 
   const schoolIds = Object.keys(grouped);

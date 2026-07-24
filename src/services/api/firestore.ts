@@ -11,6 +11,18 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
+
+/**
+ * IMPORTANTE: Algunas queries en este archivo combinan where() + orderBy() en campos
+ * diferentes, lo que requiere composite indexes creados manualmente en Firebase Console.
+ * Consultas que requieren indexes:
+ * - getSchools: activa + nombre
+ * - getAttendancesBySchool: escuelaId + fecha (range) + fecha (orderBy)
+ * - getNewsBySchool: escuelaId + fecha (range) + fecha (orderBy)
+ * - getIncidentsBySchool: escuelaId + fecha (orderBy)
+ * - getIncidentsByStatus: estado + fecha (orderBy)
+ * Si una query falla, revisá la consola de Firestore para crear el index sugerido.
+ */
 import type {
   School,
   UserProfile,

@@ -26,7 +26,7 @@ const Home = () => {
       description: 'Registrar la asistencia diaria del personal de gestión.',
     });
     attendanceCards.push({
-      to: '#',
+      to: '',
       icon: <Users size={28} strokeWidth={1.5} />,
       title: 'Asistencia de Docentes',
       description: 'Registrar la asistencia diaria del cuerpo docente.',

@@ -32,7 +32,6 @@ const MainLayout = () => {
       <Navbar />
       <main
         style={{
-          paddingTop: '80px',
           maxWidth: '1200px',
           margin: '0 auto',
           padding: '80px 1rem 2rem',
