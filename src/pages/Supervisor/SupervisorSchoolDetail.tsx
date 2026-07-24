@@ -9,7 +9,6 @@ import {
 } from '@/services/api/firestore';
 import type { School, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
-import '../SupervisorAttendances/SupervisorSubPage.css';
 import './SupervisorSchoolDetail.css';
 
 const SupervisorSchoolDetail = () => {
