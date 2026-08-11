@@ -22,14 +22,14 @@
 | `unavailable` | Sin conexión | "El servicio no está disponible. Intentá más tarde" |
 | `deadline-exceeded` | Timeout | "La operación tardó demasiado. Intentá de nuevo" |
 
-### 1.3 Errores de Storage
+### 1.3 Errores de imágenes
+
+Las fotos se comprimen en el navegador y se guardan como base64 en Firestore (no hay Storage). Los errores posibles son de lectura/compresión del archivo y del límite de 1 MiB por documento.
 
 | Error | Causa | Mensaje al usuario |
 |---|---|---|
-| `storage/unauthorized` | Sin permisos | "No tenés permisos para subir archivos" |
-| `storage/canceled` | Upload cancelado | "La subida fue cancelada" |
-| `storage/quota-exceeded` | Cuota llena | "Se agotó el espacio de almacenamiento" |
-| `storage/invalid-format` | Formato inválido | "El formato del archivo no es soportado" |
+| Archivo ilegible | Archivo corrupto | "El archivo no es una imagen válida" |
+| Documento > 1 MiB | Foto demasiado grande | "La foto es demasiado grande. Intentá con una más liviana" |
 
 ## 2. Estrategia de notificación
 

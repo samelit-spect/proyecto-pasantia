@@ -9,6 +9,17 @@
 
 ### Completado en esta sesión
 
+- **Campos ampliados en Novedades e Incidentes** (validado con el cliente):
+  - Novedad: nuevo select "Tipo de novedad" (Acto, Actividad, Suspensión de clases, Evento, Otro) + campo "Hora" opcional. Se guardan `tipo` y `hora` en la colección `novedades`
+  - Incidente: nuevo select "Categoría" (Rotura edilicia, Filtración, Falla de servicio, Urgencia, Seguridad, Otro), select "Urgencia" (Baja/Media/Alta), campo "Ubicación" opcional y subida de foto opcional. Se guardan `categoria`, `urgencia`, `ubicacion`, `fotoDataUrl` en `incidentes`
+  - El Supervisor ahora muestra en el detalle de escuela: tipo + hora de cada novedad; y categoría, urgencia (con color), ubicación y foto de cada incidente
+  - Opciones centralizadas en `src/utils/constants.ts`; schemas actualizados en `src/utils/validation.ts` (novedadSchema con `tipo`, incidenteSchema con `categoria` y `urgencia` obligatorios)
+  - Tests de validación actualizados (13 tests pasando); lint 0 warnings; build OK
+- **Imágenes sin Firebase Storage (base64 en Firestore)** (decisión del cliente: no crear Storage por costo):
+  - Nueva utilidad `src/utils/image.ts` (`fileToCompressedDataUrl`): comprime la foto en el navegador (canvas, ~1024px, JPEG calidad ~0.6) y retorna un data URL
+  - Las fotos de `/fotos` se guardan como `dataUrl` en la colección `fotos`; la foto del incidente como `fotoDataUrl` en el documento del incidente (límite por documento: 1 MiB)
+  - `FotoThumb` ahora recibe `dataUrl` directa (sin Storage); se eliminó `storage.ts`, `storage.rules` y el bloque `storage` de `firebase.json`
+  - No hace falta activar Firebase Storage en la consola
 - **Rediseño del formulario de Asistencia de Gestión** (validado con el cliente):
   - Ya no depende de usuarios precargados: se divide en secciones por cargo (Director, Vice-director, Preceptores, Secretario/a, Conserje)
   - Cada fila tiene nombre editable (obligatorio solo si hay más de una persona en la sección), toggle presente/ausente y motivo obligatorio si está ausente
@@ -21,7 +32,7 @@
   - Las reglas desplegadas permiten `create` en `asistencias` → el envío de Asistencia de Gestión ya puede guardar
   - Se creó `firebase.json` + `firestore.indexes.json` en el repo
   - Se desplegaron las reglas actualizadas de Firestore (`asistencias`, `docentes`, `asistencia_docentes`, `fotos`, `novedades`, `incidentes`) y los índices compuestos necesarios (7 índices) vía `firebase deploy --project sipnam-proyecto`
-  - **Pendiente (solo para Fotos):** Firebase Storage NO está creado en el proyecto. Ir a Firebase Console → Storage → "Get Started" y elegir ubicación del bucket antes de usar la página `/fotos`
+  - Las fotos no requieren Storage: se guardan comprimidas en base64 dentro de Firestore
 
 - **Asistencia de Docentes (RF-AS-11/12/13):**
   - Nueva colección `docentes` (nombre, materia opcional, escuelaId, activo) gestionada por el Supervisor en el detalle de escuela (agregar/desactivar)
@@ -30,10 +41,9 @@
   - Doble carga bloqueada con `getDocenteAttendanceByUserAndDate` (misma regla que BR-AS-02/03/04)
   - Sección "Asistencia de Docentes" en el detalle de escuela del Supervisor (con filtros de fecha)
 - **Foto Diaria de Preceptores (RF-FO-01..04):**
-  - Página `/fotos` exclusiva para preceptores: sube la foto al Storage (`fotos/{schoolId}/{fecha}/...`) e indexa metadatos en la colección `fotos`
+  - Página `/fotos` exclusiva para preceptores: comprime la foto y la guarda como base64 (`dataUrl`) en la colección `fotos`
   - Listado de fotos por escuela+fecha, con vista previa y eliminación (solo la propia)
   - Sección "Fotos de Planillas" en el detalle de escuela del Supervisor (miniatura + fecha + autor)
-  - Nuevo archivo `storage.rules` con reglas para `fotos/`
 - **Refactor:** formulario de asistencia extraído a componente compartido `components/forms/AttendanceForm` (usado por `/asistencia` y `/asistencia-docentes`); `FotoThumb` compartido para miniaturas
 - Validación de fecha futura en todos los formularios:
   - Esquemas compartidos en `src/utils/validation.ts` (`novedadSchema`, `incidenteSchema`) con regla `fecha <= hoy`
@@ -69,7 +79,6 @@
 
 - [ ] Crear 17 escuelas en Firestore `escuelas` (o desde el panel del Supervisor con "Nueva escuela")
 - [ ] Crear los usuarios de las 17 escuelas (1 director por escuela) — ahora se puede hacer desde Configuración de Usuarios (crea cuenta en Auth + perfil en Firestore)
-- [ ] Activar Firebase Storage en la consola (Storage → "Get Started") para que funcione la página `/fotos` y luego desplegar `storage.rules` con `firebase deploy --only storage:rules --project sipnam-proyecto`
 
 ---
 

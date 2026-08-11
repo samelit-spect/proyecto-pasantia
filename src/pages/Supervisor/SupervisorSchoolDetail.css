@@ -146,6 +146,55 @@
   border-left: 3px solid var(--primary-color);
 }
 
+.supervisor-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0.375rem 0;
+}
+
+.supervisor-detail__meta-tag {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-color);
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.125rem 0.625rem;
+}
+
+.supervisor-detail__meta-tag--urgencia-alta {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.supervisor-detail__meta-tag--urgencia-media {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.supervisor-detail__meta-tag--urgencia-baja {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.supervisor-detail__incident-photo {
+  margin-top: 0.5rem;
+}
+
+.supervisor-detail__incident-photo .foto-thumb {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
 .supervisor-sub__empty {
   text-align: center;
   padding: 2rem 1rem;

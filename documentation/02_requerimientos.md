@@ -34,7 +34,7 @@
 | ID | Requerimiento |
 |---|---|
 | RF-NO-01 | El sistema debe permitir el registro de novedades institucionales mediante un formulario. |
-| RF-NO-02 | El formulario debe incluir: selección de escuela, selección de fecha y campo de descripción de la novedad. |
+| RF-NO-02 | El formulario debe incluir: selección de escuela, selección de fecha, tipo de novedad, hora (opcional) y campo de descripción. |
 | RF-NO-03 | Solo el director o vice-director pueden registrar novedades. |
 | RF-NO-04 | El Supervisor debe poder visualizar las novedades agrupadas por escuela. |
 
@@ -45,7 +45,7 @@
 | ID | Requerimiento |
 |---|---|
 | RF-IN-01 | El sistema debe permitir el registro de incidentes institucionales mediante un formulario. |
-| RF-IN-02 | El formulario debe incluir: selección de escuela, selección de fecha y campo de descripción del incidente. |
+| RF-IN-02 | El formulario debe incluir: selección de escuela, selección de fecha, categoría, urgencia, ubicación (opcional), foto (opcional) y campo de descripción del incidente. |
 | RF-IN-03 | Solo el director o vice-director pueden registrar incidentes. |
 | RF-IN-04 | El Supervisor debe poder visualizar los incidentes agrupados por escuela. |
 | RF-IN-05 | El Supervisor debe poder gestionar el estado de cada incidente: en análisis, en gestión, resuelto, pendiente. |
@@ -75,6 +75,6 @@
 | RT-03 | Sistema de rutas anidadas con soporte para layouts. | React Router v7 |
 | RT-04 | Servicio de autenticación de usuarios. | Firebase Auth |
 | RT-05 | Base de datos NoSQL para almacenamiento de registros. | Firestore |
-| RT-06 | Almacenamiento de archivos (fotos de planillas). | Firebase Storage |
+| RT-06 | Almacenamiento de archivos (fotos de planillas). | Firestore (imágenes comprimidas en base64) |
 | RT-07 | Formateo y linting del código fuente. | Prettier + ESLint |
 | RT-08 | Modelo de datos NoSQL optimizado para consultas por escuela y fecha. | Firestore collections |

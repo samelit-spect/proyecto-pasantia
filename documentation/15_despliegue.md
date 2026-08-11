@@ -102,7 +102,6 @@ Agregar las variables de Firebase en la plataforma de despliegue:
 | `VITE_FIREBASE_API_KEY` | Tu API key |
 | `VITE_FIREBASE_AUTH_DOMAIN` | Tu auth domain |
 | `VITE_FIREBASE_PROJECT_ID` | Tu project ID |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Tu storage bucket |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Tu sender ID |
 | `VITE_FIREBASE_APP_ID` | Tu app ID |
 

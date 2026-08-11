@@ -30,11 +30,7 @@
 4. Elegir ubicación (usar la más cercana al usuario)
 5. Ir a la pestaña "Rules" y pegar las reglas de `05_base_datos.md`
 
-### 3.3 Storage
-1. Ir to Build → Storage
-2. Click en "Get started"
-3. Seleccionar "Start in test mode"
-4. Configurar reglas de acceso
+> **Nota:** no se usa Firebase Storage. Las fotos se guardan comprimidas como base64 dentro de Firestore (`dataUrl` / `fotoDataUrl`).
 
 ## 4. Variables de entorno
 
@@ -44,7 +40,6 @@ Crear el archivo `.env` en la raíz del proyecto:
 VITE_FIREBASE_API_KEY=tu_api_key
 VITE_FIREBASE_AUTH_DOMAIN=tu_proyecto.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=tu_proyecto
-VITE_FIREBASE_STORAGE_BUCKET=tu_proyecto.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
 VITE_FIREBASE_APP_ID=tu_app_id
 ```
@@ -57,7 +52,6 @@ Crear también `.env.example` como referencia:
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 ```
@@ -76,13 +70,11 @@ Crear el archivo `src/services/firebase.ts`:
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
@@ -90,7 +82,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
 ```
 
 ## 7. Reglas de Firestore (copia rápida)

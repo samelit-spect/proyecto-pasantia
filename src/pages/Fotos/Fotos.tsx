@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/firestore';
-import { uploadPhoto, deletePhoto } from '@/services/api/storage';
+import { fileToCompressedDataUrl } from '@/utils/image';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
@@ -82,11 +82,11 @@ const Fotos = () => {
 
     setIsUploading(true);
     try {
-      const storagePath = await uploadPhoto(file, escuelaId, fecha);
+      const dataUrl = await fileToCompressedDataUrl(file);
       await addFoto({
         escuelaId,
         fecha,
-        storagePath,
+        dataUrl,
         nombreArchivo: file.name,
         subidoPor: user.uid,
         subidoPorNombre: profile.nombre,
@@ -107,7 +107,6 @@ const Fotos = () => {
     setDeletingId(foto.id);
 
     try {
-      await deletePhoto(foto.storagePath);
       await deleteFoto(foto.id);
       setFotos((prev) => (prev ?? []).filter((f) => f.id !== foto.id));
       setFeedback({ type: 'success', message: 'Foto eliminada.' });
@@ -169,7 +168,7 @@ const Fotos = () => {
         ) : (
           fotos.map((foto) => (
             <div key={foto.id} className="fotos__item">
-              <FotoThumb storagePath={foto.storagePath} alt={foto.nombreArchivo} />
+              <FotoThumb dataUrl={foto.dataUrl} alt={foto.nombreArchivo} />
               <div className="fotos__item-meta">
                 <span className="fotos__item-author">Subida por {foto.subidoPorNombre}</span>
                 {foto.subidoPor === user?.uid && (

@@ -9,8 +9,7 @@ Todas las interacciones con Firebase están encapsuladas en la capa de servicios
 ```
 src/services/api/
 ├── auth.ts         # Autenticación
-├── firestore.ts    # Base de datos
-└── storage.ts      # Almacenamiento de archivos
+└── firestore.ts    # Base de datos (incluye fotos como base64)
 ```
 
 ## 2. Servicio de Autenticación (`auth.ts`)
@@ -176,29 +175,15 @@ interface AddIncidentDTO {
 }
 ```
 
-## 4. Servicio de Storage (`storage.ts`)
+## 4. Utilidad de imágenes (`src/utils/image.ts`)
 
-### 4.1 Funciones
+### 4.1 Función
 
 | Función | Parámetros | Retorna | Descripción |
 |---|---|---|---|
-| `uploadPhoto` | `file: File, schoolId: string, date: string` | `Promise<string>` | Sube una foto y retorna la ruta del archivo |
-| `getPhotoUrl` | `path: string` | `Promise<string>` | Obtiene la URL pública de una foto |
-| `deletePhoto` | `path: string` | `Promise<void>` | Elimina una foto |
+| `fileToCompressedDataUrl` | `file: File, maxSize?, quality?` | `Promise<string>` | Comprime la imagen en el navegador (canvas, JPEG) y retorna un data URL base64 |
 
-### 4.2 Estructura de carpetas en Storage
-
-```
-fotos/
-└── {schoolId}/
-    └── {fecha}/
-        └── {timestamp}_{filename}
-```
-
-**Ejemplo:**
-```
-fotos/abc123/2026-07-23/1690084200000_planilla_firmada.jpg
-```
+> Las imágenes se guardan como base64 dentro de Firestore (colección `fotos` o campo `fotoDataUrl` del incidente), sin usar Firebase Storage. Límite por documento: 1 MiB.
 
 ## 5. Flujo de datos en la aplicación
 

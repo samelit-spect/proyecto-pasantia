@@ -119,6 +119,8 @@ firestore/
 |---|---|---|---|
 | `escuelaId` | string | Referencia al documento de escuela | Sí |
 | `fecha` | timestamp | Fecha de la novedad | Sí |
+| `tipo` | string | Tipo de novedad: `acto`, `actividad`, `suspension`, `evento`, `otro` | Sí |
+| `hora` | string | Hora de la actividad (formato `HH:MM`) | No |
 | `descripcion` | string | Descripción de la novedad | Sí |
 | `cargadoPor` | string | UID del usuario que registró la novedad | Sí |
 | `cargadoPorNombre` | string | Nombre del usuario que cargó | Sí |
@@ -129,6 +131,8 @@ firestore/
 {
   "escuelaId": "abc123",
   "fecha": "2026-07-23T00:00:00Z",
+  "tipo": "acto",
+  "hora": "10:00",
   "descripcion": "Se realizó el acto de inauguración del nuevo espacio de informática.",
   "cargadoPor": "user123",
   "cargadoPorNombre": "Juan Pérez",
@@ -142,6 +146,10 @@ firestore/
 |---|---|---|---|
 | `escuelaId` | string | Referencia al documento de escuela | Sí |
 | `fecha` | timestamp | Fecha del incidente | Sí |
+| `categoria` | string | Categoría: `rotura`, `filtracion`, `falla_servicio`, `urgencia`, `seguridad`, `otro` | Sí |
+| `urgencia` | string | Urgencia: `baja`, `media`, `alta` | Sí |
+| `ubicacion` | string | Lugar dentro de la escuela (aula, patio, etc.) | No |
+| `fotoDataUrl` | string | Imagen comprimida en base64 (data URL JPEG, ~1024px máx) | No |
 | `descripcion` | string | Descripción del incidente | Sí |
 | `estado` | string | Estado actual del incidente | Sí |
 | `cargadoPor` | string | UID del usuario que registró el incidente | Sí |
@@ -230,19 +238,21 @@ firestore/
 | Campo | Tipo | Descripción | Obligatorio |
 |---|---|---|---|
 | `escuelaId` | string | Referencia al documento de escuela | Sí |
-| `fecha` | string | Fecha en formato `YYYY-MM-DD` (coincide con la carpeta en Storage) | Sí |
-| `storagePath` | string | Ruta del archivo en Firebase Storage | Sí |
+| `fecha` | string | Fecha en formato `YYYY-MM-DD` | Sí |
+| `dataUrl` | string | Imagen comprimida en base64 (data URL JPEG, ~1024px máx) | Sí |
 | `nombreArchivo` | string | Nombre original del archivo | Sí |
 | `subidoPor` | string | UID del preceptor que subió la foto | Sí |
 | `subidoPorNombre` | string | Nombre del preceptor que subió | Sí |
 | `createdAt` | timestamp | Fecha de creación del documento | Sí |
+
+> **Nota:** las imágenes se guardan comprimidas como base64 dentro del documento (sin Firebase Storage). Límite por documento: 1 MiB. `src/utils/image.ts` redimensiona a ~1024px y calidad ~0.6.
 
 **Ejemplo:**
 ```json
 {
   "escuelaId": "abc123",
   "fecha": "2026-07-23",
-  "storagePath": "fotos/abc123/2026-07-23/1690084200000_planilla_firmada.jpg",
+  "dataUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
   "nombreArchivo": "planilla_firmada.jpg",
   "subidoPor": "user789",
   "subidoPorNombre": "Carlos García",

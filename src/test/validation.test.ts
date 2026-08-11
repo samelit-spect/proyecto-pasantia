@@ -13,6 +13,7 @@ describe('novedadSchema', () => {
     const result = novedadSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: todayISO(),
+      tipo: 'acto',
       descripcion: 'Acto de fin de año del establecimiento.',
     });
     expect(result.success).toBe(true);
@@ -23,6 +24,7 @@ describe('novedadSchema', () => {
     const result = novedadSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: future,
+      tipo: 'acto',
       descripcion: 'Novedad con fecha futura.',
     });
     expect(result.success).toBe(false);
@@ -32,7 +34,18 @@ describe('novedadSchema', () => {
     const result = novedadSchema.safeParse({
       escuelaId: '',
       fecha: todayISO(),
+      tipo: 'acto',
       descripcion: 'Novedad sin escuela.',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rechaza tipo de novedad vacío', () => {
+    const result = novedadSchema.safeParse({
+      escuelaId: 'escuela-1',
+      fecha: todayISO(),
+      tipo: '',
+      descripcion: 'Novedad sin tipo.',
     });
     expect(result.success).toBe(false);
   });
@@ -41,6 +54,7 @@ describe('novedadSchema', () => {
     const result = novedadSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: todayISO(),
+      tipo: 'acto',
       descripcion: 'Cort',
     });
     expect(result.success).toBe(false);
@@ -52,6 +66,8 @@ describe('incidenteSchema', () => {
     const result = incidenteSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: todayISO(),
+      categoria: 'rotura',
+      urgencia: 'media',
       descripcion: 'Filtración de agua en el techo del aula 3.',
     });
     expect(result.success).toBe(true);
@@ -61,7 +77,31 @@ describe('incidenteSchema', () => {
     const result = incidenteSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: '2999-01-01',
+      categoria: 'rotura',
+      urgencia: 'media',
       descripcion: 'Incidente con fecha futura.',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rechaza categoría vacía', () => {
+    const result = incidenteSchema.safeParse({
+      escuelaId: 'escuela-1',
+      fecha: todayISO(),
+      categoria: '',
+      urgencia: 'media',
+      descripcion: 'Incidente sin categoría.',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rechaza urgencia vacía', () => {
+    const result = incidenteSchema.safeParse({
+      escuelaId: 'escuela-1',
+      fecha: todayISO(),
+      categoria: 'rotura',
+      urgencia: '',
+      descripcion: 'Incidente sin urgencia.',
     });
     expect(result.success).toBe(false);
   });
@@ -70,6 +110,8 @@ describe('incidenteSchema', () => {
     const result = incidenteSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: todayISO(),
+      categoria: 'rotura',
+      urgencia: 'media',
       descripcion: 'Muy corta',
     });
     expect(result.success).toBe(false);
@@ -79,6 +121,8 @@ describe('incidenteSchema', () => {
     const result = incidenteSchema.safeParse({
       escuelaId: 'escuela-1',
       fecha: todayISO(),
+      categoria: 'rotura',
+      urgencia: 'media',
       descripcion: 'a'.repeat(1001),
     });
     expect(result.success).toBe(false);

@@ -16,6 +16,8 @@ const fechaRule = z
 export const novedadSchema = z.object({
   escuelaId: z.string().min(1, 'Seleccioná una escuela'),
   fecha: fechaRule,
+  tipo: z.string().min(1, 'Seleccioná un tipo de novedad'),
+  hora: z.string().optional(),
   descripcion: z
     .string()
     .min(5, 'La descripción debe tener al menos 5 caracteres')
@@ -25,6 +27,9 @@ export const novedadSchema = z.object({
 export const incidenteSchema = z.object({
   escuelaId: z.string().min(1, 'Seleccioná una escuela'),
   fecha: fechaRule,
+  categoria: z.string().min(1, 'Seleccioná una categoría'),
+  urgencia: z.string().min(1, 'Seleccioná la urgencia'),
+  ubicacion: z.string().max(100, 'Máximo 100 caracteres').optional(),
   descripcion: z
     .string()
     .min(10, 'La descripción debe tener al menos 10 caracteres')

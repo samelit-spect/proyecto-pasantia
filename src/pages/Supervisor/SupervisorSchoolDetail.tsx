@@ -28,6 +28,7 @@ import type {
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
+import { novedadTipoLabel, incidentCategoriaLabel, incidentUrgenciaLabel } from '@/utils/constants';
 import './SupervisorSchoolDetail.css';
 
 const SupervisorSchoolDetail = () => {
@@ -373,10 +374,16 @@ const SupervisorSchoolDetail = () => {
                         {n.fecha.toDate().toLocaleDateString('es-AR')}
                       </span>
                       <span className="supervisor-sub__record-author">
-                        Cargado por: {n.cargadoPorNombre}
+                        {novedadTipoLabel(n.tipo)}
+                        {n.hora ? ` · ${n.hora}` : ''}
                       </span>
                     </div>
                     <p className="supervisor-detail__desc">{n.descripcion}</p>
+                    <div className="supervisor-detail__meta">
+                      <span className="supervisor-sub__record-author">
+                        Cargado por: {n.cargadoPorNombre}
+                      </span>
+                    </div>
                   </div>
                 ))
               )}
@@ -414,7 +421,29 @@ const SupervisorSchoolDetail = () => {
                       </span>
                       <StatusBadge status={inc.estado} />
                     </div>
+                    <div className="supervisor-detail__meta">
+                      <span className="supervisor-detail__meta-tag">
+                        {incidentCategoriaLabel(inc.categoria)}
+                      </span>
+                      {inc.urgencia && (
+                        <span
+                          className={`supervisor-detail__meta-tag supervisor-detail__meta-tag--urgencia-${inc.urgencia}`}
+                        >
+                          Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+                        </span>
+                      )}
+                      {inc.ubicacion && (
+                        <span className="supervisor-detail__meta-tag">
+                          Ubicación: {inc.ubicacion}
+                        </span>
+                      )}
+                    </div>
                     <p className="supervisor-detail__desc">{inc.descripcion}</p>
+                    {inc.fotoDataUrl && (
+                      <div className="supervisor-detail__incident-photo">
+                        <FotoThumb dataUrl={inc.fotoDataUrl} alt="Foto del incidente" />
+                      </div>
+                    )}
                     <div className="supervisor-detail__incident-footer">
                       <span className="supervisor-sub__record-author">
                         Cargado por: {inc.cargadoPorNombre}
@@ -591,7 +620,7 @@ const SupervisorSchoolDetail = () => {
                 <div className="supervisor-detail__fotos-grid">
                   {filteredFotos.map((foto) => (
                     <div key={foto.id} className="supervisor-detail__foto">
-                      <FotoThumb storagePath={foto.storagePath} alt={foto.nombreArchivo} />
+                      <FotoThumb dataUrl={foto.dataUrl} alt={foto.nombreArchivo} />
                       <div className="supervisor-detail__foto-meta">
                         <span className="supervisor-sub__record-date">
                           {foto.fecha.split('-').reverse().join('/')}

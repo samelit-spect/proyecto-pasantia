@@ -18,7 +18,7 @@
 │                                                         │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │              Services (Firebase)                  │   │
-│  │  auth.ts  │  firestore.ts  │  storage.ts         │   │
+│  │  auth.ts  │  firestore.ts                        │   │
 │  └──────────────────────────────────────────────────┘   │
 └─────────────────────────┬───────────────────────────────┘
                           │
@@ -26,15 +26,13 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    FIREBASE (BaaS)                      │
 │                                                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
-│  │   Auth   │  │ Firestore│  │ Storage  │              │
-│  │          │  │          │  │          │              │
-│  │ Login    │  │ escuelas │  │ fotos    │              │
-│  │ Roles    │  │ usuarios │  │ planillas│              │
-│  │ Sesión   │  │ asistenc.│  │          │              │
-│  │          │  │ novedades│  │          │              │
-│  │          │  │ incident.│  │          │              │
-│  └──────────┘  └──────────┘  └──────────┘              │
+│  ┌──────────┐  ┌──────────────────────────────────────┐ │
+│  │   Auth   │  │ Firestore                            │ │
+│  │          │  │ escuelas, usuarios, asistenc.,        │ │
+│  │ Login    │  │ novedades, incidentes, docentes,      │ │
+│  │ Roles    │  │ asistencia_docentes, fotos (base64)   │ │
+│  │ Sesión   │  │                                      │ │
+│  └──────────┘  └──────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -47,8 +45,7 @@
 | Bundler | Vite | ^8.1.1 | Desarrollo y empaquetado |
 | Routing | React Router | ^7.18.1 | Navegación entre vistas |
 | Autenticación | Firebase Auth | — | Login y control de acceso |
-| Base de datos | Firestore | — | Almacenamiento NoSQL |
-| Almacenamiento | Firebase Storage | — | Archivos (fotos de planillas) |
+| Base de datos | Firestore | — | Almacenamiento NoSQL (incluye fotos en base64) |
 | Linting | ESLint | ^10.6.0 | Análisis estático del código |
 | Formateo | Prettier | ^3.9.6 | Formato consistente del código |
 | Estilos | CSS puro | — | Custom properties + BEM |
@@ -88,8 +85,7 @@ src/
 ├── services/                   # Capa de acceso a Firebase
 │   └── api/
 │       ├── auth.ts             # Login, logout, sesión
-│       ├── firestore.ts        # CRUD de colecciones
-│       └── storage.ts          # Upload/download de archivos
+│       └── firestore.ts        # CRUD de colecciones (fotos como base64)
 │
 ├── styles/                     # Estilos globales
 │   └── global.css              # Variables CSS y reset base
@@ -142,7 +138,7 @@ src/
 |---|---|---|
 | `auth.ts` | `login()`, `logout()`, `onAuthStateChanged()` | Autenticación con Firebase Auth |
 | `firestore.ts` | `getAttendances()`, `addAttendance()`, `getNews()`, `addNews()`, `getIncidents()`, `addIncident()`, `updateIncidentStatus()` | CRUD de Firestore |
-| `storage.ts` | `uploadPhoto()`, `getPhotoUrl()` | Gestión de fotos en Firebase Storage |
+| `utils/image.ts` | `fileToCompressedDataUrl()` | Comprime fotos a base64 para guardarlas en Firestore |
 
 ## 5. Flujo de datos
 
@@ -248,11 +244,9 @@ firestore/
         └── ...
 ```
 
-### 6.3 Firebase Storage
+### 6.3 Imágenes
 
-| Ruta | Contenido |
-|---|---|
-| `fotos/{schoolId}/{fecha}/` | Fotos de planillas firmadas de asistencia |
+Las fotos (planillas de `/fotos` y fotos de incidentes) se guardan comprimidas como **base64 dentro de Firestore** (`dataUrl` / `fotoDataUrl`), sin usar Firebase Storage. Compresión en `src/utils/image.ts` (~1024px, JPEG calidad ~0.6). Límite por documento: 1 MiB.
 
 ## 7. Modelo de autenticación y roles
 

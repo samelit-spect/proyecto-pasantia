@@ -7,6 +7,8 @@ import { addNews } from '@/services/api/firestore';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { novedadSchema } from '@/utils/validation';
+import { NOVEDAD_TIPOS } from '@/utils/constants';
+import type { NovedadTipo } from '@/types';
 import './Novedades.css';
 
 type NewsFormData = z.infer<typeof novedadSchema>;
@@ -28,6 +30,8 @@ const Novedades = () => {
     defaultValues: {
       escuelaId: '',
       fecha: new Date().toISOString().split('T')[0],
+      tipo: '',
+      hora: '',
       descripcion: '',
     },
   });
@@ -41,6 +45,8 @@ const Novedades = () => {
       await addNews({
         escuelaId: data.escuelaId,
         fecha: new Date(data.fecha),
+        tipo: data.tipo as NovedadTipo,
+        hora: data.hora || undefined,
         descripcion: data.descripcion,
         cargadoPor: user.uid,
         cargadoPorNombre: profile.nombre,
@@ -86,6 +92,31 @@ const Novedades = () => {
               </div>
             )}
           />
+        </div>
+
+        <div className="novedades__row">
+          <div className="novedades__field">
+            <label htmlFor="tipo" className="novedades__label">
+              Tipo de novedad
+            </label>
+            <select id="tipo" className="novedades__select" {...register('tipo')}>
+              <option value="">Seleccioná un tipo</option>
+              {NOVEDAD_TIPOS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            {errors.tipo && <span className="novedades__error">{errors.tipo.message}</span>}
+          </div>
+
+          <div className="novedades__field">
+            <label htmlFor="hora" className="novedades__label">
+              Hora (opcional)
+            </label>
+            <input id="hora" type="time" className="novedades__input" {...register('hora')} />
+            {errors.hora && <span className="novedades__error">{errors.hora.message}</span>}
+          </div>
         </div>
 
         <div className="novedades__field">

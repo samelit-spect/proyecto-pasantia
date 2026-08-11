@@ -4,9 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addIncident } from '@/services/api/firestore';
+import { fileToCompressedDataUrl } from '@/utils/image';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { incidenteSchema } from '@/utils/validation';
+import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS } from '@/utils/constants';
+import type { IncidentCategoria, IncidentUrgencia } from '@/types';
 import './Incidentes.css';
 
 type IncidentFormData = z.infer<typeof incidenteSchema>;
@@ -16,6 +19,8 @@ const Incidentes = () => {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
+  const [foto, setFoto] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const {
     register,
@@ -28,19 +33,38 @@ const Incidentes = () => {
     defaultValues: {
       escuelaId: '',
       fecha: new Date().toISOString().split('T')[0],
+      categoria: '',
+      urgencia: '',
+      ubicacion: '',
       descripcion: '',
     },
   });
 
   const descripcion = useWatch({ control, name: 'descripcion' }) || '';
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFoto(file);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(file ? URL.createObjectURL(file) : null);
+  };
+
   const onSubmit = async (data: IncidentFormData) => {
     if (!user || !profile) return;
 
     try {
+      let fotoDataUrl: string | undefined;
+      if (foto) {
+        fotoDataUrl = await fileToCompressedDataUrl(foto);
+      }
+
       await addIncident({
         escuelaId: data.escuelaId,
         fecha: new Date(data.fecha),
+        categoria: data.categoria as IncidentCategoria,
+        urgencia: data.urgencia as IncidentUrgencia,
+        ubicacion: data.ubicacion || undefined,
+        fotoDataUrl,
         descripcion: data.descripcion,
         cargadoPor: user.uid,
         cargadoPorNombre: profile.nombre,
@@ -48,6 +72,9 @@ const Incidentes = () => {
 
       setFeedback({ type: 'success', message: 'Incidente registrado correctamente.' });
       reset();
+      setFoto(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
       setTimeout(() => setFeedback(null), 3000);
     } catch {
       setFeedback({ type: 'error', message: 'Error al registrar el incidente. Intentá de nuevo.' });
@@ -88,6 +115,58 @@ const Incidentes = () => {
           />
         </div>
 
+        <div className="incidentes__row">
+          <div className="incidentes__field">
+            <label htmlFor="categoria" className="incidentes__label">
+              Categoría del incidente
+            </label>
+            <select id="categoria" className="incidentes__select" {...register('categoria')}>
+              <option value="">Seleccioná una categoría</option>
+              {INCIDENT_CATEGORIAS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+            {errors.categoria && (
+              <span className="incidentes__error">{errors.categoria.message}</span>
+            )}
+          </div>
+
+          <div className="incidentes__field">
+            <label htmlFor="urgencia" className="incidentes__label">
+              Urgencia
+            </label>
+            <select id="urgencia" className="incidentes__select" {...register('urgencia')}>
+              <option value="">Seleccioná la urgencia</option>
+              {INCIDENT_URGENCIAS.map((u) => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </select>
+            {errors.urgencia && (
+              <span className="incidentes__error">{errors.urgencia.message}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="incidentes__field">
+          <label htmlFor="ubicacion" className="incidentes__label">
+            Ubicación (opcional)
+          </label>
+          <input
+            id="ubicacion"
+            className="incidentes__input"
+            type="text"
+            placeholder="Ej: Aula 3, patio, baños, techos..."
+            {...register('ubicacion')}
+          />
+          {errors.ubicacion && (
+            <span className="incidentes__error">{errors.ubicacion.message}</span>
+          )}
+        </div>
+
         <div className="incidentes__field">
           <label htmlFor="descripcion" className="incidentes__label">
             Descripción del incidente
@@ -105,6 +184,22 @@ const Incidentes = () => {
             )}
             <span className="incidentes__charcount">{descripcion.length}/1000</span>
           </div>
+        </div>
+
+        <div className="incidentes__field">
+          <label htmlFor="foto" className="incidentes__label">
+            Foto del incidente (opcional)
+          </label>
+          <input
+            id="foto"
+            className="incidentes__file"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          {preview && (
+            <img className="incidentes__preview" src={preview} alt="Vista previa del incidente" />
+          )}
         </div>
 
         {feedback && (

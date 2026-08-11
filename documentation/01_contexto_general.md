@@ -171,7 +171,7 @@ Desarrollar una plataforma web que permita digitalizar y centralizar la gestión
 |---|---|
 | Frontend | React 19 + TypeScript + Vite 8 |
 | Routing | React Router v7 |
-| Backend / BaaS | Firebase (Firestore, Auth, Storage) |
+| Backend / BaaS | Firebase (Firestore, Auth) |
 | Estilos | CSS personalizado con variables (custom properties) |
 | Formateo | Prettier + ESLint |
 

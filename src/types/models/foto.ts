@@ -4,7 +4,7 @@ export interface Foto {
   id: string;
   escuelaId: string;
   fecha: string;
-  storagePath: string;
+  dataUrl: string;
   nombreArchivo: string;
   subidoPor: string;
   subidoPorNombre: string;
@@ -14,7 +14,7 @@ export interface Foto {
 export interface AddFotoDTO {
   escuelaId: string;
   fecha: string;
-  storagePath: string;
+  dataUrl: string;
   nombreArchivo: string;
   subidoPor: string;
   subidoPorNombre: string;

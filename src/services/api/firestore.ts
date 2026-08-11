@@ -170,6 +170,8 @@ export async function addNews(data: AddNewsDTO): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS.news), {
     escuelaId: data.escuelaId,
     fecha: Timestamp.fromDate(data.fecha),
+    tipo: data.tipo,
+    hora: data.hora || '',
     descripcion: data.descripcion,
     cargadoPor: data.cargadoPor,
     cargadoPorNombre: data.cargadoPorNombre,
@@ -231,6 +233,10 @@ export async function addIncident(data: AddIncidentDTO): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS.incidents), {
     escuelaId: data.escuelaId,
     fecha: Timestamp.fromDate(data.fecha),
+    categoria: data.categoria,
+    urgencia: data.urgencia,
+    ubicacion: data.ubicacion || '',
+    fotoDataUrl: data.fotoDataUrl || '',
     descripcion: data.descripcion,
     estado: 'pendiente' as IncidentStatus,
     cargadoPor: data.cargadoPor,
@@ -357,7 +363,7 @@ export async function addFoto(data: AddFotoDTO): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS.fotos), {
     escuelaId: data.escuelaId,
     fecha: data.fecha,
-    storagePath: data.storagePath,
+    dataUrl: data.dataUrl,
     nombreArchivo: data.nombreArchivo,
     subidoPor: data.subidoPor,
     subidoPorNombre: data.subidoPorNombre,
