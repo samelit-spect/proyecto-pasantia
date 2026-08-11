@@ -6,6 +6,7 @@ import ConnectionBanner from '@/components/common/ConnectionBanner/ConnectionBan
 const PROTECTED_ROUTES = [
   '/asistencia',
   '/asistencia-docentes',
+  '/historial',
   '/fotos',
   '/novedades',
   '/incidentes',

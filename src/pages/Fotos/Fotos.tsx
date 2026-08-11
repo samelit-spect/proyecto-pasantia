@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
@@ -15,20 +15,20 @@ const Fotos = () => {
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [file, setFile] = useState<File | null>(null);
   const [fotos, setFotos] = useState<Foto[] | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
+  const [listError, setListError] = useState<string | null>(null);
+  const mounted = useRef(true);
 
-  const fetchFotos = useCallback(async (schoolId: string, date: string) => {
-    setFotos(null);
-    try {
-      const data = await getFotosBySchoolAndDate(schoolId, date);
-      setFotos(data);
-    } catch {
-      setFotos([]);
-    }
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -37,16 +37,20 @@ const Fotos = () => {
     let cancelled = false;
     getFotosBySchoolAndDate(escuelaId, fecha)
       .then((data) => {
-        if (!cancelled) setFotos(data);
+        if (cancelled || !mounted.current) return;
+        setFotos(data);
+        setListError(null);
       })
       .catch(() => {
-        if (!cancelled) setFotos([]);
+        if (cancelled || !mounted.current) return;
+        setFotos([]);
+        setListError('No se pudieron cargar las fotos. Revisá tu conexión e intentá de nuevo.');
       });
 
     return () => {
       cancelled = true;
     };
-  }, [escuelaId, fecha]);
+  }, [escuelaId, fecha, refreshKey]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0] || null;
@@ -93,7 +97,7 @@ const Fotos = () => {
       });
       setFile(null);
       setFeedback({ type: 'success', message: 'Foto subida correctamente.' });
-      await fetchFotos(escuelaId, fecha);
+      setRefreshKey((k) => k + 1);
       setTimeout(() => setFeedback(null), 3000);
     } catch {
       setFeedback({ type: 'error', message: 'Error al subir la foto. Intentá de nuevo.' });
@@ -155,6 +159,12 @@ const Fotos = () => {
       {feedback && (
         <div className={`fotos__feedback fotos__feedback--${feedback.type}`} role="alert">
           {feedback.message}
+        </div>
+      )}
+
+      {listError && (
+        <div className="fotos__feedback fotos__feedback--error" role="alert">
+          {listError}
         </div>
       )}
 

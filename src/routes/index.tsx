@@ -27,6 +27,10 @@ const router = createBrowserRouter([
         lazy: () => load(() => import('@/pages/AsistenciaDocentes/AsistenciaDocentes')),
       },
       {
+        path: 'historial',
+        lazy: () => load(() => import('@/pages/Historial/Historial')),
+      },
+      {
         path: 'fotos',
         lazy: () => load(() => import('@/pages/Fotos/Fotos')),
       },

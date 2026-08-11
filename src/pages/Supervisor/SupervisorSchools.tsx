@@ -4,9 +4,9 @@ import { School, Settings, Plus, X, ClipboardCheck, Newspaper, AlertTriangle } f
 import {
   getSchools,
   addSchool,
-  getAllAttendances,
-  getAllNews,
-  getAllIncidents,
+  getTodayAttendances,
+  getTodayNews,
+  getTodayIncidents,
 } from '@/services/api/firestore';
 import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
@@ -36,19 +36,15 @@ const SupervisorSchools = () => {
     try {
       const [schoolsData, attendancesData, newsData, incidentsData] = await Promise.all([
         getSchools(),
-        getAllAttendances(),
-        getAllNews(),
-        getAllIncidents(),
+        getTodayAttendances(),
+        getTodayNews(),
+        getTodayIncidents(),
       ]);
       setSchools(schoolsData);
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const isToday = (d: Date) => d >= today;
-
-      setRecentAttendances(attendancesData.filter((a) => isToday(a.fecha.toDate())).slice(0, 10));
-      setRecentNews(newsData.filter((n) => isToday(n.fecha.toDate())).slice(0, 10));
-      setRecentIncidents(incidentsData.filter((i) => isToday(i.fecha.toDate())).slice(0, 10));
+      setRecentAttendances(attendancesData.slice(0, 10));
+      setRecentNews(newsData.slice(0, 10));
+      setRecentIncidents(incidentsData.slice(0, 10));
     } catch {
       setError('No se pudieron cargar los datos. Intentá de nuevo.');
     } finally {

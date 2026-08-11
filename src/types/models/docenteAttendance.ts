@@ -15,6 +15,10 @@ export interface DocenteAttendance {
   cargadoPorNombre: string;
   registros: DocenteAttendanceRecord[];
   createdAt: Timestamp;
+  verificada?: boolean;
+  verificadoPor?: string;
+  verificadoPorNombre?: string;
+  verificadoEn?: Timestamp;
 }
 
 export interface AddDocenteAttendanceDTO {

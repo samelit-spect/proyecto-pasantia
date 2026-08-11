@@ -15,6 +15,10 @@ export interface Attendance {
   cargadoPorNombre: string;
   registros: AttendanceRecord[];
   createdAt: Timestamp;
+  verificada?: boolean;
+  verificadoPor?: string;
+  verificadoPorNombre?: string;
+  verificadoEn?: Timestamp;
 }
 
 export interface AddAttendanceDTO {

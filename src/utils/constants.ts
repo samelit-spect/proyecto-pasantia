@@ -1,4 +1,4 @@
-import type { NovedadTipo, IncidentCategoria, IncidentUrgencia } from '@/types';
+import type { NovedadTipo, IncidentCategoria, IncidentUrgencia, IncidentStatus } from '@/types';
 
 export const NOVEDAD_TIPOS: { value: NovedadTipo; label: string }[] = [
   { value: 'acto', label: 'Acto' },
@@ -33,4 +33,18 @@ export function incidentCategoriaLabel(categoria?: IncidentCategoria): string {
 
 export function incidentUrgenciaLabel(urgencia?: IncidentUrgencia): string {
   return INCIDENT_URGENCIAS.find((u) => u.value === urgencia)?.label ?? '';
+}
+
+export const INCIDENT_STATUS_ORDER: IncidentStatus[] = [
+  'pendiente',
+  'en_analisis',
+  'en_gestion',
+  'resuelto',
+];
+
+export function canTransitionIncidentStatus(
+  current: IncidentStatus,
+  next: IncidentStatus
+): boolean {
+  return INCIDENT_STATUS_ORDER.indexOf(next) > INCIDENT_STATUS_ORDER.indexOf(current);
 }

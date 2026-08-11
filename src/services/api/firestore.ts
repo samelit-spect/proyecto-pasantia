@@ -10,6 +10,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
@@ -22,7 +23,6 @@ import { db } from '@/services/firebase';
  * - getAttendancesBySchool: escuelaId + fecha (range) + fecha (orderBy)
  * - getNewsBySchool: escuelaId + fecha (range) + fecha (orderBy)
  * - getIncidentsBySchool: escuelaId + fecha (orderBy)
- * - getIncidentsByStatus: estado + fecha (orderBy)
  * - getDocenteAttendancesBySchool: escuelaId + fecha (orderBy)
  * - getFotosBySchool: escuelaId + createdAt (orderBy)
  * Si una query falla, revisá la consola de Firestore para crear el index sugerido.
@@ -130,9 +130,29 @@ export async function addAttendance(data: AddAttendanceDTO): Promise<string> {
     cargadoPor: data.cargadoPor,
     cargadoPorNombre: data.cargadoPorNombre,
     registros: data.registros,
+    verificada: false,
     createdAt: Timestamp.now(),
   });
   return docRef.id;
+}
+
+export async function setAttendanceVerified(
+  attendanceId: string,
+  verified: boolean,
+  verifier: { uid: string; nombre: string }
+): Promise<void> {
+  const docRef = doc(db, COLLECTIONS.attendances, attendanceId);
+  const update: Record<string, unknown> = { verificada: verified };
+  if (verified) {
+    update.verificadoPor = verifier.uid;
+    update.verificadoPorNombre = verifier.nombre;
+    update.verificadoEn = Timestamp.now();
+  } else {
+    update.verificadoPor = null;
+    update.verificadoPorNombre = null;
+    update.verificadoEn = null;
+  }
+  await updateDoc(docRef, update);
 }
 
 export async function getAttendanceByUserAndDate(
@@ -196,33 +216,68 @@ export async function getNewsBySchool(
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as News);
 }
 
-export async function getAllAttendances(): Promise<Attendance[]> {
-  const q = query(collection(db, COLLECTIONS.attendances), orderBy('fecha', 'desc'));
+export async function getTodayAttendances(): Promise<Attendance[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
+}
+
+export async function getTodayNews(): Promise<News[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
+}
+
+export async function getTodayIncidents(): Promise<Incident[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident);
+}
+
+export async function getRecentIncidents(max = 20): Promise<Incident[]> {
+  const q = query(collection(db, COLLECTIONS.incidents), orderBy('fecha', 'desc'), limit(max));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Incident);
 }
 
 export async function getAllAttendancesBySchool(schoolId: string): Promise<Attendance[]> {
   const q = query(
     collection(db, COLLECTIONS.attendances),
     where('escuelaId', '==', schoolId),
-    orderBy('fecha', 'desc')
+    orderBy('fecha', 'desc'),
+    limit(100)
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
-}
-
-export async function getAllNews(): Promise<News[]> {
-  const q = query(collection(db, COLLECTIONS.news), orderBy('fecha', 'desc'));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
 }
 
 export async function getAllNewsBySchool(schoolId: string): Promise<News[]> {
   const q = query(
     collection(db, COLLECTIONS.news),
     where('escuelaId', '==', schoolId),
-    orderBy('fecha', 'desc')
+    orderBy('fecha', 'desc'),
+    limit(100)
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
@@ -247,28 +302,23 @@ export async function addIncident(data: AddIncidentDTO): Promise<string> {
   return docRef.id;
 }
 
-export async function getIncidentsBySchool(schoolId: string): Promise<Incident[]> {
-  const q = query(
-    collection(db, COLLECTIONS.incidents),
-    where('escuelaId', '==', schoolId),
-    orderBy('fecha', 'desc')
-  );
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Incident);
-}
-
-export async function getAllIncidents(): Promise<Incident[]> {
-  const q = query(collection(db, COLLECTIONS.incidents), orderBy('fecha', 'desc'));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Incident);
-}
-
-export async function getIncidentsByStatus(status: IncidentStatus): Promise<Incident[]> {
-  const q = query(
-    collection(db, COLLECTIONS.incidents),
-    where('estado', '==', status),
-    orderBy('fecha', 'desc')
-  );
+export async function getIncidentsBySchool(
+  schoolId: string,
+  startDate?: Date,
+  endDate?: Date
+): Promise<Incident[]> {
+  const base = collection(db, COLLECTIONS.incidents);
+  const q =
+    startDate && endDate
+      ? query(
+          base,
+          where('escuelaId', '==', schoolId),
+          where('fecha', '>=', Timestamp.fromDate(startDate)),
+          where('fecha', '<=', Timestamp.fromDate(endDate)),
+          orderBy('fecha', 'desc'),
+          limit(100)
+        )
+      : query(base, where('escuelaId', '==', schoolId), orderBy('fecha', 'desc'), limit(100));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Incident);
 }
@@ -294,7 +344,7 @@ export async function getDocentesBySchool(schoolId: string): Promise<Docente[]> 
 }
 
 export async function getAllDocentes(): Promise<Docente[]> {
-  const q = query(collection(db, COLLECTIONS.docentes), orderBy('nombre'));
+  const q = query(collection(db, COLLECTIONS.docentes), orderBy('nombre'), limit(300));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Docente);
 }
@@ -321,9 +371,29 @@ export async function addDocenteAttendance(data: AddDocenteAttendanceDTO): Promi
     cargadoPor: data.cargadoPor,
     cargadoPorNombre: data.cargadoPorNombre,
     registros: data.registros,
+    verificada: false,
     createdAt: Timestamp.now(),
   });
   return docRef.id;
+}
+
+export async function setDocenteAttendanceVerified(
+  attendanceId: string,
+  verified: boolean,
+  verifier: { uid: string; nombre: string }
+): Promise<void> {
+  const docRef = doc(db, COLLECTIONS.docenteAttendances, attendanceId);
+  const update: Record<string, unknown> = { verificada: verified };
+  if (verified) {
+    update.verificadoPor = verifier.uid;
+    update.verificadoPorNombre = verifier.nombre;
+    update.verificadoEn = Timestamp.now();
+  } else {
+    update.verificadoPor = null;
+    update.verificadoPorNombre = null;
+    update.verificadoEn = null;
+  }
+  await updateDoc(docRef, update);
 }
 
 export async function getDocenteAttendanceByUserAndDate(
@@ -342,19 +412,22 @@ export async function getDocenteAttendanceByUserAndDate(
 }
 
 export async function getDocenteAttendancesBySchool(
-  schoolId: string
+  schoolId: string,
+  startDate?: Date,
+  endDate?: Date
 ): Promise<DocenteAttendance[]> {
-  const q = query(
-    collection(db, COLLECTIONS.docenteAttendances),
-    where('escuelaId', '==', schoolId),
-    orderBy('fecha', 'desc')
-  );
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance);
-}
-
-export async function getAllDocenteAttendances(): Promise<DocenteAttendance[]> {
-  const q = query(collection(db, COLLECTIONS.docenteAttendances), orderBy('fecha', 'desc'));
+  const base = collection(db, COLLECTIONS.docenteAttendances);
+  const q =
+    startDate && endDate
+      ? query(
+          base,
+          where('escuelaId', '==', schoolId),
+          where('fecha', '>=', Timestamp.fromDate(startDate)),
+          where('fecha', '<=', Timestamp.fromDate(endDate)),
+          orderBy('fecha', 'desc'),
+          limit(100)
+        )
+      : query(base, where('escuelaId', '==', schoolId), orderBy('fecha', 'desc'), limit(100));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance);
 }
@@ -391,7 +464,8 @@ export async function getFotosBySchool(schoolId: string): Promise<Foto[]> {
   const q = query(
     collection(db, COLLECTIONS.fotos),
     where('escuelaId', '==', schoolId),
-    orderBy('createdAt', 'desc')
+    orderBy('createdAt', 'desc'),
+    limit(100)
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto);

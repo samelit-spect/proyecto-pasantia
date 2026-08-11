@@ -7,14 +7,14 @@ import {
   Newspaper,
   AlertTriangle,
   Eye,
-  School,
   Settings,
   Camera,
 } from 'lucide-react';
 import {
-  getAllAttendances,
-  getAllNews,
-  getAllIncidents,
+  getTodayAttendances,
+  getTodayNews,
+  getTodayIncidents,
+  getRecentIncidents,
   getSchools,
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident } from '@/types';
@@ -26,7 +26,6 @@ interface CardItem {
   icon: React.ReactNode;
   title: string;
   description: string;
-  disabled?: boolean;
 }
 
 const Home = () => {
@@ -37,6 +36,8 @@ const Home = () => {
   const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
   const [recentNews, setRecentNews] = useState<News[]>([]);
   const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
+  const [openIncidents, setOpenIncidents] = useState<Incident[]>([]);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hasRole('supervisor') || initialized.current) return;
@@ -44,28 +45,37 @@ const Home = () => {
 
     const loadData = async () => {
       try {
-        const [schools, attendances, news, incidents] = await Promise.all([
+        const [schools, attendances, news, incidents, recent] = await Promise.all([
           getSchools(),
-          getAllAttendances(),
-          getAllNews(),
-          getAllIncidents(),
+          getTodayAttendances(),
+          getTodayNews(),
+          getTodayIncidents(),
+          getRecentIncidents(20),
         ]);
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const isToday = (d: Date) => d >= today;
 
         setStats({
           escuelas: schools.length,
-          asistencias: attendances.filter((a) => isToday(a.fecha.toDate())).length,
-          novedades: news.filter((n) => isToday(n.fecha.toDate())).length,
-          incidentes: incidents.filter((i) => isToday(i.fecha.toDate())).length,
+          asistencias: attendances.length,
+          novedades: news.length,
+          incidentes: incidents.length,
         });
-        setRecentAttendances(attendances.filter((a) => isToday(a.fecha.toDate())).slice(0, 5));
-        setRecentNews(news.filter((n) => isToday(n.fecha.toDate())).slice(0, 5));
-        setRecentIncidents(incidents.filter((i) => isToday(i.fecha.toDate())).slice(0, 5));
+        setRecentAttendances(attendances.slice(0, 5));
+        setRecentNews(news.slice(0, 5));
+        setRecentIncidents(incidents.slice(0, 5));
+
+        const open = recent
+          .filter((i) => i.estado !== 'resuelto')
+          .sort((a, b) => {
+            const urgenciaOrder = { alta: 0, media: 1, baja: 2 };
+            return (
+              (urgenciaOrder[a.urgencia ?? 'baja'] ?? 3) -
+              (urgenciaOrder[b.urgencia ?? 'baja'] ?? 3)
+            );
+          })
+          .slice(0, 5);
+        setOpenIncidents(open);
       } catch {
-        // Error silenciado
+        setStatsError('No se pudieron cargar los datos. Revisá tu conexión e intentá de nuevo.');
       }
     };
 
@@ -87,6 +97,12 @@ const Home = () => {
       icon: <Users size={28} strokeWidth={1.5} />,
       title: 'Asistencia de Docentes',
       description: 'Registrar la asistencia diaria del cuerpo docente.',
+    });
+    attendanceCards.push({
+      to: '/historial',
+      icon: <Eye size={28} strokeWidth={1.5} />,
+      title: 'Historial',
+      description: 'Consultar asistencias, novedades e incidentes cargados.',
     });
   }
 
@@ -114,31 +130,16 @@ const Home = () => {
     });
   }
 
-  const renderCard = (card: CardItem) => {
-    if (card.disabled) {
-      return (
-        <div key={card.title} className="home__card home__card--disabled">
-          <div className="home__card-icon">{card.icon}</div>
-          <div className="home__card-content">
-            <h3 className="home__card-title">{card.title}</h3>
-            <p className="home__card-desc">{card.description}</p>
-          </div>
-          <span className="home__card-badge">Próximamente</span>
-        </div>
-      );
-    }
-
-    return (
-      <Link key={card.to} to={card.to} className="home__card">
-        <div className="home__card-icon">{card.icon}</div>
-        <div className="home__card-content">
-          <h3 className="home__card-title">{card.title}</h3>
-          <p className="home__card-desc">{card.description}</p>
-        </div>
-        <span className="home__card-arrow">Ir →</span>
-      </Link>
-    );
-  };
+  const renderCard = (card: CardItem) => (
+    <Link key={card.to} to={card.to} className="home__card">
+      <div className="home__card-icon">{card.icon}</div>
+      <div className="home__card-content">
+        <h3 className="home__card-title">{card.title}</h3>
+        <p className="home__card-desc">{card.description}</p>
+      </div>
+      <span className="home__card-arrow">Ir →</span>
+    </Link>
+  );
 
   return (
     <section className="home">
@@ -154,6 +155,12 @@ const Home = () => {
 
       {hasRole('supervisor') && (
         <>
+          {statsError && (
+            <div className="home__error" role="alert">
+              {statsError}
+            </div>
+          )}
+
           <div className="home__section">
             <h3 className="home__section-title">Resumen del día</h3>
             <div className="home__stats">
@@ -176,6 +183,25 @@ const Home = () => {
             </div>
           </div>
 
+          {openIncidents.length > 0 && (
+            <div className="home__section">
+              <h3 className="home__section-title">Alertas de incidentes</h3>
+              <div className="home__alerts">
+                {openIncidents.map((inc) => (
+                  <Link key={inc.id} to="/supervisor" className="home__alert">
+                    <div className="home__alert-content">
+                      <span className="home__alert-title">
+                        {inc.cargadoPorNombre} · {inc.fecha.toDate().toLocaleDateString('es-AR')}
+                      </span>
+                      <span className="home__alert-desc">{inc.descripcion}</span>
+                    </div>
+                    <StatusBadge status={inc.estado} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="home__section">
             <h3 className="home__section-title">Acciones rápidas</h3>
             <div className="home__cards">
@@ -186,16 +212,6 @@ const Home = () => {
                 <div className="home__card-content">
                   <h3 className="home__card-title">Panel de Supervisión</h3>
                   <p className="home__card-desc">Ver todas las escuelas y su información.</p>
-                </div>
-                <span className="home__card-arrow">Ir →</span>
-              </Link>
-              <Link to="/supervisor" className="home__card">
-                <div className="home__card-icon home__card-icon--amber">
-                  <School size={28} strokeWidth={1.5} />
-                </div>
-                <div className="home__card-content">
-                  <h3 className="home__card-title">Gestionar Escuelas</h3>
-                  <p className="home__card-desc">Agregar, editar o ver escuelas del sistema.</p>
                 </div>
                 <span className="home__card-arrow">Ir →</span>
               </Link>

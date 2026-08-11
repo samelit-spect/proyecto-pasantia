@@ -12,10 +12,10 @@ import {
   ClipboardCheck,
   Newspaper,
   AlertTriangle,
-  School,
   Settings,
   Users,
   Camera,
+  History,
 } from 'lucide-react';
 import './Navbar.css';
 
@@ -115,6 +115,14 @@ const Navbar = () => {
                 <Users size={18} strokeWidth={1.5} />
                 Asistencia de Docentes
               </Link>
+              <Link
+                to="/historial"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <History size={18} strokeWidth={1.5} />
+                Historial de Cargas
+              </Link>
             </>
           )}
 
@@ -155,14 +163,6 @@ const Navbar = () => {
               >
                 <Eye size={18} strokeWidth={1.5} />
                 Panel Supervisor
-              </Link>
-              <Link
-                to="/supervisor"
-                className="navbar__drawer-link"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <School size={18} strokeWidth={1.5} />
-                Gestionar Escuelas
               </Link>
               <Link
                 to="/supervisor/usuarios"

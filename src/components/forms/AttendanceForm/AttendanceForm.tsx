@@ -76,7 +76,7 @@ const AttendanceForm = ({
         setEntries(
           sections.map((s) => ({
             id: nextId(),
-            nombre: '',
+            nombre: profile && s.cargo === profile.rol ? profile.nombre : '',
             cargo: s.cargo,
             label: s.label,
             presente: true,
@@ -97,7 +97,7 @@ const AttendanceForm = ({
         .catch(() => setEntries([]))
         .finally(() => setIsLoading(false));
     },
-    [mode, sections, loadEntries]
+    [mode, sections, loadEntries, profile]
   );
 
   const addRow = (cargo: string, label: string) => {

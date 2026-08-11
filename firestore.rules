@@ -2,59 +2,99 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSupervisor() {
+      return isSignedIn() && userProfile().rol == 'supervisor';
+    }
+
+    function userProfile() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function userHasAnyRole(roles) {
+      return isSignedIn() && userProfile().rol in roles;
+    }
+
+    function userBelongsToSchool(schoolId) {
+      return isSignedIn() && userProfile().escuelaId == schoolId;
+    }
+
+    function canSeeSchool(schoolId) {
+      return isSignedIn() && (isSupervisor() || userBelongsToSchool(schoolId));
+    }
+
+    function canSeeSchoolData() {
+      return isSignedIn() && (isSupervisor() || resource.data.escuelaId == userProfile().escuelaId);
+    }
+
+    function onlyChangedFields(allowedFields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
+    }
+
     match /escuelas/{schoolId} {
-      allow read: if request.auth != null;
+      allow read: if canSeeSchool(schoolId);
       allow create: if isSupervisor();
       allow update, delete: if isSupervisor();
     }
 
     match /usuarios/{userId} {
-      allow read: if request.auth != null;
+      allow read: if isSignedIn() && (isSupervisor() || userId == request.auth.uid || resource.data.escuelaId == userProfile().escuelaId);
       allow create: if isSupervisor();
-      allow update: if request.auth.uid == userId || isSupervisor();
+      allow update: if isSupervisor() || (request.auth.uid == userId && onlyChangedFields(['nombre', 'email']));
       allow delete: if isSupervisor();
     }
 
     match /asistencias/{attendanceId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
+      allow read: if canSeeSchoolData();
+      allow create: if userHasAnyRole(['director', 'vice', 'preceptor'])
+        && request.resource.data.cargadoPor == request.auth.uid
+        && userBelongsToSchool(request.resource.data.escuelaId);
+      allow update: if isSupervisor() && onlyChangedFields(['verificada', 'verificadoPor', 'verificadoPorNombre', 'verificadoEn']);
+      allow delete: if false;
     }
 
     match /docentes/{docenteId} {
-      allow read: if request.auth != null;
-      allow create, update, delete: if isSupervisor();
+      allow read: if canSeeSchoolData();
+      allow create: if isSupervisor();
+      allow update, delete: if isSupervisor();
     }
 
     match /asistencia_docentes/{attendanceId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
+      allow read: if canSeeSchoolData();
+      allow create: if userHasAnyRole(['director', 'vice', 'preceptor'])
+        && request.resource.data.cargadoPor == request.auth.uid
+        && userBelongsToSchool(request.resource.data.escuelaId);
+      allow update: if isSupervisor() && onlyChangedFields(['verificada', 'verificadoPor', 'verificadoPorNombre', 'verificadoEn']);
+      allow delete: if false;
     }
 
     match /fotos/{fotoId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
+      allow read: if canSeeSchoolData();
+      allow create: if userHasAnyRole(['preceptor'])
+        && request.resource.data.subidoPor == request.auth.uid
+        && userBelongsToSchool(request.resource.data.escuelaId);
       allow update: if false;
-      allow delete: if request.auth.uid == resource.data.subidoPor || isSupervisor();
+      allow delete: if isSupervisor() || (request.auth.uid == resource.data.subidoPor && resource.data.escuelaId == userProfile().escuelaId);
     }
 
     match /novedades/{newsId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
+      allow read: if canSeeSchoolData();
+      allow create: if userHasAnyRole(['director', 'vice'])
+        && request.resource.data.cargadoPor == request.auth.uid
+        && userBelongsToSchool(request.resource.data.escuelaId);
       allow update, delete: if false;
     }
 
     match /incidentes/{incidentId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
+      allow read: if canSeeSchoolData();
+      allow create: if userHasAnyRole(['director', 'vice'])
+        && request.resource.data.cargadoPor == request.auth.uid
+        && userBelongsToSchool(request.resource.data.escuelaId);
+      allow update: if isSupervisor() && onlyChangedFields(['estado', 'updatedAt']);
       allow delete: if false;
-    }
-
-    function isSupervisor() {
-      let userData = get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
-      return request.auth != null && userData.rol == 'supervisor';
     }
   }
 }
