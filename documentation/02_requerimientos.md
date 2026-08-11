@@ -16,14 +16,18 @@
 | RF-AS-08 | Si un integrante se marca como ausente, se debe desbloquear un campo de texto para indicar el motivo. |
 | RF-AS-09 | El Supervisor debe poder visualizar las asistencias de todas las escuelas, organizadas por escuela y fecha. |
 | RF-AS-10 | El Supervisor debe poder consultar registros históricos de asistencia. |
+| RF-AS-11 | El sistema debe permitir el registro de asistencia de los docentes por separado, en una vista independiente (`/asistencia-docentes`). |
+| RF-AS-12 | Los docentes se cargan por escuela (nombre + materia opcional) y solo los activos aparecen en el formulario de asistencia. |
+| RF-AS-13 | Director, vice-director o preceptor pueden completar el formulario de asistencia de docentes. |
 
-### 1.2 Subida de fotos (MVP vacío)
+### 1.2 Subida de fotos (preceptores)
 
 | ID | Requerimiento |
 |---|---|
 | RF-FO-01 | Los preceptores deben poder subir diariamente la foto de la planilla firmada de asistencia. |
 | RF-FO-02 | Esta vista está destinada exclusivamente a preceptores. |
-| RF-FO-03 | *(Por definir — se deja vacía por ahora en el MVP.)* |
+| RF-FO-03 | Las fotos se indexan por escuela y fecha; el Supervisor las visualiza en el detalle de cada escuela. |
+| RF-FO-04 | El preceptor que subió una foto puede eliminarla. |
 
 ### 1.3 Novedades
 

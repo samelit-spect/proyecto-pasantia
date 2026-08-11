@@ -4,7 +4,9 @@ import {
   getDocs,
   getDoc,
   addDoc,
+  setDoc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -21,6 +23,8 @@ import { db } from '@/services/firebase';
  * - getNewsBySchool: escuelaId + fecha (range) + fecha (orderBy)
  * - getIncidentsBySchool: escuelaId + fecha (orderBy)
  * - getIncidentsByStatus: estado + fecha (orderBy)
+ * - getDocenteAttendancesBySchool: escuelaId + fecha (orderBy)
+ * - getFotosBySchool: escuelaId + createdAt (orderBy)
  * Si una query falla, revisá la consola de Firestore para crear el index sugerido.
  */
 import type {
@@ -33,6 +37,12 @@ import type {
   Incident,
   AddIncidentDTO,
   IncidentStatus,
+  Docente,
+  AddDocenteDTO,
+  DocenteAttendance,
+  AddDocenteAttendanceDTO,
+  Foto,
+  AddFotoDTO,
 } from '@/types';
 
 const COLLECTIONS = {
@@ -41,6 +51,9 @@ const COLLECTIONS = {
   attendances: 'asistencias',
   news: 'novedades',
   incidents: 'incidentes',
+  docentes: 'docentes',
+  docenteAttendances: 'asistencia_docentes',
+  fotos: 'fotos',
 } as const;
 
 export async function getSchools(): Promise<School[]> {
@@ -74,13 +87,40 @@ export async function addSchool(data: {
 }
 
 export async function getUsersBySchool(schoolId: string): Promise<UserProfile[]> {
-  const q = query(
-    collection(db, COLLECTIONS.users),
-    where('escuelaId', '==', schoolId),
-    where('activo', '==', true)
-  );
+  const q = query(collection(db, COLLECTIONS.users), where('escuelaId', '==', schoolId));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((d) => ({ uid: d.id, ...d.data() }) as UserProfile)
+    .filter((u) => u.activo !== false);
+}
+
+export async function getAllUsers(): Promise<UserProfile[]> {
+  const q = query(collection(db, COLLECTIONS.users), orderBy('nombre'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ uid: d.id, ...d.data() }) as UserProfile);
+}
+
+export async function addUserProfile(data: {
+  uid: string;
+  nombre: string;
+  email: string;
+  rol: UserProfile['rol'];
+  escuelaId: string;
+  cargo: string;
+}): Promise<void> {
+  await setDoc(doc(db, COLLECTIONS.users, data.uid), {
+    nombre: data.nombre,
+    email: data.email,
+    rol: data.rol,
+    escuelaId: data.escuelaId,
+    cargo: data.cargo,
+    activo: true,
+    createdAt: Timestamp.now(),
+  });
+}
+
+export async function setUserActive(uid: string, activo: boolean): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.users, uid), { activo });
 }
 
 export async function addAttendance(data: AddAttendanceDTO): Promise<string> {
@@ -93,6 +133,21 @@ export async function addAttendance(data: AddAttendanceDTO): Promise<string> {
     createdAt: Timestamp.now(),
   });
   return docRef.id;
+}
+
+export async function getAttendanceByUserAndDate(
+  schoolId: string,
+  date: Date,
+  userId: string
+): Promise<Attendance[]> {
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('escuelaId', '==', schoolId),
+    where('cargadoPor', '==', userId),
+    where('fecha', '==', Timestamp.fromDate(date))
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
 }
 
 export async function getAttendancesBySchool(
@@ -221,4 +276,117 @@ export async function updateIncidentStatus(
     estado: newStatus,
     updatedAt: Timestamp.now(),
   });
+}
+
+export async function getDocentesBySchool(schoolId: string): Promise<Docente[]> {
+  const q = query(collection(db, COLLECTIONS.docentes), where('escuelaId', '==', schoolId));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((d) => ({ id: d.id, ...d.data() }) as Docente)
+    .filter((d) => d.activo !== false)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+}
+
+export async function getAllDocentes(): Promise<Docente[]> {
+  const q = query(collection(db, COLLECTIONS.docentes), orderBy('nombre'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Docente);
+}
+
+export async function addDocente(data: AddDocenteDTO): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTIONS.docentes), {
+    nombre: data.nombre,
+    materia: data.materia || '',
+    escuelaId: data.escuelaId,
+    activo: true,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function setDocenteActive(docenteId: string, activo: boolean): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.docentes, docenteId), { activo });
+}
+
+export async function addDocenteAttendance(data: AddDocenteAttendanceDTO): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTIONS.docenteAttendances), {
+    escuelaId: data.escuelaId,
+    fecha: Timestamp.fromDate(data.fecha),
+    cargadoPor: data.cargadoPor,
+    cargadoPorNombre: data.cargadoPorNombre,
+    registros: data.registros,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function getDocenteAttendanceByUserAndDate(
+  schoolId: string,
+  date: Date,
+  userId: string
+): Promise<DocenteAttendance[]> {
+  const q = query(
+    collection(db, COLLECTIONS.docenteAttendances),
+    where('escuelaId', '==', schoolId),
+    where('cargadoPor', '==', userId),
+    where('fecha', '==', Timestamp.fromDate(date))
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance);
+}
+
+export async function getDocenteAttendancesBySchool(
+  schoolId: string
+): Promise<DocenteAttendance[]> {
+  const q = query(
+    collection(db, COLLECTIONS.docenteAttendances),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance);
+}
+
+export async function getAllDocenteAttendances(): Promise<DocenteAttendance[]> {
+  const q = query(collection(db, COLLECTIONS.docenteAttendances), orderBy('fecha', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance);
+}
+
+export async function addFoto(data: AddFotoDTO): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTIONS.fotos), {
+    escuelaId: data.escuelaId,
+    fecha: data.fecha,
+    storagePath: data.storagePath,
+    nombreArchivo: data.nombreArchivo,
+    subidoPor: data.subidoPor,
+    subidoPorNombre: data.subidoPorNombre,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function deleteFoto(fotoId: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTIONS.fotos, fotoId));
+}
+
+export async function getFotosBySchoolAndDate(schoolId: string, fecha: string): Promise<Foto[]> {
+  const q = query(
+    collection(db, COLLECTIONS.fotos),
+    where('escuelaId', '==', schoolId),
+    where('fecha', '==', fecha),
+    orderBy('createdAt', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto);
+}
+
+export async function getFotosBySchool(schoolId: string): Promise<Foto[]> {
+  const q = query(
+    collection(db, COLLECTIONS.fotos),
+    where('escuelaId', '==', schoolId),
+    orderBy('createdAt', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto);
 }

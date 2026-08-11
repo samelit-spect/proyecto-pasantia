@@ -63,12 +63,12 @@ El formulario es de carga masiva: el director, vice-director o preceptor registr
 - Secretarios
 - Conserjes
 
-> **Nota (futuro):** Los docentes se registrarán por separado en una vista independiente. No se incluye en el MVP actual.
+**Asistencia de docentes:** los docentes se registran por separado en una vista independiente (`/asistencia-docentes`). Los docentes se cargan por escuela (con materia opcional) y su asistencia la registran director, vice-director o preceptor.
 
 *Vista 2 — Subida de fotos (preceptores):*
-1. Los preceptores suben diariamente la foto de la planilla firmada de asistencia.
+1. Los preceptores suben diariamente la foto de la planilla firmada de asistencia (`/fotos`).
 2. Esta vista está destinada exclusivamente a preceptores.
-3. *(Por definir — se deja vacía por ahora en el MVP.)*
+3. Las fotos quedan indexadas por escuela y fecha; el Supervisor puede verlas en el detalle de cada escuela.
 
 *Vista Supervisor:*
 1. El Supervisor visualiza la información de asistencia de todas las escuelas de la jurisdicción.

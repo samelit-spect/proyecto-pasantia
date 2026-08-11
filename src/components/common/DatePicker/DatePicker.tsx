@@ -1,3 +1,4 @@
+import { todayISO } from '@/utils/validation';
 import './DatePicker.css';
 
 interface DatePickerProps {
@@ -20,6 +21,7 @@ const DatePicker = ({ value, onChange, disabled = false, label = 'Fecha' }: Date
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
+        max={todayISO()}
         required
       />
     </div>

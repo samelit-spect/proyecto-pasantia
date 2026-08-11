@@ -1,20 +1,14 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import type { ComponentType } from 'react';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
-import Home from '@/pages/Home/Home';
-import Login from '@/pages/Login/Login';
-import Asistencia from '@/pages/Asistencia/Asistencia';
-import Novedades from '@/pages/Novedades/Novedades';
-import Incidentes from '@/pages/Incidentes/Incidentes';
-import Supervisor from '@/pages/Supervisor/Supervisor';
-import SupervisorSchools from '@/pages/Supervisor/SupervisorSchools';
-import SupervisorSchoolDetail from '@/pages/Supervisor/SupervisorSchoolDetail';
-import SupervisorUsers from '@/pages/Supervisor/SupervisorUsers';
-import NotFound from '@/pages/NotFound/NotFound';
+
+const load = (importFn: () => Promise<{ default: ComponentType }>) =>
+  importFn().then((m) => ({ Component: m.default }));
 
 const router = createBrowserRouter([
   {
     path: '/login',
-    element: <Login />,
+    lazy: () => load(() => import('@/pages/Login/Login')),
   },
   {
     path: '/',
@@ -22,35 +16,43 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        lazy: () => load(() => import('@/pages/Home/Home')),
       },
       {
         path: 'asistencia',
-        element: <Asistencia />,
+        lazy: () => load(() => import('@/pages/Asistencia/Asistencia')),
+      },
+      {
+        path: 'asistencia-docentes',
+        lazy: () => load(() => import('@/pages/AsistenciaDocentes/AsistenciaDocentes')),
+      },
+      {
+        path: 'fotos',
+        lazy: () => load(() => import('@/pages/Fotos/Fotos')),
       },
       {
         path: 'novedades',
-        element: <Novedades />,
+        lazy: () => load(() => import('@/pages/Novedades/Novedades')),
       },
       {
         path: 'incidentes',
-        element: <Incidentes />,
+        lazy: () => load(() => import('@/pages/Incidentes/Incidentes')),
       },
       {
         path: 'supervisor',
-        element: <Supervisor />,
+        lazy: () => load(() => import('@/pages/Supervisor/Supervisor')),
         children: [
           {
             index: true,
-            element: <SupervisorSchools />,
+            lazy: () => load(() => import('@/pages/Supervisor/SupervisorSchools')),
           },
           {
             path: 'escuela/:schoolId',
-            element: <SupervisorSchoolDetail />,
+            lazy: () => load(() => import('@/pages/Supervisor/SupervisorSchoolDetail')),
           },
           {
             path: 'usuarios',
-            element: <SupervisorUsers />,
+            lazy: () => load(() => import('@/pages/Supervisor/SupervisorUsers')),
           },
         ],
       },
@@ -58,7 +60,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/404',
-    element: <NotFound />,
+    lazy: () => load(() => import('@/pages/NotFound/NotFound')),
   },
   {
     path: '*',

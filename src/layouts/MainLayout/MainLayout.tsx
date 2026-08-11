@@ -1,8 +1,16 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/common/Navbar/Navbar';
+import ConnectionBanner from '@/components/common/ConnectionBanner/ConnectionBanner';
 
-const PROTECTED_ROUTES = ['/asistencia', '/novedades', '/incidentes', '/supervisor'];
+const PROTECTED_ROUTES = [
+  '/asistencia',
+  '/asistencia-docentes',
+  '/fotos',
+  '/novedades',
+  '/incidentes',
+  '/supervisor',
+];
 
 const MainLayout = () => {
   const { isAuthenticated, isLoading, canAccess } = useAuth();
@@ -30,6 +38,7 @@ const MainLayout = () => {
   return (
     <>
       <Navbar />
+      <ConnectionBanner />
       <main
         style={{
           maxWidth: '1200px',

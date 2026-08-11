@@ -23,6 +23,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 const ROUTE_PERMISSIONS: Record<string, UserRole[]> = {
   '/': ['director', 'vice', 'preceptor', 'secretario', 'conserje', 'supervisor'],
   '/asistencia': ['director', 'vice', 'preceptor'],
+  '/asistencia-docentes': ['director', 'vice', 'preceptor'],
+  '/fotos': ['preceptor'],
   '/novedades': ['director', 'vice'],
   '/incidentes': ['director', 'vice'],
   '/supervisor': ['supervisor'],
@@ -122,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (!context) {

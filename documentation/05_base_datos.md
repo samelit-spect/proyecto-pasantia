@@ -13,9 +13,12 @@
 firestore/
 ├── escuelas/                  # Una documento por escuela
 ├── usuarios/                  # Un documento por usuario
-├── asistencias/               # Un documento por cada carga de formulario
+├── docentes/                  # Un documento por docente (cargados por el Supervisor)
+├── asistencias/               # Un documento por cada carga de formulario (gestión)
+├── asistencia_docentes/       # Un documento por cada carga de asistencia de docentes
 ├── novedades/                 # Un documento por cada novedad registrada
-└── incidentes/                # Un documento por cada incidente registrado
+├── incidentes/                # Un documento por cada incidente registrado
+└── fotos/                     # Un documento por cada foto subida de planilla
 ```
 
 ## 3. Estructura de documentos
@@ -48,6 +51,8 @@ firestore/
 | `rol` | string | Rol del usuario en el sistema | Sí |
 | `escuelaId` | string | Referencia al documento de escuela | Sí |
 | `cargo` | string | Cargo específico (director, vice, preceptor, secretario, conserje) | Sí |
+| `activo` | boolean | Si el usuario está activo (ausente = inactivo; se asume `true` si falta) | Sí |
+| `createdAt` | timestamp | Fecha de creación del usuario | Sí |
 
 **Valores permitidos para `rol`:**
 - `"director"`
@@ -64,7 +69,9 @@ firestore/
   "email": "juan.perez@escuela123.edu.ar",
   "rol": "director",
   "escuelaId": "abc123",
-  "cargo": "director"
+  "cargo": "director",
+  "activo": true,
+  "createdAt": "2026-07-23T08:00:00Z"
 }
 ```
 
@@ -162,17 +169,103 @@ firestore/
 }
 ```
 
+### 3.6 `docentes/{docenteId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `nombre` | string | Nombre del docente | Sí |
+| `materia` | string | Materia o área que dicta (opcional) | No |
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `activo` | boolean | Si el docente está activo (ausente = inactivo; solo los activos aparecen en el formulario de asistencia) | Sí |
+| `createdAt` | timestamp | Fecha de creación del documento | Sí |
+
+**Ejemplo:**
+```json
+{
+  "nombre": "Laura Díaz",
+  "materia": "Matemática",
+  "escuelaId": "abc123",
+  "activo": true,
+  "createdAt": "2026-07-23T08:00:00Z"
+}
+```
+
+### 3.7 `asistencia_docentes/{attendanceId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `fecha` | timestamp | Fecha del registro de asistencia | Sí |
+| `cargadoPor` | string | UID del usuario que completó el formulario | Sí |
+| `cargadoPorNombre` | string | Nombre del usuario que cargó (para vista) | Sí |
+| `registros` | array | Array con la asistencia de cada docente | Sí |
+| `createdAt` | timestamp | Fecha de creación del documento | Sí |
+
+**Estructura de cada elemento en `registros[]`:**
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `nombre` | string | Nombre del docente | Sí |
+| `materia` | string | Materia del docente (si tiene) | No |
+| `presente` | boolean | `true` = presente, `false` = ausente | Sí |
+| `motivo` | string | Motivo de ausencia (solo si `presente = false`) | No |
+
+**Ejemplo:**
+```json
+{
+  "escuelaId": "abc123",
+  "fecha": "2026-07-23T00:00:00Z",
+  "cargadoPor": "user123",
+  "cargadoPorNombre": "Juan Pérez",
+  "registros": [
+    { "nombre": "Laura Díaz", "materia": "Matemática", "presente": true },
+    { "nombre": "Sergio Ríos", "materia": "Lengua", "presente": false, "motivo": "Licencia médica" }
+  ],
+  "createdAt": "2026-07-23T08:30:00Z"
+}
+```
+
+### 3.8 `fotos/{fotoId}`
+
+| Campo | Tipo | Descripción | Obligatorio |
+|---|---|---|---|
+| `escuelaId` | string | Referencia al documento de escuela | Sí |
+| `fecha` | string | Fecha en formato `YYYY-MM-DD` (coincide con la carpeta en Storage) | Sí |
+| `storagePath` | string | Ruta del archivo en Firebase Storage | Sí |
+| `nombreArchivo` | string | Nombre original del archivo | Sí |
+| `subidoPor` | string | UID del preceptor que subió la foto | Sí |
+| `subidoPorNombre` | string | Nombre del preceptor que subió | Sí |
+| `createdAt` | timestamp | Fecha de creación del documento | Sí |
+
+**Ejemplo:**
+```json
+{
+  "escuelaId": "abc123",
+  "fecha": "2026-07-23",
+  "storagePath": "fotos/abc123/2026-07-23/1690084200000_planilla_firmada.jpg",
+  "nombreArchivo": "planilla_firmada.jpg",
+  "subidoPor": "user789",
+  "subidoPorNombre": "Carlos García",
+  "createdAt": "2026-07-23T08:00:00Z"
+}
+```
+
 ## 4. Relaciones entre colecciones
 
 ```
 escuelas ←──── usuarios.escuelaId
+escuelas ←──── docentes.escuelaId
 escuelas ←──── asistencias.escuelaId
+escuelas ←──── asistencia_docentes.escuelaId
 escuelas ←──── novedades.escuelaId
 escuelas ←──── incidentes.escuelaId
+escuelas ←──── fotos.escuelaId
 
 usuarios ←──── asistencias.cargadoPor
+usuarios ←──── asistencia_docentes.cargadoPor
 usuarios ←──── novedades.cargadoPor
 usuarios ←──── incidentes.cargadoPor
+usuarios ←──── fotos.subidoPor
 ```
 
 **Nota:** Firestore no tiene joins nativos. Las referencias se resuelven en el frontend mediante consultas separadas o al momento de carga.
@@ -182,10 +275,13 @@ usuarios ←──── incidentes.cargadoPor
 | Colección | Campos indexados | Motivo |
 |---|---|---|
 | `asistencias` | `escuelaId` + `fecha` | Consultar asistencias de una escuela en un rango de fechas |
+| `asistencia_docentes` | `escuelaId` + `fecha` | Consultar asistencias docentes de una escuela |
 | `novedades` | `escuelaId` + `fecha` | Consultar novedades de una escuela en un rango de fechas |
 | `incidentes` | `escuelaId` + `fecha` | Consultar incidentes de una escuela en un rango de fechas |
 | `incidentes` | `estado` + `fecha` | Filtrar incidentes por estado |
 | `usuarios` | `escuelaId` + `rol` | Obtener todos los usuarios de una escuela por rol |
+| `fotos` | `escuelaId` + `fecha` | Consultar fotos de una escuela por fecha |
+| `fotos` | `escuelaId` + `createdAt` | Listar fotos de una escuela (ordenadas por subida) |
 
 ## 6. Reglas de seguridad (Firestore Rules)
 

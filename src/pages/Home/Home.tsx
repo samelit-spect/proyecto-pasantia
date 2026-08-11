@@ -9,6 +9,7 @@ import {
   Eye,
   School,
   Settings,
+  Camera,
 } from 'lucide-react';
 import {
   getAllAttendances,
@@ -82,11 +83,19 @@ const Home = () => {
       description: 'Registrar la asistencia diaria del personal de gestión.',
     });
     attendanceCards.push({
-      to: '',
+      to: '/asistencia-docentes',
       icon: <Users size={28} strokeWidth={1.5} />,
       title: 'Asistencia de Docentes',
       description: 'Registrar la asistencia diaria del cuerpo docente.',
-      disabled: true,
+    });
+  }
+
+  if (hasRole('preceptor')) {
+    attendanceCards.push({
+      to: '/fotos',
+      icon: <Camera size={28} strokeWidth={1.5} />,
+      title: 'Foto Diaria',
+      description: 'Subir la foto de la planilla firmada de asistencia.',
     });
   }
 

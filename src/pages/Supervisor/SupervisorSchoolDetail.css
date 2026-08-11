@@ -59,6 +59,89 @@
   line-height: 1.5;
 }
 
+.supervisor-detail__incident-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.supervisor-detail__status-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.supervisor-detail__status-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.supervisor-detail__status-select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.supervisor-detail__status-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.supervisor-detail__feedback {
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.supervisor-detail__feedback--success {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.supervisor-detail__feedback--error {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.supervisor-detail__filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.supervisor-detail__filters-clear {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.supervisor-detail__filters-clear:hover {
+  color: var(--text-color);
+  border-color: var(--text-secondary);
+}
+
 .supervisor-detail__incident {
   border-left: 3px solid var(--primary-color);
 }
@@ -139,6 +222,143 @@
   color: var(--text-secondary);
 }
 
+.supervisor-detail__docente-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  padding: 0.75rem;
+  background-color: var(--background-color);
+  border-radius: 0.375rem;
+}
+
+.supervisor-detail__docente-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.supervisor-detail__docente-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.supervisor-detail__docente-input:focus {
+  border-color: var(--primary-color);
+}
+
+.supervisor-detail__docente-submit {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: white;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.supervisor-detail__docente-submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.supervisor-detail__docente-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.supervisor-detail__docente-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.supervisor-detail__docente {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--background-color);
+  border-radius: 0.375rem;
+}
+
+.supervisor-detail__docente--inactive {
+  opacity: 0.6;
+}
+
+.supervisor-detail__docente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.supervisor-detail__docente-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.supervisor-detail__docente-materia {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.supervisor-detail__docente-toggle {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.supervisor-detail__docente-toggle:hover:not(:disabled) {
+  color: var(--text-color);
+  border-color: var(--text-secondary);
+}
+
+.supervisor-detail__docente-toggle:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.supervisor-detail__fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.supervisor-detail__foto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.supervisor-detail__foto-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 @media (max-width: 640px) {
   .supervisor-detail__section-header {
     padding: 0.875rem 1rem;
@@ -152,5 +372,20 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
+  }
+
+  .supervisor-detail__incident-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .supervisor-detail__docente-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .supervisor-detail__docente {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

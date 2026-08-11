@@ -8,6 +8,9 @@ interface AttendanceRowProps {
   onToggle: (presente: boolean) => void;
   onMotivoChange: (motivo: string) => void;
   motivoError?: string;
+  nombreEditable?: boolean;
+  onNombreChange?: (nombre: string) => void;
+  onRemove?: () => void;
 }
 
 const AttendanceRow = ({
@@ -18,11 +21,24 @@ const AttendanceRow = ({
   onToggle,
   onMotivoChange,
   motivoError,
+  nombreEditable = false,
+  onNombreChange,
+  onRemove,
 }: AttendanceRowProps) => {
   return (
     <div className={`attendance-row ${!presente ? 'attendance-row--absent' : ''}`}>
       <div className="attendance-row__info">
-        <span className="attendance-row__name">{nombre}</span>
+        {nombreEditable && onNombreChange ? (
+          <input
+            type="text"
+            className="attendance-row__name-input"
+            value={nombre}
+            placeholder={cargo}
+            onChange={(e) => onNombreChange(e.target.value)}
+          />
+        ) : (
+          <span className="attendance-row__name">{nombre}</span>
+        )}
         <span className="attendance-row__role">{cargo}</span>
       </div>
 
@@ -43,6 +59,17 @@ const AttendanceRow = ({
             />
             {motivoError && <span className="attendance-row__motivo-error">{motivoError}</span>}
           </div>
+        )}
+
+        {onRemove && (
+          <button
+            type="button"
+            className="attendance-row__remove"
+            onClick={onRemove}
+            title="Quitar integrante"
+          >
+            ×
+          </button>
         )}
       </div>
     </div>

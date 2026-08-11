@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   School,
   Settings,
+  Users,
+  Camera,
 } from 'lucide-react';
 import './Navbar.css';
 
@@ -96,13 +98,30 @@ const Navbar = () => {
           </Link>
 
           {hasRole('director', 'vice', 'preceptor') && (
-            <Link
-              to="/asistencia"
-              className="navbar__drawer-link"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <ClipboardCheck size={18} strokeWidth={1.5} />
-              Asistencia
+            <>
+              <Link
+                to="/asistencia"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ClipboardCheck size={18} strokeWidth={1.5} />
+                Asistencia de Gestión
+              </Link>
+              <Link
+                to="/asistencia-docentes"
+                className="navbar__drawer-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Users size={18} strokeWidth={1.5} />
+                Asistencia de Docentes
+              </Link>
+            </>
+          )}
+
+          {hasRole('preceptor') && (
+            <Link to="/fotos" className="navbar__drawer-link" onClick={() => setIsMenuOpen(false)}>
+              <Camera size={18} strokeWidth={1.5} />
+              Foto Diaria
             </Link>
           )}
 

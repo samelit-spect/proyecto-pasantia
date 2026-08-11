@@ -1,23 +1,15 @@
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addNews } from '@/services/api/firestore';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import { novedadSchema } from '@/utils/validation';
 import './Novedades.css';
 
-const newsSchema = z.object({
-  escuelaId: z.string().min(1, 'Seleccioná una escuela'),
-  fecha: z.string().min(1, 'Seleccioná una fecha'),
-  descripcion: z
-    .string()
-    .min(5, 'La descripción debe tener al menos 5 caracteres')
-    .max(500, 'Máximo 500 caracteres'),
-});
-
-type NewsFormData = z.infer<typeof newsSchema>;
+type NewsFormData = z.infer<typeof novedadSchema>;
 
 const Novedades = () => {
   const { user, profile } = useAuth();
@@ -29,11 +21,10 @@ const Novedades = () => {
     register,
     handleSubmit,
     reset,
-    watch,
     control,
     formState: { errors, isSubmitting },
   } = useForm<NewsFormData>({
-    resolver: zodResolver(newsSchema),
+    resolver: zodResolver(novedadSchema),
     defaultValues: {
       escuelaId: '',
       fecha: new Date().toISOString().split('T')[0],
@@ -41,7 +32,7 @@ const Novedades = () => {
     },
   });
 
-  const descripcion = watch('descripcion') || '';
+  const descripcion = useWatch({ control, name: 'descripcion' }) || '';
 
   const onSubmit = async (data: NewsFormData) => {
     if (!user || !profile) return;
