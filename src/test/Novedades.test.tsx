@@ -5,9 +5,6 @@ import Novedades from '@/pages/Novedades/Novedades';
 
 vi.mock('@/services/api/firestore', () => ({
   addNews: vi.fn(() => Promise.resolve('mock-id')),
-  getSchools: vi.fn(() =>
-    Promise.resolve([{ id: 'escuela-1', nombre: 'Escuela Test', turno: 'mañana', activa: true }])
-  ),
 }));
 
 vi.mock('@/context/AuthContext', () => ({
@@ -47,7 +44,7 @@ describe('Novedades', () => {
     renderNovedades();
     expect(screen.getByText('Registrar Novedad')).toBeDefined();
     expect(screen.getByText(/Completá los datos/)).toBeDefined();
-    expect(screen.getByLabelText('Escuela')).toBeDefined();
+    expect(screen.getByText('Tu escuela asignada')).toBeDefined();
     expect(screen.getByLabelText('Fecha')).toBeDefined();
   });
 

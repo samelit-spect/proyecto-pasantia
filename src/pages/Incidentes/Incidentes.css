@@ -38,6 +38,13 @@
   gap: 0.25rem;
 }
 
+.incidentes__school-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-color);
+  padding: 0.625rem 0;
+}
+
 .incidentes__label {
   font-size: 0.875rem;
   font-weight: 500;

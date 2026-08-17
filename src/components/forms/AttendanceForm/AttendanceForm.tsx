@@ -1,6 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import AttendanceRow from '@/components/common/AttendanceRow/AttendanceRow';
 import { CheckCircle2, XCircle } from 'lucide-react';
@@ -57,7 +56,6 @@ const AttendanceForm = ({
   const { user, profile } = useAuth();
   const entrySeqRef = useRef(0);
   const nextId = () => `entry-${++entrySeqRef.current}`;
-  const [escuelaId, setEscuelaId] = useState('');
   const [fecha, setFecha] = useState(todayISO());
   const [entries, setEntries] = useState<AttendanceFormEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,39 +63,34 @@ const AttendanceForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const handleSchoolChange = useCallback(
-    (schoolId: string) => {
-      setEscuelaId(schoolId);
-      setErrors({});
-      setResult(null);
+  const escuelaId = profile?.escuelaId || '';
 
-      if (mode === 'sections') {
-        setEntries(
-          sections.map((s) => ({
-            id: nextId(),
-            nombre: profile && s.cargo === profile.rol ? profile.nombre : '',
-            cargo: s.cargo,
-            label: s.label,
-            presente: true,
-            motivo: '',
-          }))
-        );
-        return;
-      }
+  useEffect(() => {
+    if (!escuelaId) return;
 
-      if (!schoolId) {
-        setEntries([]);
-        return;
-      }
+    setErrors({});
+    setResult(null);
 
-      setIsLoading(true);
-      (loadEntries?.(schoolId) ?? Promise.resolve([]))
-        .then((list) => setEntries(list.map((e) => ({ ...e, id: nextId() }))))
-        .catch(() => setEntries([]))
-        .finally(() => setIsLoading(false));
-    },
-    [mode, sections, loadEntries, profile]
-  );
+    if (mode === 'sections') {
+      setEntries(
+        sections.map((s) => ({
+          id: nextId(),
+          nombre: profile && s.cargo === profile.rol ? profile.nombre : '',
+          cargo: s.cargo,
+          label: s.label,
+          presente: true,
+          motivo: '',
+        }))
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    (loadEntries?.(escuelaId) ?? Promise.resolve([]))
+      .then((list) => setEntries(list.map((e) => ({ ...e, id: nextId() }))))
+      .catch(() => setEntries([]))
+      .finally(() => setIsLoading(false));
+  }, [escuelaId, mode, sections, loadEntries, profile]);
 
   const addRow = (cargo: string, label: string) => {
     setEntries((prev) => [
@@ -146,7 +139,7 @@ const AttendanceForm = ({
     let hasError = false;
 
     if (!escuelaId) {
-      setResult({ type: 'error', message: 'Seleccioná una escuela.' });
+      setResult({ type: 'error', message: 'No tenés una escuela asignada.' });
       return false;
     }
 
@@ -222,7 +215,12 @@ const AttendanceForm = ({
 
       <form className="attendance-form__card" onSubmit={handleSubmit}>
         <div className="attendance-form__row">
-          <SchoolSelect value={escuelaId} onChange={handleSchoolChange} />
+          <div className="attendance-form__school-info">
+            <span className="attendance-form__school-label">Escuela:</span>
+            <span className="attendance-form__school-name">
+              {profile?.escuelaId ? 'Tu escuela asignada' : 'Sin escuela asignada'}
+            </span>
+          </div>
           <DatePicker value={fecha} onChange={setFecha} />
         </div>
 

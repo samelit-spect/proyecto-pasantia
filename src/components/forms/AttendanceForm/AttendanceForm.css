@@ -32,6 +32,27 @@
   gap: 1rem;
 }
 
+.attendance-form__school-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.attendance-form__school-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.attendance-form__school-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-color);
+  padding: 0.625rem 0;
+}
+
 .attendance-form__loading,
 .attendance-form__empty {
   text-align: center;

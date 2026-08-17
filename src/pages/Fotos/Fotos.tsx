@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
-import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import { todayISO } from '@/utils/validation';
@@ -12,7 +11,7 @@ import './Fotos.css';
 
 const Fotos = () => {
   const { user, profile } = useAuth();
-  const [escuelaId, setEscuelaId] = useState('');
+  const escuelaId = profile?.escuelaId || '';
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [file, setFile] = useState<File | null>(null);
   const [fotos, setFotos] = useState<Foto[] | null>(null);
@@ -66,7 +65,7 @@ const Fotos = () => {
     if (!user || !profile) return;
 
     if (!escuelaId) {
-      setFeedback({ type: 'error', message: 'Seleccioná una escuela.' });
+      setFeedback({ type: 'error', message: 'No tenés una escuela asignada.' });
       return;
     }
 
@@ -134,7 +133,12 @@ const Fotos = () => {
 
       <form className="fotos__form" onSubmit={handleUpload}>
         <div className="fotos__row">
-          <SchoolSelect value={escuelaId} onChange={setEscuelaId} />
+          <div className="fotos__school-info">
+            <span className="fotos__school-label">Escuela:</span>
+            <span className="fotos__school-name">
+              {profile?.escuelaId ? 'Tu escuela asignada' : 'Sin escuela asignada'}
+            </span>
+          </div>
           <DatePicker value={fecha} onChange={setFecha} />
         </div>
 

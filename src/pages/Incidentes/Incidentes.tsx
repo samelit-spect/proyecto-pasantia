@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addIncident } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
-import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { incidenteSchema } from '@/utils/validation';
 import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -31,7 +30,6 @@ const Incidentes = () => {
   } = useForm<IncidentFormData>({
     resolver: zodResolver(incidenteSchema),
     defaultValues: {
-      escuelaId: '',
       fecha: new Date().toISOString().split('T')[0],
       categoria: '',
       urgencia: '',
@@ -50,7 +48,7 @@ const Incidentes = () => {
   };
 
   const onSubmit = async (data: IncidentFormData) => {
-    if (!user || !profile) return;
+    if (!user || !profile || !profile.escuelaId) return;
 
     try {
       let fotoDataUrl: string | undefined;
@@ -59,7 +57,7 @@ const Incidentes = () => {
       }
 
       await addIncident({
-        escuelaId: data.escuelaId,
+        escuelaId: profile.escuelaId,
         fecha: new Date(data.fecha),
         categoria: data.categoria as IncidentCategoria,
         urgencia: data.urgencia as IncidentUrgencia,
@@ -90,18 +88,12 @@ const Incidentes = () => {
 
       <form className="incidentes__form" onSubmit={handleSubmit(onSubmit)}>
         <div className="incidentes__row">
-          <Controller
-            name="escuelaId"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <SchoolSelect value={field.value} onChange={field.onChange} />
-                {errors.escuelaId && (
-                  <span className="incidentes__error">{errors.escuelaId.message}</span>
-                )}
-              </div>
-            )}
-          />
+          <div className="incidentes__field">
+            <label className="incidentes__label">Escuela</label>
+            <span className="incidentes__school-name">
+              {profile?.escuelaId ? 'Tu escuela asignada' : 'Sin escuela asignada'}
+            </span>
+          </div>
 
           <Controller
             name="fecha"

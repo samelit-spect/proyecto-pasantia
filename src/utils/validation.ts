@@ -14,7 +14,6 @@ const fechaRule = z
   .refine(notFutureDate, 'La fecha no puede ser en el futuro');
 
 export const novedadSchema = z.object({
-  escuelaId: z.string().min(1, 'Seleccioná una escuela'),
   fecha: fechaRule,
   tipo: z.string().min(1, 'Seleccioná un tipo de novedad'),
   hora: z.string().optional(),
@@ -25,7 +24,6 @@ export const novedadSchema = z.object({
 });
 
 export const incidenteSchema = z.object({
-  escuelaId: z.string().min(1, 'Seleccioná una escuela'),
   fecha: fechaRule,
   categoria: z.string().min(1, 'Seleccioná una categoría'),
   urgencia: z.string().min(1, 'Seleccioná la urgencia'),

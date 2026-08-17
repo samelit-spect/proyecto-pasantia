@@ -5,9 +5,6 @@ import Incidentes from '@/pages/Incidentes/Incidentes';
 
 vi.mock('@/services/api/firestore', () => ({
   addIncident: vi.fn(() => Promise.resolve('mock-id')),
-  getSchools: vi.fn(() =>
-    Promise.resolve([{ id: 'escuela-1', nombre: 'Escuela Test', turno: 'mañana', activa: true }])
-  ),
 }));
 
 vi.mock('@/context/AuthContext', () => ({
@@ -51,7 +48,7 @@ describe('Incidentes', () => {
 
   it('renderiza los campos del formulario', () => {
     renderIncidentes();
-    expect(screen.getByLabelText('Escuela')).toBeDefined();
+    expect(screen.getByText('Tu escuela asignada')).toBeDefined();
     expect(screen.getByLabelText('Fecha')).toBeDefined();
     expect(screen.getByLabelText('Categoría del incidente')).toBeDefined();
     expect(screen.getByLabelText('Urgencia')).toBeDefined();

@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addNews } from '@/services/api/firestore';
-import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { novedadSchema } from '@/utils/validation';
 import { NOVEDAD_TIPOS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -28,7 +27,6 @@ const Novedades = () => {
   } = useForm<NewsFormData>({
     resolver: zodResolver(novedadSchema),
     defaultValues: {
-      escuelaId: '',
       fecha: new Date().toISOString().split('T')[0],
       tipo: '',
       hora: '',
@@ -39,11 +37,11 @@ const Novedades = () => {
   const descripcion = useWatch({ control, name: 'descripcion' }) || '';
 
   const onSubmit = async (data: NewsFormData) => {
-    if (!user || !profile) return;
+    if (!user || !profile || !profile.escuelaId) return;
 
     try {
       await addNews({
-        escuelaId: data.escuelaId,
+        escuelaId: profile.escuelaId,
         fecha: new Date(data.fecha),
         tipo: data.tipo as NovedadTipo,
         hora: data.hora || undefined,
@@ -69,18 +67,12 @@ const Novedades = () => {
 
       <form className="novedades__form" onSubmit={handleSubmit(onSubmit)}>
         <div className="novedades__row">
-          <Controller
-            name="escuelaId"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <SchoolSelect value={field.value} onChange={field.onChange} />
-                {errors.escuelaId && (
-                  <span className="novedades__error">{errors.escuelaId.message}</span>
-                )}
-              </div>
-            )}
-          />
+          <div className="novedades__field">
+            <label className="novedades__label">Escuela</label>
+            <span className="novedades__school-name">
+              {profile?.escuelaId ? 'Tu escuela asignada' : 'Sin escuela asignada'}
+            </span>
+          </div>
 
           <Controller
             name="fecha"
