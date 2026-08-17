@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { School, Settings, Plus, X, ClipboardCheck, Newspaper, AlertTriangle } from 'lucide-react';
+import { School, Settings, Plus, X, ClipboardCheck, Newspaper, AlertTriangle, ArrowLeft } from 'lucide-react';
 import {
   getSchools,
   addSchool,
@@ -27,6 +27,7 @@ const schoolSchema = z.object({
 type SchoolFormData = z.infer<typeof schoolSchema>;
 
 const SupervisorSchools = () => {
+  const navigate = useNavigate();
   const [schools, setSchools] = useState<SchoolType[]>([]);
   const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
   const [recentNews, setRecentNews] = useState<News[]>([]);
@@ -97,6 +98,9 @@ const SupervisorSchools = () => {
   return (
     <>
       <div className="supervisor__header">
+        <button className="supervisor__back" onClick={() => navigate('/')}>
+          <ArrowLeft size={18} strokeWidth={1.5} />
+        </button>
         <h2 className="supervisor__title">Panel de Supervisión</h2>
       </div>
       <p className="supervisor__subtitle">
