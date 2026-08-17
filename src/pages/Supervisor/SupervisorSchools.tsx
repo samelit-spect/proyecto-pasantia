@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { School, Settings, Plus, X, ClipboardCheck, Newspaper, AlertTriangle } from 'lucide-react';
 import {
   getSchools,
@@ -10,9 +13,18 @@ import {
 } from '@/services/api/firestore';
 import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import './SupervisorSchools.css';
 
-const TURNOS = ['mañana', 'tarde', 'vespertino', 'nocturno'];
+const TURNOS = ['mañana', 'tarde', 'vespertino', 'nocturno'] as const;
+
+const schoolSchema = z.object({
+  nombre: z.string().min(1, 'El nombre es obligatorio.'),
+  turno: z.enum(TURNOS),
+  direccion: z.string().optional(),
+});
+
+type SchoolFormData = z.infer<typeof schoolSchema>;
 
 const SupervisorSchools = () => {
   const [schools, setSchools] = useState<SchoolType[]>([]);
@@ -21,16 +33,22 @@ const SupervisorSchools = () => {
   const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initialized = useRef(false);
 
   const [showForm, setShowForm] = useState(false);
-  const [formNombre, setFormNombre] = useState('');
-  const [formTurno, setFormTurno] = useState(TURNOS[0]);
-  const [formDireccion, setFormDireccion] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
-  const initialized = useRef(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SchoolFormData>({
+    resolver: zodResolver(schoolSchema),
+    defaultValues: { nombre: '', turno: TURNOS[0], direccion: '' },
+  });
 
   const loadSchools = async () => {
     try {
@@ -58,36 +76,21 @@ const SupervisorSchools = () => {
     loadSchools();
   }, []);
 
-  const resetForm = () => {
-    setFormNombre('');
-    setFormTurno(TURNOS[0]);
-    setFormDireccion('');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: SchoolFormData) => {
     setFeedback(null);
-
-    if (!formNombre.trim()) {
-      setFeedback({ type: 'error', message: 'El nombre es obligatorio.' });
-      return;
-    }
-
-    setIsSubmitting(true);
     try {
       await addSchool({
-        nombre: formNombre.trim(),
-        turno: formTurno,
-        direccion: formDireccion.trim() || undefined,
+        nombre: data.nombre.trim(),
+        turno: data.turno,
+        direccion: data.direccion?.trim() || undefined,
       });
       setFeedback({ type: 'success', message: 'Escuela creada correctamente.' });
-      resetForm();
+      reset();
       setShowForm(false);
       await loadSchools();
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
       setFeedback({ type: 'error', message: 'Error al crear la escuela. Intentá de nuevo.' });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -104,7 +107,7 @@ const SupervisorSchools = () => {
         <button
           className="supervisor-schools__add-btn"
           onClick={() => {
-            resetForm();
+            reset();
             setFeedback(null);
             setShowForm(!showForm);
           }}
@@ -120,25 +123,23 @@ const SupervisorSchools = () => {
       </div>
 
       {showForm && (
-        <form className="supervisor-schools__form" onSubmit={handleSubmit}>
+        <form className="supervisor-schools__form" onSubmit={handleSubmit(onSubmit)}>
           <div className="supervisor-schools__form-row">
             <label className="supervisor-schools__label">
               Nombre *
               <input
                 className="supervisor-schools__input"
                 type="text"
-                value={formNombre}
-                onChange={(e) => setFormNombre(e.target.value)}
                 placeholder="Ej: Escuela N° 1"
+                {...register('nombre')}
               />
+              {errors.nombre && (
+                <span className="supervisor-schools__error">{errors.nombre.message}</span>
+              )}
             </label>
             <label className="supervisor-schools__label">
               Turno
-              <select
-                className="supervisor-schools__select"
-                value={formTurno}
-                onChange={(e) => setFormTurno(e.target.value)}
-              >
+              <select className="supervisor-schools__select" {...register('turno')}>
                 {TURNOS.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -152,9 +153,8 @@ const SupervisorSchools = () => {
             <input
               className="supervisor-schools__input"
               type="text"
-              value={formDireccion}
-              onChange={(e) => setFormDireccion(e.target.value)}
               placeholder="Ej: Av. Principal 1234"
+              {...register('direccion')}
             />
           </label>
 
