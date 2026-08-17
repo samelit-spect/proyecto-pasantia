@@ -241,6 +241,20 @@ export async function getTodayAttendances(): Promise<Attendance[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
 }
 
+export async function getTodayAttendancesBySchool(schoolId: string): Promise<Attendance[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('escuelaId', '==', schoolId),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
+}
+
 export async function getTodayNews(): Promise<News[]> {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
@@ -254,11 +268,39 @@ export async function getTodayNews(): Promise<News[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
 }
 
+export async function getTodayNewsBySchool(schoolId: string): Promise<News[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    where('escuelaId', '==', schoolId),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
+}
+
 export async function getTodayIncidents(): Promise<Incident[]> {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const q = query(
     collection(db, COLLECTIONS.incidents),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident);
+}
+
+export async function getTodayIncidentsBySchool(schoolId: string): Promise<Incident[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    where('escuelaId', '==', schoolId),
     where('fecha', '>=', Timestamp.fromDate(startOfToday)),
     orderBy('fecha', 'desc'),
     limit(100)

@@ -20,6 +20,9 @@ import {
   getRecentIncidents,
   getSchools,
   getSchoolById,
+  getTodayAttendancesBySchool,
+  getTodayNewsBySchool,
+  getTodayIncidentsBySchool,
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
@@ -99,15 +102,15 @@ const Home = () => {
       try {
         const [school, attendances, news, incidents] = await Promise.all([
           getSchoolById(profile.escuelaId),
-          getTodayAttendances(),
-          getTodayNews(),
-          getTodayIncidents(),
+          getTodayAttendancesBySchool(profile.escuelaId),
+          getTodayNewsBySchool(profile.escuelaId),
+          getTodayIncidentsBySchool(profile.escuelaId),
         ]);
 
         setMySchool(school);
-        setMyAttendances(attendances.filter((a) => a.escuelaId === profile.escuelaId));
-        setMyNews(news.filter((n) => n.escuelaId === profile.escuelaId));
-        setMyIncidents(incidents.filter((i) => i.escuelaId === profile.escuelaId));
+        setMyAttendances(attendances);
+        setMyNews(news);
+        setMyIncidents(incidents);
       } catch {
         setStatsError('No se pudieron cargar los datos. Revisá tu conexión e intentá de nuevo.');
       }
