@@ -9,6 +9,7 @@ import {
 import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import Pagination from '@/components/common/Pagination/Pagination';
 import {
   novedadTipoLabel,
   incidentCategoriaLabel,
@@ -40,6 +41,12 @@ const Historial = () => {
   const [categoriaFilter, setCategoriaFilter] = useState<IncidentCategoria | ''>('');
   const [urgenciaFilter, setUrgenciaFilter] = useState<IncidentUrgencia | ''>('');
   const [expanded, setExpanded] = useState<SectionKey | null>('asistencias');
+  const [pages, setPages] = useState<Record<SectionKey, number>>({
+    asistencias: 1,
+    docentes: 1,
+    novedades: 1,
+    incidentes: 1,
+  });
 
   useEffect(() => {
     if (!profile || !hasRole('director', 'vice', 'preceptor') || initialized.current) return;
@@ -89,6 +96,15 @@ const Historial = () => {
 
   const toggleSection = (section: SectionKey) => {
     setExpanded(expanded === section ? null : section);
+  };
+
+  const PAGE_SIZE = 15;
+
+  const paginate = <T,>(items: T[], section: SectionKey) => {
+    const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+    const page = Math.min(pages[section], totalPages);
+    const start = (page - 1) * PAGE_SIZE;
+    return { items: items.slice(start, start + PAGE_SIZE), totalPages, page };
   };
 
   return (
@@ -193,36 +209,40 @@ const Historial = () => {
                 ▾
               </span>
             </button>
-            {expanded === 'asistencias' && (
-              <div className="historial__section-body">
-                {filteredAttendances.length === 0 ? (
-                  <div className="historial__empty">No hay registros.</div>
-                ) : (
-                  filteredAttendances.map((att) => (
-                    <div key={att.id} className="historial__record">
-                      <div className="historial__record-header">
-                        <span className="historial__record-date">
-                          {att.fecha.toDate().toLocaleDateString('es-AR')}
-                        </span>
-                        <span className="historial__record-author">
-                          Cargado por {att.cargadoPorNombre}
-                        </span>
-                      </div>
-                      <div className="historial__members">
-                        {att.registros.map((r, i) => (
-                          <span
-                            key={`${r.nombre}-${i}`}
-                            className={`historial__member ${r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
-                          >
-                            {r.nombre} ({r.presente ? 'P' : 'A'})
+            {expanded === 'asistencias' && (() => {
+              const { items, totalPages, page } = paginate(filteredAttendances, 'asistencias');
+              return (
+                <div className="historial__section-body">
+                  {items.length === 0 ? (
+                    <div className="historial__empty">No hay registros.</div>
+                  ) : (
+                    items.map((att) => (
+                      <div key={att.id} className="historial__record">
+                        <div className="historial__record-header">
+                          <span className="historial__record-date">
+                            {att.fecha.toDate().toLocaleDateString('es-AR')}
                           </span>
-                        ))}
+                          <span className="historial__record-author">
+                            Cargado por {att.cargadoPorNombre}
+                          </span>
+                        </div>
+                        <div className="historial__members">
+                          {att.registros.map((r, i) => (
+                            <span
+                              key={`${r.nombre}-${i}`}
+                              className={`historial__member ${r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
+                            >
+                              {r.nombre} ({r.presente ? 'P' : 'A'})
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+                    ))
+                  )}
+                  <Pagination current={page} total={totalPages} onChange={(p) => setPages((prev) => ({ ...prev, asistencias: p }))} />
+                </div>
+              );
+            })()}
           </div>
 
           <div className="historial__section">
@@ -239,36 +259,40 @@ const Historial = () => {
                 ▾
               </span>
             </button>
-            {expanded === 'docentes' && (
-              <div className="historial__section-body">
-                {filteredDocenteAttendances.length === 0 ? (
-                  <div className="historial__empty">No hay registros.</div>
-                ) : (
-                  filteredDocenteAttendances.map((att) => (
-                    <div key={att.id} className="historial__record">
-                      <div className="historial__record-header">
-                        <span className="historial__record-date">
-                          {att.fecha.toDate().toLocaleDateString('es-AR')}
-                        </span>
-                        <span className="historial__record-author">
-                          Cargado por {att.cargadoPorNombre}
-                        </span>
-                      </div>
-                      <div className="historial__members">
-                        {att.registros.map((r, i) => (
-                          <span
-                            key={`${r.nombre}-${i}`}
-                            className={`historial__member ${r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
-                          >
-                            {r.nombre} ({r.presente ? 'P' : 'A'})
+            {expanded === 'docentes' && (() => {
+              const { items, totalPages, page } = paginate(filteredDocenteAttendances, 'docentes');
+              return (
+                <div className="historial__section-body">
+                  {items.length === 0 ? (
+                    <div className="historial__empty">No hay registros.</div>
+                  ) : (
+                    items.map((att) => (
+                      <div key={att.id} className="historial__record">
+                        <div className="historial__record-header">
+                          <span className="historial__record-date">
+                            {att.fecha.toDate().toLocaleDateString('es-AR')}
                           </span>
-                        ))}
+                          <span className="historial__record-author">
+                            Cargado por {att.cargadoPorNombre}
+                          </span>
+                        </div>
+                        <div className="historial__members">
+                          {att.registros.map((r, i) => (
+                            <span
+                              key={`${r.nombre}-${i}`}
+                              className={`historial__member ${r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
+                            >
+                              {r.nombre} ({r.presente ? 'P' : 'A'})
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+                    ))
+                  )}
+                  <Pagination current={page} total={totalPages} onChange={(p) => setPages((prev) => ({ ...prev, docentes: p }))} />
+                </div>
+              );
+            })()}
           </div>
 
           <div className="historial__section">
@@ -286,28 +310,32 @@ const Historial = () => {
                 ▾
               </span>
             </button>
-            {expanded === 'novedades' && (
-              <div className="historial__section-body">
-                {filteredNews.length === 0 ? (
-                  <div className="historial__empty">No hay registros.</div>
-                ) : (
-                  filteredNews.map((n) => (
-                    <div key={n.id} className="historial__record">
-                      <div className="historial__record-header">
-                        <span className="historial__record-date">
-                          {n.fecha.toDate().toLocaleDateString('es-AR')}
-                        </span>
-                        <span className="historial__record-author">
-                          {novedadTipoLabel(n.tipo)}
-                          {n.hora ? ` · ${n.hora}` : ''}
-                        </span>
+            {expanded === 'novedades' && (() => {
+              const { items, totalPages, page } = paginate(filteredNews, 'novedades');
+              return (
+                <div className="historial__section-body">
+                  {items.length === 0 ? (
+                    <div className="historial__empty">No hay registros.</div>
+                  ) : (
+                    items.map((n) => (
+                      <div key={n.id} className="historial__record">
+                        <div className="historial__record-header">
+                          <span className="historial__record-date">
+                            {n.fecha.toDate().toLocaleDateString('es-AR')}
+                          </span>
+                          <span className="historial__record-author">
+                            {novedadTipoLabel(n.tipo)}
+                            {n.hora ? ` · ${n.hora}` : ''}
+                          </span>
+                        </div>
+                        <p className="historial__desc">{n.descripcion}</p>
                       </div>
-                      <p className="historial__desc">{n.descripcion}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+                    ))
+                  )}
+                  <Pagination current={page} total={totalPages} onChange={(p) => setPages((prev) => ({ ...prev, novedades: p }))} />
+                </div>
+              );
+            })()}
           </div>
 
           <div className="historial__section">
@@ -327,40 +355,44 @@ const Historial = () => {
                 ▾
               </span>
             </button>
-            {expanded === 'incidentes' && (
-              <div className="historial__section-body">
-                {filteredIncidents.length === 0 ? (
-                  <div className="historial__empty">No hay registros.</div>
-                ) : (
-                  filteredIncidents.map((inc) => (
-                    <div key={inc.id} className="historial__record">
-                      <div className="historial__record-header">
-                        <span className="historial__record-date">
-                          {inc.fecha.toDate().toLocaleDateString('es-AR')}
-                        </span>
-                        <StatusBadge status={inc.estado} />
-                      </div>
-                      <div className="historial__meta">
-                        <span className="historial__meta-tag">
-                          {incidentCategoriaLabel(inc.categoria)}
-                        </span>
-                        {inc.urgencia && (
-                          <span
-                            className={`historial__meta-tag historial__meta-tag--urgencia-${inc.urgencia}`}
-                          >
-                            Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+            {expanded === 'incidentes' && (() => {
+              const { items, totalPages, page } = paginate(filteredIncidents, 'incidentes');
+              return (
+                <div className="historial__section-body">
+                  {items.length === 0 ? (
+                    <div className="historial__empty">No hay registros.</div>
+                  ) : (
+                    items.map((inc) => (
+                      <div key={inc.id} className="historial__record">
+                        <div className="historial__record-header">
+                          <span className="historial__record-date">
+                            {inc.fecha.toDate().toLocaleDateString('es-AR')}
                           </span>
-                        )}
-                        {inc.ubicacion && (
-                          <span className="historial__meta-tag">Ubicación: {inc.ubicacion}</span>
-                        )}
+                          <StatusBadge status={inc.estado} />
+                        </div>
+                        <div className="historial__meta">
+                          <span className="historial__meta-tag">
+                            {incidentCategoriaLabel(inc.categoria)}
+                          </span>
+                          {inc.urgencia && (
+                            <span
+                              className={`historial__meta-tag historial__meta-tag--urgencia-${inc.urgencia}`}
+                            >
+                              Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+                            </span>
+                          )}
+                          {inc.ubicacion && (
+                            <span className="historial__meta-tag">Ubicación: {inc.ubicacion}</span>
+                          )}
+                        </div>
+                        <p className="historial__desc">{inc.descripcion}</p>
                       </div>
-                      <p className="historial__desc">{inc.descripcion}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+                    ))
+                  )}
+                  <Pagination current={page} total={totalPages} onChange={(p) => setPages((prev) => ({ ...prev, incidentes: p }))} />
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
