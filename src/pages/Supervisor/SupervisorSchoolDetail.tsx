@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, History } from 'lucide-react';
+import { ArrowLeft, CalendarDays, History, ClipboardCheck, Users, Newspaper, AlertTriangle } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -399,10 +399,13 @@ const SupervisorSchoolDetail = () => {
           </p>
 
           <div className="supervisor-detail__today-grid">
-            <div className="supervisor-detail__today-card">
+            <div className="supervisor-detail__today-card supervisor-detail__today-card--asistencia">
+              <div className="supervisor-detail__today-card-icon">
+                <ClipboardCheck size={20} strokeWidth={1.5} />
+              </div>
               <div className="supervisor-detail__today-card-header">
                 <span className="supervisor-detail__today-card-count">{todayAttendances.length}</span>
-                <span className="supervisor-detail__today-card-label">Asistencias de gestión</span>
+                <span className="supervisor-detail__today-card-label">Asistencia de gestión</span>
               </div>
               {todayAttendances.length === 0 ? (
                 <span className="supervisor-detail__today-empty">Sin registros hoy</span>
@@ -420,7 +423,10 @@ const SupervisorSchoolDetail = () => {
               )}
             </div>
 
-            <div className="supervisor-detail__today-card">
+            <div className="supervisor-detail__today-card supervisor-detail__today-card--docentes">
+              <div className="supervisor-detail__today-card-icon">
+                <Users size={20} strokeWidth={1.5} />
+              </div>
               <div className="supervisor-detail__today-card-header">
                 <span className="supervisor-detail__today-card-count">{todayDocenteAttendances.length}</span>
                 <span className="supervisor-detail__today-card-label">Asistencia del profesorado</span>
@@ -441,7 +447,10 @@ const SupervisorSchoolDetail = () => {
               )}
             </div>
 
-            <div className="supervisor-detail__today-card">
+            <div className="supervisor-detail__today-card supervisor-detail__today-card--novedades">
+              <div className="supervisor-detail__today-card-icon">
+                <Newspaper size={20} strokeWidth={1.5} />
+              </div>
               <div className="supervisor-detail__today-card-header">
                 <span className="supervisor-detail__today-card-count">{todayNews.length}</span>
                 <span className="supervisor-detail__today-card-label">Novedades</span>
@@ -462,7 +471,10 @@ const SupervisorSchoolDetail = () => {
               )}
             </div>
 
-            <div className="supervisor-detail__today-card">
+            <div className="supervisor-detail__today-card supervisor-detail__today-card--incidentes">
+              <div className="supervisor-detail__today-card-icon">
+                <AlertTriangle size={20} strokeWidth={1.5} />
+              </div>
               <div className="supervisor-detail__today-card-header">
                 <span className="supervisor-detail__today-card-count">{todayIncidents.length}</span>
                 <span className="supervisor-detail__today-card-label">Accidentes edilicios</span>

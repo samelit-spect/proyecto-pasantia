@@ -95,6 +95,18 @@ const SupervisorSchools = () => {
     }
   };
 
+  const countBySchool = (items: { escuelaId: string }[]) => {
+    const map: Record<string, number> = {};
+    items.forEach((item) => {
+      map[item.escuelaId] = (map[item.escuelaId] || 0) + 1;
+    });
+    return map;
+  };
+
+  const attBySchool = countBySchool(recentAttendances);
+  const newsBySchool = countBySchool(recentNews);
+  const incBySchool = countBySchool(recentIncidents);
+
   return (
     <>
       <div className="supervisor__header">
@@ -275,22 +287,41 @@ const SupervisorSchools = () => {
 
           <h3 className="supervisor-schools__section-title">Escuelas</h3>
           <div className="supervisor-schools__grid">
-            {schools.map((school) => (
-              <Link
-                key={school.id}
-                to={`/supervisor/escuela/${school.id}`}
-                className="supervisor-schools__card"
-              >
-                <div className="supervisor-schools__card-icon">
-                  <School size={24} strokeWidth={1.5} />
-                </div>
-                <div className="supervisor-schools__card-content">
-                  <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
-                  <span className="supervisor-schools__card-turno">{school.turno}</span>
-                </div>
-                <span className="supervisor-schools__card-arrow">→</span>
-              </Link>
-            ))}
+            {schools.map((school) => {
+              const att = attBySchool[school.id] || 0;
+              const nov = newsBySchool[school.id] || 0;
+              const inc = incBySchool[school.id] || 0;
+              return (
+                <Link
+                  key={school.id}
+                  to={`/supervisor/escuela/${school.id}`}
+                  className="supervisor-schools__card"
+                >
+                  <div className="supervisor-schools__card-icon">
+                    <School size={24} strokeWidth={1.5} />
+                  </div>
+                  <div className="supervisor-schools__card-content">
+                    <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
+                    <span className="supervisor-schools__card-turno">{school.turno}</span>
+                  </div>
+                  <div className="supervisor-schools__card-stats">
+                    <span className="supervisor-schools__card-stat" title="Asistencias hoy">
+                      <ClipboardCheck size={12} strokeWidth={2} />
+                      {att}
+                    </span>
+                    <span className="supervisor-schools__card-stat" title="Novedades hoy">
+                      <Newspaper size={12} strokeWidth={2} />
+                      {nov}
+                    </span>
+                    <span className="supervisor-schools__card-stat" title="Incidentes hoy">
+                      <AlertTriangle size={12} strokeWidth={2} />
+                      {inc}
+                    </span>
+                  </div>
+                  <span className="supervisor-schools__card-arrow">→</span>
+                </Link>
+              );
+            })}
           </div>
         </>
       )}

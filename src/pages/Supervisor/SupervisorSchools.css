@@ -306,6 +306,36 @@
   text-transform: capitalize;
 }
 
+.supervisor-schools__card-stats {
+  display: flex;
+  gap: 0.625rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+  justify-content: center;
+}
+
+.supervisor-schools__card-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.supervisor-schools__card-stat:first-child {
+  color: #166534;
+}
+
+.supervisor-schools__card-stat:nth-child(2) {
+  color: var(--primary-color);
+}
+
+.supervisor-schools__card-stat:nth-child(3) {
+  color: #dc2626;
+}
+
 .supervisor-schools__card-arrow {
   display: none;
 }
@@ -331,14 +361,26 @@
     flex-direction: row;
     text-align: left;
     padding: 1rem;
+    gap: 1rem;
   }
 
   .supervisor-schools__card-content {
     align-items: flex-start;
+    flex: 1;
   }
 
   .supervisor-schools__card-icon {
     width: 40px;
     height: 40px;
+  }
+
+  .supervisor-schools__card-stats {
+    border-top: none;
+    padding-top: 0;
+    width: auto;
+    justify-content: flex-end;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-end;
   }
 }
