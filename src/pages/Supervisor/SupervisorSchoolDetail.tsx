@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CalendarDays, History } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -51,10 +51,10 @@ import {
 import './SupervisorSchoolDetail.css';
 
 const DEFAULT_RANGE_START = new Date(2000, 0, 1);
+type ViewMode = 'hoy' | 'historico';
+type ExportType = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 
 const dateToLabel = (d: Date) => d.toLocaleDateString('es-AR');
-
-type ExportType = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 
 const SupervisorSchoolDetail = () => {
   const { schoolId } = useParams<{ schoolId: string }>();
@@ -73,6 +73,7 @@ const SupervisorSchoolDetail = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [expandedSection, setExpandedSection] = useState<string | null>('asistencias');
+  const [viewMode, setViewMode] = useState<ViewMode>('hoy');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -156,6 +157,12 @@ const SupervisorSchoolDetail = () => {
   const inDateRange = (fecha: string) =>
     (!dateFrom || fecha >= dateFrom) && (!dateTo || fecha <= dateTo);
   const filteredFotos = fotos.filter((f) => inDateRange(f.fecha));
+
+  const todayKey = dateKey({ toDate: () => new Date() });
+  const todayAttendances = attendances.filter((a) => dateKey(a.fecha) === todayKey);
+  const todayNews = news.filter((n) => dateKey(n.fecha) === todayKey);
+  const todayIncidents = incidents.filter((i) => dateKey(i.fecha) === todayKey);
+  const todayDocenteAttendances = docenteAttendances.filter((a) => dateKey(a.fecha) === todayKey);
 
   const handleAddDocente = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -347,13 +354,7 @@ const SupervisorSchoolDetail = () => {
         <h2 className="supervisor__title">{school.nombre}</h2>
       </div>
       <p className="supervisor__subtitle">
-        Turno: {school.turno} · {users.length} usuarios · {docentes.length} docentes ·{' '}
-        {attendances.length +
-          news.length +
-          incidents.length +
-          docenteAttendances.length +
-          fotos.length}{' '}
-        registros
+        Turno: {school.turno} · {users.length} usuarios · {docentes.length} docentes
       </p>
 
       {statusOp.feedback && (
@@ -374,94 +375,209 @@ const SupervisorSchoolDetail = () => {
         </div>
       )}
 
-      <div className="supervisor-detail__filters">
-        <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
-        <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
-        {(dateFrom || dateTo) && (
-          <button
-            className="supervisor-detail__filters-clear"
-            onClick={() => {
-              setDateFrom('');
-              setDateTo('');
-            }}
-          >
-            Limpiar filtros
-          </button>
-        )}
+      <div className="supervisor-detail__tabs">
+        <button
+          className={`supervisor-detail__tab ${viewMode === 'hoy' ? 'supervisor-detail__tab--active' : ''}`}
+          onClick={() => setViewMode('hoy')}
+        >
+          <CalendarDays size={15} strokeWidth={1.5} />
+          Hoy
+        </button>
+        <button
+          className={`supervisor-detail__tab ${viewMode === 'historico' ? 'supervisor-detail__tab--active' : ''}`}
+          onClick={() => setViewMode('historico')}
+        >
+          <History size={15} strokeWidth={1.5} />
+          Histórico
+        </button>
       </div>
 
-      <div className="supervisor-detail__sections">
-        <SchoolDetailAttendances
-          sectionId="asistencias"
-          title="Asistencias"
-          records={filteredAttendances}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('asistencias')}
-          onVerify={handleVerifyAttendance}
-          verifyUpdatingId={verifyOp.updatingId}
-          onExport={() => handleExport('asistencias')}
-          exporting={exporting === 'asistencias'}
-        />
+      {viewMode === 'hoy' && (
+        <div className="supervisor-detail__today">
+          <p className="supervisor-detail__today-date">
+            {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
 
-        <SchoolDetailAttendances
-          sectionId="asistencia-docentes"
-          title="Asistencia de Docentes"
-          records={filteredDocenteAttendances}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('asistencia-docentes')}
-          onVerify={handleVerifyDocenteAttendance}
-          verifyUpdatingId={verifyOp.updatingId}
-          onExport={() => handleExport('docentes')}
-          exporting={exporting === 'docentes'}
-        />
+          <div className="supervisor-detail__today-grid">
+            <div className="supervisor-detail__today-card">
+              <div className="supervisor-detail__today-card-header">
+                <span className="supervisor-detail__today-card-count">{todayAttendances.length}</span>
+                <span className="supervisor-detail__today-card-label">Asistencias de gestión</span>
+              </div>
+              {todayAttendances.length === 0 ? (
+                <span className="supervisor-detail__today-empty">Sin registros hoy</span>
+              ) : (
+                <div className="supervisor-detail__today-list">
+                  {todayAttendances.map((a) => (
+                    <div key={a.id} className="supervisor-detail__today-item">
+                      <span>{a.cargadoPorNombre}</span>
+                      <span className="supervisor-detail__today-item-detail">
+                        {a.registros.filter((r) => r.presente).length}/{a.registros.length} presentes
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-        <SchoolDetailNews
-          news={filteredNews}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('novedades')}
-          onExport={() => handleExport('novedades')}
-          exporting={exporting === 'novedades'}
-        />
+            <div className="supervisor-detail__today-card">
+              <div className="supervisor-detail__today-card-header">
+                <span className="supervisor-detail__today-card-count">{todayDocenteAttendances.length}</span>
+                <span className="supervisor-detail__today-card-label">Asistencia del profesorado</span>
+              </div>
+              {todayDocenteAttendances.length === 0 ? (
+                <span className="supervisor-detail__today-empty">Sin registros hoy</span>
+              ) : (
+                <div className="supervisor-detail__today-list">
+                  {todayDocenteAttendances.map((a) => (
+                    <div key={a.id} className="supervisor-detail__today-item">
+                      <span>{a.cargadoPorNombre}</span>
+                      <span className="supervisor-detail__today-item-detail">
+                        {a.registros.filter((r) => r.presente).length}/{a.registros.length} presentes
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-        <SchoolDetailIncidents
-          incidents={filteredIncidents}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('incidentes')}
-          onStatusChange={handleStatusChange}
-          statusUpdatingId={statusOp.updatingId}
-          onLightbox={setLightbox}
-          onExport={() => handleExport('incidentes')}
-          exporting={exporting === 'incidentes'}
-        />
+            <div className="supervisor-detail__today-card">
+              <div className="supervisor-detail__today-card-header">
+                <span className="supervisor-detail__today-card-count">{todayNews.length}</span>
+                <span className="supervisor-detail__today-card-label">Novedades</span>
+              </div>
+              {todayNews.length === 0 ? (
+                <span className="supervisor-detail__today-empty">Sin registros hoy</span>
+              ) : (
+                <div className="supervisor-detail__today-list">
+                  {todayNews.map((n) => (
+                    <div key={n.id} className="supervisor-detail__today-item">
+                      <span className="supervisor-detail__today-item-desc">{n.descripcion}</span>
+                      <span className="supervisor-detail__today-item-detail">
+                        {novedadTipoLabel(n.tipo)}{n.hora ? ` · ${n.hora}` : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-        <SchoolDetailUsers
-          users={users}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('usuarios')}
-        />
+            <div className="supervisor-detail__today-card">
+              <div className="supervisor-detail__today-card-header">
+                <span className="supervisor-detail__today-card-count">{todayIncidents.length}</span>
+                <span className="supervisor-detail__today-card-label">Accidentes edilicios</span>
+              </div>
+              {todayIncidents.length === 0 ? (
+                <span className="supervisor-detail__today-empty">Sin registros hoy</span>
+              ) : (
+                <div className="supervisor-detail__today-list">
+                  {todayIncidents.map((inc) => (
+                    <div key={inc.id} className="supervisor-detail__today-item">
+                      <span className="supervisor-detail__today-item-desc">{inc.descripcion}</span>
+                      <span className="supervisor-detail__today-item-detail">
+                        {incidentCategoriaLabel(inc.categoria)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-        <SchoolDetailDocentes
-          docentes={docentes}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('docentes')}
-          formNombre={docenteFormNombre}
-          formMateria={docenteFormMateria}
-          formSubmitting={docenteFormSubmitting}
-          feedback={docenteOp.feedback}
-          updatingId={docenteOp.updatingId}
-          onNombreChange={setDocenteFormNombre}
-          onMateriaChange={setDocenteFormMateria}
-          onSubmit={handleAddDocente}
-          onToggleDocente={handleToggleDocente}
-        />
+      {viewMode === 'historico' && (
+        <>
+          <div className="supervisor-detail__filters">
+            <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
+            <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
+            {(dateFrom || dateTo) && (
+              <button
+                className="supervisor-detail__filters-clear"
+                onClick={() => {
+                  setDateFrom('');
+                  setDateTo('');
+                }}
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
 
-        <SchoolDetailFotos
-          fotos={filteredFotos}
-          expandedSection={expandedSection ?? ''}
-          onToggle={() => toggleSection('fotos')}
-          onLightbox={setLightbox}
-        />
-      </div>
+          <div className="supervisor-detail__sections">
+            <SchoolDetailAttendances
+              sectionId="asistencias"
+              title="Asistencia de gestión"
+              records={filteredAttendances}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('asistencias')}
+              onVerify={handleVerifyAttendance}
+              verifyUpdatingId={verifyOp.updatingId}
+              onExport={() => handleExport('asistencias')}
+              exporting={exporting === 'asistencias'}
+            />
+
+            <SchoolDetailAttendances
+              sectionId="asistencia-docentes"
+              title="Asistencia del profesorado"
+              records={filteredDocenteAttendances}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('asistencia-docentes')}
+              onVerify={handleVerifyDocenteAttendance}
+              verifyUpdatingId={verifyOp.updatingId}
+              onExport={() => handleExport('docentes')}
+              exporting={exporting === 'docentes'}
+            />
+
+            <SchoolDetailNews
+              news={filteredNews}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('novedades')}
+              onExport={() => handleExport('novedades')}
+              exporting={exporting === 'novedades'}
+            />
+
+            <SchoolDetailIncidents
+              incidents={filteredIncidents}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('incidentes')}
+              onStatusChange={handleStatusChange}
+              statusUpdatingId={statusOp.updatingId}
+              onLightbox={setLightbox}
+              onExport={() => handleExport('incidentes')}
+              exporting={exporting === 'incidentes'}
+            />
+
+            <SchoolDetailUsers
+              users={users}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('usuarios')}
+            />
+
+            <SchoolDetailDocentes
+              docentes={docentes}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('docentes')}
+              formNombre={docenteFormNombre}
+              formMateria={docenteFormMateria}
+              formSubmitting={docenteFormSubmitting}
+              feedback={docenteOp.feedback}
+              updatingId={docenteOp.updatingId}
+              onNombreChange={setDocenteFormNombre}
+              onMateriaChange={setDocenteFormMateria}
+              onSubmit={handleAddDocente}
+              onToggleDocente={handleToggleDocente}
+            />
+
+            <SchoolDetailFotos
+              fotos={filteredFotos}
+              expandedSection={expandedSection ?? ''}
+              onToggle={() => toggleSection('fotos')}
+              onLightbox={setLightbox}
+            />
+          </div>
+        </>
+      )}
 
       {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
     </>
