@@ -42,6 +42,7 @@ import SchoolDetailFotos from '@/components/supervisor/SchoolDetailFotos/SchoolD
 import Lightbox from '@/components/supervisor/Lightbox/Lightbox';
 import useFeedback from '@/hooks/useFeedback';
 import { downloadCsv } from '@/utils/exportCsv';
+import { dateKey } from '@/utils/dateKey';
 import {
   novedadTipoLabel,
   incidentCategoriaLabel,
@@ -144,12 +145,6 @@ const SupervisorSchoolDetail = () => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  const dateKey = (ts: { toDate: () => Date }) => {
-    const d = ts.toDate();
-    const offset = d.getTimezoneOffset();
-    return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
-  };
-
   const inRange = (ts: { toDate: () => Date }) =>
     (!dateFrom || dateKey(ts) >= dateFrom) && (!dateTo || dateKey(ts) <= dateTo);
 
@@ -218,27 +213,21 @@ const SupervisorSchoolDetail = () => {
     }
   };
 
-  const handleVerifyAttendance = async (attendanceId: string, verified: boolean) => {
+  const makeVerifyHandler = <T extends { id: string }>(
+    apiCall: (id: string, v: boolean, p: { uid: string; nombre: string }) => Promise<void>,
+    setState: React.Dispatch<React.SetStateAction<T[]>>,
+    updater: (att: T, verified: boolean) => T,
+  ) => async (attendanceId: string, verified: boolean) => {
     if (!profile) return;
     verifyOp.start(attendanceId);
 
     try {
-      await setAttendanceVerified(attendanceId, verified, {
+      await apiCall(attendanceId, verified, {
         uid: profile.uid,
         nombre: profile.nombre,
       });
-      setAttendances((prev) =>
-        prev.map((att) =>
-          att.id === attendanceId
-            ? {
-                ...att,
-                verificada: verified,
-                verificadoPor: verified ? profile.uid : undefined,
-                verificadoPorNombre: verified ? profile.nombre : undefined,
-                verificadoEn: verified ? Timestamp.now() : undefined,
-              }
-            : att
-        )
+      setState((prev: T[]) =>
+        prev.map((att) => (att.id === attendanceId ? updater(att, verified) : att))
       );
       verifyOp.end({
         type: 'success',
@@ -249,36 +238,24 @@ const SupervisorSchoolDetail = () => {
     }
   };
 
-  const handleVerifyDocenteAttendance = async (attendanceId: string, verified: boolean) => {
-    if (!profile) return;
-    verifyOp.start(attendanceId);
+  const verifyAttendanceUpdater = (att: Attendance, verified: boolean): Attendance => ({
+    ...att,
+    verificada: verified,
+    verificadoPor: verified ? profile!.uid : undefined,
+    verificadoPorNombre: verified ? profile!.nombre : undefined,
+    verificadoEn: verified ? Timestamp.now() : undefined,
+  });
 
-    try {
-      await setDocenteAttendanceVerified(attendanceId, verified, {
-        uid: profile.uid,
-        nombre: profile.nombre,
-      });
-      setDocenteAttendances((prev) =>
-        prev.map((att) =>
-          att.id === attendanceId
-            ? {
-                ...att,
-                verificada: verified,
-                verificadoPor: verified ? profile.uid : undefined,
-                verificadoPorNombre: verified ? profile.nombre : undefined,
-                verificadoEn: verified ? Timestamp.now() : undefined,
-              }
-            : att
-        )
-      );
-      verifyOp.end({
-        type: 'success',
-        message: verified ? 'Asistencia verificada.' : 'Verificación removida.',
-      });
-    } catch {
-      verifyOp.end({ type: 'error', message: 'No se pudo actualizar la verificación.' });
-    }
-  };
+  const verifyDocenteUpdater = (att: DocenteAttendance, verified: boolean): DocenteAttendance => ({
+    ...att,
+    verificada: verified,
+    verificadoPor: verified ? profile!.uid : undefined,
+    verificadoPorNombre: verified ? profile!.nombre : undefined,
+    verificadoEn: verified ? Timestamp.now() : undefined,
+  });
+
+  const handleVerifyAttendance = makeVerifyHandler(setAttendanceVerified, setAttendances, verifyAttendanceUpdater);
+  const handleVerifyDocenteAttendance = makeVerifyHandler(setDocenteAttendanceVerified, setDocenteAttendances, verifyDocenteUpdater);
 
   const handleExport = async (type: ExportType) => {
     if (!schoolId || !school) return;

@@ -10,15 +10,10 @@ import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { novedadTipoLabel, incidentCategoriaLabel, incidentUrgenciaLabel } from '@/utils/constants';
+import { dateKey } from '@/utils/dateKey';
 import './Historial.css';
 
 type SectionKey = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
-
-const dateKey = (ts: { toDate: () => Date }) => {
-  const d = ts.toDate();
-  const offset = d.getTimezoneOffset();
-  return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
-};
 
 const Historial = () => {
   const { profile, hasRole } = useAuth();
