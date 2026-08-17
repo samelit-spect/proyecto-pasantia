@@ -123,6 +123,18 @@ export async function setUserActive(uid: string, activo: boolean): Promise<void>
   await updateDoc(doc(db, COLLECTIONS.users, uid), { activo });
 }
 
+export async function updateUserProfile(
+  uid: string,
+  data: { nombre: string; email: string; rol: string; escuelaId: string }
+): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.users, uid), {
+    nombre: data.nombre,
+    email: data.email,
+    rol: data.rol,
+    escuelaId: data.escuelaId,
+  });
+}
+
 export async function addAttendance(data: AddAttendanceDTO): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS.attendances), {
     escuelaId: data.escuelaId,

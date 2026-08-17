@@ -3,6 +3,7 @@ import {
   initializeAuth,
   inMemoryPersistence,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
 } from 'firebase/auth';
 import { firebaseConfig } from '@/services/firebase';
@@ -25,4 +26,8 @@ export async function createUserAccount(email: string, password: string): Promis
   } finally {
     await signOut(adminAuth);
   }
+}
+
+export async function sendPasswordReset(email: string): Promise<void> {
+  await sendPasswordResetEmail(adminAuth, email);
 }

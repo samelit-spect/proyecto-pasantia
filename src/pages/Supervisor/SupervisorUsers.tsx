@@ -3,16 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, UserPlus, X, Power } from 'lucide-react';
-import { getSchools, getAllUsers, addUserProfile, setUserActive } from '@/services/api/firestore';
-import { createUserAccount } from '@/services/api/auth';
+import {
+  ArrowLeft,
+  UserPlus,
+  X,
+  Power,
+  Pencil,
+  RotateCcw,
+} from 'lucide-react';
+import {
+  getSchools,
+  getAllUsers,
+  addUserProfile,
+  setUserActive,
+  updateUserProfile,
+} from '@/services/api/firestore';
+import { createUserAccount, sendPasswordReset } from '@/services/api/auth';
 import { getAuthErrorMessage } from '@/utils/authErrors';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import './SupervisorUsers.css';
 
-const ROLES = ['director', 'vice', 'preceptor', 'secretario', 'conserje'] as const;
+const ROLES = ['director', 'vice', 'preceptor', 'secretario', 'conserje', 'supervisor'] as const;
 
 const createUserSchema = z.object({
   nombre: z.string().min(3, 'Mínimo 3 caracteres'),
@@ -23,6 +36,15 @@ const createUserSchema = z.object({
 });
 
 type CreateUserFormData = z.infer<typeof createUserSchema>;
+
+const editUserSchema = z.object({
+  nombre: z.string().min(3, 'Mínimo 3 caracteres'),
+  email: z.string().email('El email no es válido'),
+  rol: z.enum(ROLES),
+  escuelaId: z.string().min(1, 'Seleccioná una escuela'),
+});
+
+type EditUserFormData = z.infer<typeof editUserSchema>;
 
 const SupervisorUsers = () => {
   const navigate = useNavigate();
@@ -35,18 +57,14 @@ const SupervisorUsers = () => {
   const [filterSchoolId, setFilterSchoolId] = useState('');
 
   const [showForm, setShowForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [resettingId, setResettingId] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateUserFormData>({
+  const createForm = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
       nombre: '',
@@ -55,6 +73,10 @@ const SupervisorUsers = () => {
       rol: 'director',
       escuelaId: '',
     },
+  });
+
+  const editForm = useForm<EditUserFormData>({
+    resolver: zodResolver(editUserSchema),
   });
 
   const loadUsers = async () => {
@@ -75,9 +97,13 @@ const SupervisorUsers = () => {
     loadUsers();
   }, []);
 
-  const onSubmit = async (data: CreateUserFormData) => {
-    setFeedback(null);
+  const showFeedback = (type: 'success' | 'error', message: string) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
+  };
 
+  const handleCreate = async (data: CreateUserFormData) => {
+    setFeedback(null);
     try {
       const uid = await createUserAccount(data.email, data.password);
       await addUserProfile({
@@ -88,16 +114,43 @@ const SupervisorUsers = () => {
         escuelaId: data.escuelaId,
         cargo: data.rol,
       });
-
-      setFeedback({ type: 'success', message: 'Usuario creado correctamente.' });
-      reset();
+      showFeedback('success', 'Usuario creado correctamente.');
+      createForm.reset();
       setShowForm(false);
       await loadUsers();
-      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch (err) {
-      const message = getAuthErrorMessage(err);
-      setFeedback({ type: 'error', message });
+      showFeedback('error', getAuthErrorMessage(err));
     }
+  };
+
+  const handleEdit = async (data: EditUserFormData) => {
+    if (!editingUser) return;
+    setFeedback(null);
+    try {
+      await updateUserProfile(editingUser.uid, {
+        nombre: data.nombre,
+        email: data.email,
+        rol: data.rol,
+        escuelaId: data.escuelaId,
+      });
+      showFeedback('success', 'Usuario actualizado correctamente.');
+      setEditingUser(null);
+      await loadUsers();
+    } catch {
+      showFeedback('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
+    }
+  };
+
+  const startEditing = (user: UserProfile) => {
+    setEditingUser(user);
+    setShowForm(false);
+    setFeedback(null);
+    editForm.reset({
+      nombre: user.nombre,
+      email: user.email,
+      rol: user.rol,
+      escuelaId: user.escuelaId,
+    });
   };
 
   const handleToggleActive = async (user: UserProfile) => {
@@ -115,13 +168,26 @@ const SupervisorUsers = () => {
         prev.map((u) => (u.uid === user.uid ? { ...u, activo: !(u.activo ?? true) } : u))
       );
     } catch {
-      setFeedback({
-        type: 'error',
-        message: 'No se pudo actualizar el usuario. Intentá de nuevo.',
-      });
-      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
+      showFeedback('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
     } finally {
       setTogglingId(null);
+    }
+  };
+
+  const handleResetPassword = async (user: UserProfile) => {
+    if (!window.confirm(`¿Enviar email de restablecimiento a ${user.email}?`)) return;
+
+    if (resettingId) return;
+    setResettingId(user.uid);
+    setFeedback(null);
+
+    try {
+      await sendPasswordReset(user.email);
+      showFeedback('success', `Email de restablecimiento enviado a ${user.email}.`);
+    } catch (err) {
+      showFeedback('error', getAuthErrorMessage(err));
+    } finally {
+      setResettingId(null);
     }
   };
 
@@ -149,7 +215,8 @@ const SupervisorUsers = () => {
           <button
             className="supervisor-users__add-btn"
             onClick={() => {
-              reset();
+              createForm.reset();
+              setEditingUser(null);
               setFeedback(null);
               setShowForm(!showForm);
             }}
@@ -181,7 +248,7 @@ const SupervisorUsers = () => {
       )}
 
       {showForm && (
-        <form className="supervisor-users__form" onSubmit={handleSubmit(onSubmit)}>
+        <form className="supervisor-users__form" onSubmit={createForm.handleSubmit(handleCreate)}>
           <h3 className="supervisor-users__form-title">Crear usuario</h3>
 
           <div className="supervisor-users__form-row">
@@ -191,23 +258,29 @@ const SupervisorUsers = () => {
                 className="supervisor-users__input"
                 type="text"
                 placeholder="Ej: Juan Pérez"
-                {...register('nombre')}
+                {...createForm.register('nombre')}
               />
-              {errors.nombre && (
-                <span className="supervisor-users__error">{errors.nombre.message}</span>
+              {createForm.formState.errors.nombre && (
+                <span className="supervisor-users__error">
+                  {createForm.formState.errors.nombre.message}
+                </span>
               )}
             </label>
 
             <label className="supervisor-users__label">
               Rol *
-              <select className="supervisor-users__select" {...register('rol')}>
+              <select className="supervisor-users__select" {...createForm.register('rol')}>
                 {ROLES.map((rol) => (
                   <option key={rol} value={rol}>
                     {rol}
                   </option>
                 ))}
               </select>
-              {errors.rol && <span className="supervisor-users__error">{errors.rol.message}</span>}
+              {createForm.formState.errors.rol && (
+                <span className="supervisor-users__error">
+                  {createForm.formState.errors.rol.message}
+                </span>
+              )}
             </label>
           </div>
 
@@ -219,10 +292,12 @@ const SupervisorUsers = () => {
                 type="email"
                 placeholder="tu@email.com"
                 autoComplete="off"
-                {...register('email')}
+                {...createForm.register('email')}
               />
-              {errors.email && (
-                <span className="supervisor-users__error">{errors.email.message}</span>
+              {createForm.formState.errors.email && (
+                <span className="supervisor-users__error">
+                  {createForm.formState.errors.email.message}
+                </span>
               )}
             </label>
 
@@ -233,22 +308,26 @@ const SupervisorUsers = () => {
                 type="password"
                 placeholder="Mínimo 6 caracteres"
                 autoComplete="new-password"
-                {...register('password')}
+                {...createForm.register('password')}
               />
-              {errors.password && (
-                <span className="supervisor-users__error">{errors.password.message}</span>
+              {createForm.formState.errors.password && (
+                <span className="supervisor-users__error">
+                  {createForm.formState.errors.password.message}
+                </span>
               )}
             </label>
           </div>
 
           <Controller
             name="escuelaId"
-            control={control}
+            control={createForm.control}
             render={({ field }) => (
               <div className="supervisor-users__form-school">
                 <SchoolSelect value={field.value} onChange={field.onChange} />
-                {errors.escuelaId && (
-                  <span className="supervisor-users__error">{errors.escuelaId.message}</span>
+                {createForm.formState.errors.escuelaId && (
+                  <span className="supervisor-users__error">
+                    {createForm.formState.errors.escuelaId.message}
+                  </span>
                 )}
               </div>
             )}
@@ -263,9 +342,104 @@ const SupervisorUsers = () => {
             </div>
           )}
 
-          <button type="submit" className="supervisor-users__submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creando...' : 'Crear usuario'}
+          <button type="submit" className="supervisor-users__submit" disabled={createForm.formState.isSubmitting}>
+            {createForm.formState.isSubmitting ? 'Creando...' : 'Crear usuario'}
           </button>
+        </form>
+      )}
+
+      {editingUser && (
+        <form className="supervisor-users__form" onSubmit={editForm.handleSubmit(handleEdit)}>
+          <h3 className="supervisor-users__form-title">
+            Editar usuario — {editingUser.nombre}
+          </h3>
+
+          <div className="supervisor-users__form-row">
+            <label className="supervisor-users__label">
+              Nombre completo *
+              <input
+                className="supervisor-users__input"
+                type="text"
+                {...editForm.register('nombre')}
+              />
+              {editForm.formState.errors.nombre && (
+                <span className="supervisor-users__error">
+                  {editForm.formState.errors.nombre.message}
+                </span>
+              )}
+            </label>
+
+            <label className="supervisor-users__label">
+              Rol *
+              <select className="supervisor-users__select" {...editForm.register('rol')}>
+                {ROLES.map((rol) => (
+                  <option key={rol} value={rol}>
+                    {rol}
+                  </option>
+                ))}
+              </select>
+              {editForm.formState.errors.rol && (
+                <span className="supervisor-users__error">
+                  {editForm.formState.errors.rol.message}
+                </span>
+              )}
+            </label>
+          </div>
+
+          <label className="supervisor-users__label">
+            Email *
+            <input
+              className="supervisor-users__input"
+              type="email"
+              {...editForm.register('email')}
+            />
+            {editForm.formState.errors.email && (
+              <span className="supervisor-users__error">
+                {editForm.formState.errors.email.message}
+              </span>
+            )}
+          </label>
+
+          <Controller
+            name="escuelaId"
+            control={editForm.control}
+            render={({ field }) => (
+              <div className="supervisor-users__form-school">
+                <SchoolSelect value={field.value} onChange={field.onChange} />
+                {editForm.formState.errors.escuelaId && (
+                  <span className="supervisor-users__error">
+                    {editForm.formState.errors.escuelaId.message}
+                  </span>
+                )}
+              </div>
+            )}
+          />
+
+          <p className="supervisor-users__hint">
+            Para cambiar la contraseña, usá el botón "Restablecer" en la lista de usuarios.
+          </p>
+
+          {feedback && (
+            <div
+              className={`supervisor-users__feedback supervisor-users__feedback--${feedback.type}`}
+              role="alert"
+            >
+              {feedback.message}
+            </div>
+          )}
+
+          <div className="supervisor-users__form-actions">
+            <button type="submit" className="supervisor-users__submit" disabled={editForm.formState.isSubmitting}>
+              {editForm.formState.isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+            <button
+              type="button"
+              className="supervisor-users__cancel"
+              onClick={() => setEditingUser(null)}
+            >
+              Cancelar
+            </button>
+          </div>
         </form>
       )}
 
@@ -302,15 +476,32 @@ const SupervisorUsers = () => {
                     </div>
 
                     {user.rol !== 'supervisor' && (
-                      <button
-                        className="supervisor-users__toggle"
-                        onClick={() => handleToggleActive(user)}
-                        disabled={togglingId === user.uid}
-                        title={isActive ? 'Desactivar usuario' : 'Activar usuario'}
-                      >
-                        <Power size={16} strokeWidth={1.5} />
-                        {togglingId === user.uid ? '...' : isActive ? 'Desactivar' : 'Activar'}
-                      </button>
+                      <div className="supervisor-users__item-actions">
+                        <button
+                          className="supervisor-users__action-btn"
+                          onClick={() => startEditing(user)}
+                          title="Editar usuario"
+                        >
+                          <Pencil size={14} strokeWidth={1.5} />
+                        </button>
+                        <button
+                          className="supervisor-users__action-btn"
+                          onClick={() => handleResetPassword(user)}
+                          disabled={resettingId === user.uid}
+                          title="Restablecer contraseña"
+                        >
+                          <RotateCcw size={14} strokeWidth={1.5} />
+                        </button>
+                        <button
+                          className="supervisor-users__toggle"
+                          onClick={() => handleToggleActive(user)}
+                          disabled={togglingId === user.uid}
+                          title={isActive ? 'Desactivar usuario' : 'Activar usuario'}
+                        >
+                          <Power size={16} strokeWidth={1.5} />
+                          {togglingId === user.uid ? '...' : isActive ? 'Desactivar' : 'Activar'}
+                        </button>
+                      </div>
                     )}
                   </div>
                 );
