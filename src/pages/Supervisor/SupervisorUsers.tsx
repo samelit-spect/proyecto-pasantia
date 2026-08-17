@@ -479,27 +479,31 @@ const SupervisorUsers = () => {
                       <div className="supervisor-users__item-actions">
                         <button
                           className="supervisor-users__action-btn"
+                          data-tooltip="Editar nombre, email, rol o escuela"
                           onClick={() => startEditing(user)}
-                          title="Editar usuario"
                         >
                           <Pencil size={14} strokeWidth={1.5} />
+                          <span className="supervisor-users__action-label">Editar</span>
                         </button>
                         <button
                           className="supervisor-users__action-btn"
+                          data-tooltip="Enviar email para restablecer la contraseña"
                           onClick={() => handleResetPassword(user)}
                           disabled={resettingId === user.uid}
-                          title="Restablecer contraseña"
                         >
                           <RotateCcw size={14} strokeWidth={1.5} />
+                          <span className="supervisor-users__action-label">Contraseña</span>
                         </button>
                         <button
                           className="supervisor-users__toggle"
+                          data-tooltip={isActive ? 'Desactivar acceso del usuario' : 'Activar acceso del usuario'}
                           onClick={() => handleToggleActive(user)}
                           disabled={togglingId === user.uid}
-                          title={isActive ? 'Desactivar usuario' : 'Activar usuario'}
                         >
                           <Power size={16} strokeWidth={1.5} />
-                          {togglingId === user.uid ? '...' : isActive ? 'Desactivar' : 'Activar'}
+                          <span className="supervisor-users__toggle-text">
+                            {togglingId === user.uid ? '...' : isActive ? 'Desactivar' : 'Activar'}
+                          </span>
                         </button>
                       </div>
                     )}
