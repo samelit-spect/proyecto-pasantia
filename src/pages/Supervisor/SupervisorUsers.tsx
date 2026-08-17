@@ -100,6 +100,10 @@ const SupervisorUsers = () => {
   };
 
   const handleToggleActive = async (user: UserProfile) => {
+    const isActive = user.activo ?? true;
+    const action = isActive ? 'desactivar' : 'activar';
+    if (!window.confirm(`¿Seguro que querés ${action} a ${user.nombre}?`)) return;
+
     if (togglingId) return;
     setTogglingId(user.uid);
     setFeedback(null);

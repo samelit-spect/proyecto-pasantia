@@ -107,6 +107,8 @@ const Fotos = () => {
   };
 
   const handleDelete = async (foto: Foto) => {
+    if (!window.confirm('¿Seguro que querés eliminar esta foto?')) return;
+
     setFeedback(null);
     setDeletingId(foto.id);
 
