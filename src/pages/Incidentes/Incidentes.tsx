@@ -8,7 +8,7 @@ import { fileToCompressedDataUrl } from '@/utils/image';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { incidenteSchema } from '@/utils/validation';
-import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS } from '@/utils/constants';
+import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { IncidentCategoria, IncidentUrgencia } from '@/types';
 import './Incidentes.css';
 
@@ -75,7 +75,7 @@ const Incidentes = () => {
       setFoto(null);
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
       setFeedback({ type: 'error', message: 'Error al registrar el incidente. Intentá de nuevo.' });
     }

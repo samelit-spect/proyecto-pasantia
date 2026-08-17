@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
+import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 
 type Feedback = { type: 'success' | 'error'; message: string } | null;
 
-const useFeedback = (autoClearMs = 3000) => {
+const useFeedback = (autoClearMs = FEEDBACK_AUTO_CLEAR_MS) => {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

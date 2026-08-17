@@ -7,6 +7,7 @@ import { ArrowLeft, UserPlus, X, Power } from 'lucide-react';
 import { getSchools, getAllUsers, addUserProfile, setUserActive } from '@/services/api/firestore';
 import { createUserAccount } from '@/services/api/auth';
 import { getAuthErrorMessage } from '@/utils/authErrors';
+import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import './SupervisorUsers.css';
@@ -92,7 +93,7 @@ const SupervisorUsers = () => {
       reset();
       setShowForm(false);
       await loadUsers();
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch (err) {
       const message = getAuthErrorMessage(err);
       setFeedback({ type: 'error', message });
@@ -118,7 +119,7 @@ const SupervisorUsers = () => {
         type: 'error',
         message: 'No se pudo actualizar el usuario. Intentá de nuevo.',
       });
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } finally {
       setTogglingId(null);
     }

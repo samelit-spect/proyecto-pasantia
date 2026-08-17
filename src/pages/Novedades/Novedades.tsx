@@ -7,7 +7,7 @@ import { addNews } from '@/services/api/firestore';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { novedadSchema } from '@/utils/validation';
-import { NOVEDAD_TIPOS } from '@/utils/constants';
+import { NOVEDAD_TIPOS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { NovedadTipo } from '@/types';
 import './Novedades.css';
 
@@ -54,7 +54,7 @@ const Novedades = () => {
 
       setFeedback({ type: 'success', message: 'Novedad registrada correctamente.' });
       reset();
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
       setFeedback({ type: 'error', message: 'Error al registrar la novedad. Intentá de nuevo.' });
     }

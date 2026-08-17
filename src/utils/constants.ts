@@ -1,5 +1,7 @@
 import type { NovedadTipo, IncidentCategoria, IncidentUrgencia, IncidentStatus } from '@/types';
 
+export const FEEDBACK_AUTO_CLEAR_MS = 5000;
+
 export const NOVEDAD_TIPOS: { value: NovedadTipo; label: string }[] = [
   { value: 'acto', label: 'Acto' },
   { value: 'actividad', label: 'Actividad' },

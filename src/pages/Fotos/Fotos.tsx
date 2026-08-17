@@ -6,6 +6,7 @@ import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import { todayISO } from '@/utils/validation';
+import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { Foto } from '@/types';
 import './Fotos.css';
 
@@ -98,7 +99,7 @@ const Fotos = () => {
       setFile(null);
       setFeedback({ type: 'success', message: 'Foto subida correctamente.' });
       setRefreshKey((k) => k + 1);
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
       setFeedback({ type: 'error', message: 'Error al subir la foto. Intentá de nuevo.' });
     } finally {
@@ -116,7 +117,7 @@ const Fotos = () => {
       await deleteFoto(foto.id);
       setFotos((prev) => (prev ?? []).filter((f) => f.id !== foto.id));
       setFeedback({ type: 'success', message: 'Foto eliminada.' });
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
       setFeedback({ type: 'error', message: 'No se pudo eliminar la foto.' });
     } finally {
