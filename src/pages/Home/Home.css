@@ -143,6 +143,11 @@
   color: #7c3aed;
 }
 
+.home__card-icon--teal {
+  background-color: #ccfbf1;
+  color: #0d9488;
+}
+
 .home__error {
   padding: 0.75rem 1rem;
   margin-bottom: 1.75rem;

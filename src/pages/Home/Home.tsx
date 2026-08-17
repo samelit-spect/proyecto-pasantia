@@ -9,6 +9,7 @@ import {
   Eye,
   Settings,
   Camera,
+  Palette,
 } from 'lucide-react';
 import {
   getTodayAttendances,
@@ -222,6 +223,16 @@ const Home = () => {
                 <div className="home__card-content">
                   <h3 className="home__card-title">Configuración de Usuarios</h3>
                   <p className="home__card-desc">Crear y administrar directores de escuelas.</p>
+                </div>
+                <span className="home__card-arrow">Ir →</span>
+              </Link>
+              <Link to="/tema" className="home__card">
+                <div className="home__card-icon home__card-icon--teal">
+                  <Palette size={28} strokeWidth={1.5} />
+                </div>
+                <div className="home__card-content">
+                  <h3 className="home__card-title">Apariencia</h3>
+                  <p className="home__card-desc">Configurar colores, tema y estilo de la app.</p>
                 </div>
                 <span className="home__card-arrow">Ir →</span>
               </Link>
