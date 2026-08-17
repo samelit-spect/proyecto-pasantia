@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { getAuthErrorMessage } from '@/utils/authErrors';
 import './Login.css';
 
 const Login = () => {
@@ -20,7 +21,7 @@ const Login = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      setError(getAuthErrorMessage(err));
     } finally {
       setIsLoading(false);
     }

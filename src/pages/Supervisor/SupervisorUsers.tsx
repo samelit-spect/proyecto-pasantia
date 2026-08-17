@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { ArrowLeft, UserPlus, X, Power } from 'lucide-react';
 import { getSchools, getAllUsers, addUserProfile, setUserActive } from '@/services/api/firestore';
 import { createUserAccount } from '@/services/api/auth';
+import { getAuthErrorMessage } from '@/utils/authErrors';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import './SupervisorUsers.css';
@@ -93,11 +94,7 @@ const SupervisorUsers = () => {
       await loadUsers();
       setTimeout(() => setFeedback(null), 3000);
     } catch (err) {
-      const code = (err as { code?: string } | null)?.code;
-      const message =
-        code === 'auth/email-already-in-use'
-          ? 'Ya existe una cuenta con ese email.'
-          : 'Error al crear el usuario. Intentá de nuevo.';
+      const message = getAuthErrorMessage(err);
       setFeedback({ type: 'error', message });
     }
   };

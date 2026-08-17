@@ -94,6 +94,21 @@ describe('Login', () => {
     });
   });
 
+  it('mapea errores de Firebase a mensajes amigables', async () => {
+    mockLogin.mockRejectedValue({ code: 'auth/wrong-password', message: 'Firebase error' });
+    const user = userEvent.setup();
+    renderLogin();
+
+    await user.type(screen.getByLabelText('Email'), 'test@test.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'wrong');
+    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeDefined();
+      expect(screen.getByText('La contraseña es incorrecta.')).toBeDefined();
+    });
+  });
+
   it('los inputs tienen autocomplete correcto', () => {
     renderLogin();
     expect(screen.getByLabelText('Email')).toHaveAttribute('autocomplete', 'email');
