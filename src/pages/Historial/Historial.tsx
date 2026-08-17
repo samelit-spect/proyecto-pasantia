@@ -9,7 +9,15 @@ import {
 import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
-import { novedadTipoLabel, incidentCategoriaLabel, incidentUrgenciaLabel } from '@/utils/constants';
+import {
+  novedadTipoLabel,
+  incidentCategoriaLabel,
+  incidentUrgenciaLabel,
+  NOVEDAD_TIPOS,
+  INCIDENT_CATEGORIAS,
+  INCIDENT_URGENCIAS,
+} from '@/utils/constants';
+import type { NovedadTipo, IncidentCategoria, IncidentUrgencia } from '@/types';
 import { dateKey } from '@/utils/dateKey';
 import './Historial.css';
 
@@ -28,6 +36,9 @@ const Historial = () => {
 
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [tipoFilter, setTipoFilter] = useState<NovedadTipo | ''>('');
+  const [categoriaFilter, setCategoriaFilter] = useState<IncidentCategoria | ''>('');
+  const [urgenciaFilter, setUrgenciaFilter] = useState<IncidentUrgencia | ''>('');
   const [expanded, setExpanded] = useState<SectionKey | null>('asistencias');
 
   useEffect(() => {
@@ -63,8 +74,18 @@ const Historial = () => {
 
   const filteredAttendances = attendances.filter((a) => inRange(a.fecha));
   const filteredDocenteAttendances = docenteAttendances.filter((a) => inRange(a.fecha));
-  const filteredNews = news.filter((n) => inRange(n.fecha));
-  const filteredIncidents = incidents.filter((i) => inRange(i.fecha));
+  const filteredNews = news.filter(
+    (n) => inRange(n.fecha) && (!tipoFilter || n.tipo === tipoFilter)
+  );
+  const filteredIncidents = incidents.filter(
+    (i) =>
+      inRange(i.fecha) &&
+      (!categoriaFilter || i.categoria === categoriaFilter) &&
+      (!urgenciaFilter || i.urgencia === urgenciaFilter)
+  );
+
+  const hasActiveFilters =
+    dateFrom || dateTo || tipoFilter || categoriaFilter || urgenciaFilter;
 
   const toggleSection = (section: SectionKey) => {
     setExpanded(expanded === section ? null : section);
@@ -80,12 +101,64 @@ const Historial = () => {
       <div className="historial__filters">
         <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
         <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
-        {(dateFrom || dateTo) && (
+
+        <label className="historial__filter-label">
+          Tipo novedad
+          <select
+            className="historial__filter-select"
+            value={tipoFilter}
+            onChange={(e) => setTipoFilter(e.target.value as NovedadTipo | '')}
+          >
+            <option value="">Todas</option>
+            {NOVEDAD_TIPOS.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="historial__filter-label">
+          Categoría
+          <select
+            className="historial__filter-select"
+            value={categoriaFilter}
+            onChange={(e) => setCategoriaFilter(e.target.value as IncidentCategoria | '')}
+          >
+            <option value="">Todas</option>
+            {INCIDENT_CATEGORIAS.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="historial__filter-label">
+          Urgencia
+          <select
+            className="historial__filter-select"
+            value={urgenciaFilter}
+            onChange={(e) => setUrgenciaFilter(e.target.value as IncidentUrgencia | '')}
+          >
+            <option value="">Todas</option>
+            {INCIDENT_URGENCIAS.map((u) => (
+              <option key={u.value} value={u.value}>
+                {u.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {hasActiveFilters && (
           <button
             className="historial__filters-clear"
             onClick={() => {
               setDateFrom('');
               setDateTo('');
+              setTipoFilter('');
+              setCategoriaFilter('');
+              setUrgenciaFilter('');
             }}
           >
             Limpiar filtros
