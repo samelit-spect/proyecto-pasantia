@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Attendance, DocenteAttendance } from '@/types';
 import AccordionSection from '../AccordionSection/AccordionSection';
 
@@ -80,4 +81,4 @@ const SchoolDetailAttendances = ({
   </AccordionSection>
 );
 
-export default SchoolDetailAttendances;
+export default memo(SchoolDetailAttendances);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import './AttendanceRow.css';
 
 interface AttendanceRowProps {
@@ -76,4 +77,4 @@ const AttendanceRow = ({
   );
 };
 
-export default AttendanceRow;
+export default memo(AttendanceRow);

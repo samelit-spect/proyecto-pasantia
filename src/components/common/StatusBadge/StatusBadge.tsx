@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { IncidentStatus } from '@/types';
 import './StatusBadge.css';
 
@@ -18,4 +19,4 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
   return <span className={`status-badge ${config.className}`}>{config.label}</span>;
 };
 
-export default StatusBadge;
+export default memo(StatusBadge);

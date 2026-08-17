@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Incident, IncidentStatus } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
@@ -103,4 +104,4 @@ const SchoolDetailIncidents = ({
   </AccordionSection>
 );
 
-export default SchoolDetailIncidents;
+export default memo(SchoolDetailIncidents);

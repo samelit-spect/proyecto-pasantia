@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import './FotoThumb.css';
 
 interface FotoThumbProps {
@@ -9,4 +10,4 @@ const FotoThumb = ({ dataUrl, alt = 'Foto' }: FotoThumbProps) => {
   return <img className="foto-thumb" src={dataUrl} alt={alt} loading="lazy" />;
 };
 
-export default FotoThumb;
+export default memo(FotoThumb);

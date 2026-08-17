@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { News } from '@/types';
 import { novedadTipoLabel } from '@/utils/constants';
 import AccordionSection from '../AccordionSection/AccordionSection';
@@ -45,4 +46,4 @@ const SchoolDetailNews = ({ news, expandedSection, onToggle, onExport, exporting
   </AccordionSection>
 );
 
-export default SchoolDetailNews;
+export default memo(SchoolDetailNews);

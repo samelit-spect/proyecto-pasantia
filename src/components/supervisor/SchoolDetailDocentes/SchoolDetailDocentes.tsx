@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Docente } from '@/types';
 import AccordionSection from '../AccordionSection/AccordionSection';
 
@@ -102,4 +103,4 @@ const SchoolDetailDocentes = ({
   </AccordionSection>
 );
 
-export default SchoolDetailDocentes;
+export default memo(SchoolDetailDocentes);

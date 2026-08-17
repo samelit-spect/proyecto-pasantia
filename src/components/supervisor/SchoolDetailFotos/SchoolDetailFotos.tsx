@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Foto } from '@/types';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import AccordionSection from '../AccordionSection/AccordionSection';
@@ -41,4 +42,4 @@ const SchoolDetailFotos = ({ fotos, expandedSection, onToggle, onLightbox }: Sch
   </AccordionSection>
 );
 
-export default SchoolDetailFotos;
+export default memo(SchoolDetailFotos);

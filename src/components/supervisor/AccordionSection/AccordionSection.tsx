@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Download } from 'lucide-react';
 
 interface AccordionSectionProps {
@@ -48,4 +49,4 @@ const AccordionSection = ({
   </div>
 );
 
-export default AccordionSection;
+export default memo(AccordionSection);

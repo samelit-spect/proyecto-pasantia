@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { UserProfile } from '@/types';
 import AccordionSection from '../AccordionSection/AccordionSection';
 
@@ -33,4 +34,4 @@ const SchoolDetailUsers = ({ users, expandedSection, onToggle }: SchoolDetailUse
   </AccordionSection>
 );
 
-export default SchoolDetailUsers;
+export default memo(SchoolDetailUsers);
