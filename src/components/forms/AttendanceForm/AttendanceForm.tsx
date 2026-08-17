@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
@@ -44,9 +44,6 @@ interface AttendanceFormProps {
   }) => Promise<void>;
 }
 
-let entrySeq = 0;
-const nextId = () => `entry-${++entrySeq}`;
-
 const AttendanceForm = ({
   title,
   subtitle,
@@ -58,6 +55,8 @@ const AttendanceForm = ({
   onSubmit,
 }: AttendanceFormProps) => {
   const { user, profile } = useAuth();
+  const entrySeqRef = useRef(0);
+  const nextId = () => `entry-${++entrySeqRef.current}`;
   const [escuelaId, setEscuelaId] = useState('');
   const [fecha, setFecha] = useState(todayISO());
   const [entries, setEntries] = useState<AttendanceFormEntry[]>([]);
