@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import type { ComponentType } from 'react';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
+import LoadingScreen from '@/components/common/LoadingScreen/LoadingScreen';
 
 const load = (importFn: () => Promise<{ default: ComponentType }>) =>
   importFn().then((m) => ({ Component: m.default }));
@@ -8,11 +9,13 @@ const load = (importFn: () => Promise<{ default: ComponentType }>) =>
 const router = createBrowserRouter([
   {
     path: '/login',
+    HydrateFallback: LoadingScreen,
     lazy: () => load(() => import('@/pages/Login/Login')),
   },
   {
     path: '/',
     element: <MainLayout />,
+    HydrateFallback: LoadingScreen,
     children: [
       {
         index: true,
