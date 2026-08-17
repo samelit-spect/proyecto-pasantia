@@ -47,7 +47,7 @@ const MainLayout = () => {
           padding: '80px 1rem 2rem',
         }}
       >
-        <Outlet />
+        <Outlet key={location.pathname} />
       </main>
     </>
   );
