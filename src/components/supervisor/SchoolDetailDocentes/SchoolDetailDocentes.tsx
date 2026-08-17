@@ -1,0 +1,105 @@
+import type { Docente } from '@/types';
+import AccordionSection from '../AccordionSection/AccordionSection';
+
+interface SchoolDetailDocentesProps {
+  docentes: Docente[];
+  expandedSection: string;
+  onToggle: () => void;
+  formNombre: string;
+  formMateria: string;
+  formSubmitting: boolean;
+  feedback: { type: 'success' | 'error'; message: string } | null;
+  updatingId: string | null;
+  onNombreChange: (v: string) => void;
+  onMateriaChange: (v: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onToggleDocente: (id: string, activo: boolean) => void;
+}
+
+const SchoolDetailDocentes = ({
+  docentes,
+  expandedSection,
+  onToggle,
+  formNombre,
+  formMateria,
+  formSubmitting,
+  feedback,
+  updatingId,
+  onNombreChange,
+  onMateriaChange,
+  onSubmit,
+  onToggleDocente,
+}: SchoolDetailDocentesProps) => (
+  <AccordionSection
+    title="Docentes"
+    count={`${docentes.length} docentes`}
+    isExpanded={expandedSection === 'docentes'}
+    onToggle={onToggle}
+  >
+    {feedback && (
+      <div
+        className={`supervisor-detail__feedback supervisor-detail__feedback--${feedback.type}`}
+        role="status"
+      >
+        {feedback.message}
+      </div>
+    )}
+
+    <form className="supervisor-detail__docente-form" onSubmit={onSubmit}>
+      <label className="supervisor-detail__docente-field">
+        Nombre
+        <input
+          className="supervisor-detail__docente-input"
+          type="text"
+          placeholder="Nombre del docente"
+          value={formNombre}
+          onChange={(e) => onNombreChange(e.target.value)}
+        />
+      </label>
+      <label className="supervisor-detail__docente-field">
+        Materia (opcional)
+        <input
+          className="supervisor-detail__docente-input"
+          type="text"
+          placeholder="Ej: Matemática"
+          value={formMateria}
+          onChange={(e) => onMateriaChange(e.target.value)}
+        />
+      </label>
+      <button
+        type="submit"
+        className="supervisor-detail__docente-submit"
+        disabled={formSubmitting}
+      >
+        {formSubmitting ? 'Agregando...' : 'Agregar Docente'}
+      </button>
+    </form>
+
+    {docentes.length === 0 ? (
+      <div className="supervisor-sub__empty">No hay docentes cargados.</div>
+    ) : (
+      <div className="supervisor-detail__docente-list">
+        {docentes.map((d) => (
+          <div
+            key={d.id}
+            className={`supervisor-detail__docente ${d.activo === false ? 'supervisor-detail__docente--inactive' : ''}`}
+          >
+            <div className="supervisor-detail__docente-info">
+              <span className="supervisor-detail__docente-name">{d.nombre}</span>
+              <span className="supervisor-detail__docente-materia">{d.materia || 'Docente'}</span>
+            </div>
+            <button
+              className="supervisor-detail__docente-toggle"
+              disabled={updatingId === d.id}
+              onClick={() => onToggleDocente(d.id, d.activo === false)}
+            >
+              {d.activo === false ? 'Activar' : 'Desactivar'}
+            </button>
+          </div>
+        ))}
+      </div>
+    )}
+  </AccordionSection>
+);
+
+export default SchoolDetailDocentes;

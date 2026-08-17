@@ -1,0 +1,106 @@
+import type { Incident, IncidentStatus } from '@/types';
+import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
+import { incidentCategoriaLabel, incidentUrgenciaLabel, canTransitionIncidentStatus } from '@/utils/constants';
+import AccordionSection from '../AccordionSection/AccordionSection';
+
+interface SchoolDetailIncidentsProps {
+  incidents: Incident[];
+  expandedSection: string;
+  onToggle: () => void;
+  onStatusChange: (id: string, status: IncidentStatus) => void;
+  statusUpdatingId: string | null;
+  onLightbox: (url: string) => void;
+  onExport?: () => void;
+  exporting?: boolean;
+}
+
+const SchoolDetailIncidents = ({
+  incidents,
+  expandedSection,
+  onToggle,
+  onStatusChange,
+  statusUpdatingId,
+  onLightbox,
+  onExport,
+  exporting,
+}: SchoolDetailIncidentsProps) => (
+  <AccordionSection
+    title="Incidentes"
+    count={`${incidents.length} registros`}
+    isExpanded={expandedSection === 'incidentes'}
+    onToggle={onToggle}
+    onExport={onExport}
+    exporting={exporting}
+  >
+    {incidents.length === 0 ? (
+      <div className="supervisor-sub__empty">No hay registros de incidentes.</div>
+    ) : (
+      incidents.map((inc) => (
+        <div key={inc.id} className="supervisor-sub__record supervisor-detail__incident">
+          <div className="supervisor-sub__record-header">
+            <span className="supervisor-sub__record-date">
+              {inc.fecha.toDate().toLocaleDateString('es-AR')}
+            </span>
+            <StatusBadge status={inc.estado} />
+          </div>
+          <div className="supervisor-detail__meta">
+            <span className="supervisor-detail__meta-tag">
+              {incidentCategoriaLabel(inc.categoria)}
+            </span>
+            {inc.urgencia && (
+              <span
+                className={`supervisor-detail__meta-tag supervisor-detail__meta-tag--urgencia-${inc.urgencia}`}
+              >
+                Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+              </span>
+            )}
+            {inc.ubicacion && (
+              <span className="supervisor-detail__meta-tag">Ubicación: {inc.ubicacion}</span>
+            )}
+          </div>
+          <p className="supervisor-detail__desc">{inc.descripcion}</p>
+          {inc.fotoDataUrl && (
+            <div className="supervisor-detail__incident-photo">
+              <button
+                className="supervisor-detail__foto-btn"
+                onClick={() => onLightbox(inc.fotoDataUrl ?? '')}
+              >
+                <FotoThumb dataUrl={inc.fotoDataUrl} alt="Foto del incidente" />
+              </button>
+            </div>
+          )}
+          <div className="supervisor-detail__incident-footer">
+            <span className="supervisor-sub__record-author">
+              Cargado por: {inc.cargadoPorNombre}
+            </span>
+            <label className="supervisor-detail__status-control">
+              <span className="supervisor-detail__status-label">Estado</span>
+              <select
+                className="supervisor-detail__status-select"
+                value={inc.estado}
+                disabled={statusUpdatingId === inc.id}
+                onChange={(e) => onStatusChange(inc.id, e.target.value as IncidentStatus)}
+              >
+                <option value="pendiente" disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}>
+                  Pendiente
+                </option>
+                <option value="en_analisis" disabled={!canTransitionIncidentStatus(inc.estado, 'en_analisis')}>
+                  En análisis
+                </option>
+                <option value="en_gestion" disabled={!canTransitionIncidentStatus(inc.estado, 'en_gestion')}>
+                  En gestión
+                </option>
+                <option value="resuelto" disabled={!canTransitionIncidentStatus(inc.estado, 'resuelto')}>
+                  Resuelto
+                </option>
+              </select>
+            </label>
+          </div>
+        </div>
+      ))
+    )}
+  </AccordionSection>
+);
+
+export default SchoolDetailIncidents;
