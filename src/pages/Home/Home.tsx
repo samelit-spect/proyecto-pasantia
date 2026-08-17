@@ -10,6 +10,8 @@ import {
   Settings,
   Camera,
   Palette,
+  MapPin,
+  Clock,
 } from 'lucide-react';
 import {
   getTodayAttendances,
@@ -17,8 +19,9 @@ import {
   getTodayIncidents,
   getRecentIncidents,
   getSchools,
+  getSchoolById,
 } from '@/services/api/firestore';
-import type { Attendance, News, Incident } from '@/types';
+import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import './Home.css';
 
@@ -39,6 +42,11 @@ const Home = () => {
   const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
   const [openIncidents, setOpenIncidents] = useState<Incident[]>([]);
   const [statsError, setStatsError] = useState<string | null>(null);
+
+  const [mySchool, setMySchool] = useState<School | null>(null);
+  const [myAttendances, setMyAttendances] = useState<Attendance[]>([]);
+  const [myNews, setMyNews] = useState<News[]>([]);
+  const [myIncidents, setMyIncidents] = useState<Incident[]>([]);
 
   useEffect(() => {
     if (!hasRole('supervisor') || initialized.current) return;
@@ -82,6 +90,31 @@ const Home = () => {
 
     loadData();
   }, [hasRole]);
+
+  useEffect(() => {
+    if (hasRole('supervisor') || !profile?.escuelaId || initialized.current) return;
+    initialized.current = true;
+
+    const loadData = async () => {
+      try {
+        const [school, attendances, news, incidents] = await Promise.all([
+          getSchoolById(profile.escuelaId),
+          getTodayAttendances(),
+          getTodayNews(),
+          getTodayIncidents(),
+        ]);
+
+        setMySchool(school);
+        setMyAttendances(attendances.filter((a) => a.escuelaId === profile.escuelaId));
+        setMyNews(news.filter((n) => n.escuelaId === profile.escuelaId));
+        setMyIncidents(incidents.filter((i) => i.escuelaId === profile.escuelaId));
+      } catch {
+        setStatsError('No se pudieron cargar los datos. Revisá tu conexión e intentá de nuevo.');
+      }
+    };
+
+    loadData();
+  }, [hasRole, profile?.escuelaId]);
 
   const attendanceCards: CardItem[] = [];
   const managementCards: CardItem[] = [];
@@ -154,14 +187,109 @@ const Home = () => {
         <span className="home__role">{profile?.rol}</span>
       </div>
 
-      {hasRole('supervisor') && (
-        <>
-          {statsError && (
-            <div className="home__error" role="alert">
-              {statsError}
+      {statsError && (
+        <div className="home__error" role="alert">
+          {statsError}
+        </div>
+      )}
+
+      {!hasRole('supervisor') && mySchool && (
+        <div className="home__section">
+          <h3 className="home__section-title">Mi escuela</h3>
+          <div className="home__school-card">
+            <div className="home__school-card-header">
+              <span className="home__school-card-name">{mySchool.nombre}</span>
+              <span className="home__school-card-turno">{mySchool.turno}</span>
+            </div>
+            {mySchool.direccion && (
+              <div className="home__school-card-row">
+                <MapPin size={14} strokeWidth={2} />
+                <span>{mySchool.direccion}</span>
+              </div>
+            )}
+            <div className="home__school-card-stats">
+              <div className="home__school-stat home__school-stat--asistencia">
+                <span className="home__school-stat-value">{myAttendances.length}</span>
+                <span className="home__school-stat-label">Asistencias</span>
+              </div>
+              <div className="home__school-stat home__school-stat--novedades">
+                <span className="home__school-stat-value">{myNews.length}</span>
+                <span className="home__school-stat-label">Novedades</span>
+              </div>
+              <div className="home__school-stat home__school-stat--incidentes">
+                <span className="home__school-stat-value">{myIncidents.length}</span>
+                <span className="home__school-stat-label">Incidentes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!hasRole('supervisor') && (
+        <div className="home__section">
+          <h3 className="home__section-title">
+            <Clock size={14} strokeWidth={2} style={{ marginRight: '0.375rem', verticalAlign: 'middle' }} />
+            Actividad de hoy
+          </h3>
+          {myAttendances.length === 0 && myNews.length === 0 && myIncidents.length === 0 ? (
+            <p className="home__empty-activity">Sin actividad registrada hoy.</p>
+          ) : (
+            <div className="home__activity">
+              {myAttendances.map((att) => (
+                <div key={att.id} className="home__activity-item">
+                  <div className="home__activity-dot home__activity-dot--asistencia" />
+                  <div className="home__activity-content">
+                    <span className="home__activity-text">
+                      Asistencia cargada por <strong>{att.cargadoPorNombre}</strong>
+                    </span>
+                    <span className="home__activity-time">
+                      {att.fecha
+                        .toDate()
+                        .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {myNews.map((n) => (
+                <div key={n.id} className="home__activity-item">
+                  <div className="home__activity-dot home__activity-dot--novedades" />
+                  <div className="home__activity-content">
+                    <span className="home__activity-text">
+                      Novedad cargada por <strong>{n.cargadoPorNombre}</strong>
+                    </span>
+                    <span className="home__activity-time">
+                      {n.fecha
+                        .toDate()
+                        .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {myIncidents.map((inc) => (
+                <div key={inc.id} className="home__activity-item">
+                  <div className="home__activity-dot home__activity-dot--incidentes" />
+                  <div className="home__activity-content">
+                    <span className="home__activity-text">
+                      Incidente cargado por <strong>{inc.cargadoPorNombre}</strong>
+                    </span>
+                    <div className="home__activity-meta">
+                      <StatusBadge status={inc.estado} />
+                      <span className="home__activity-time">
+                        {inc.fecha
+                          .toDate()
+                          .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
+        </div>
+      )}
 
+      {hasRole('supervisor') && (
+        <>
           <div className="home__section">
             <h3 className="home__section-title">Resumen del día</h3>
             <div className="home__stats">
