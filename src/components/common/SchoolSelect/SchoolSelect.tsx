@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { getSchools } from '@/services/api/firestore';
+import { getSchools, getSchoolById } from '@/services/api/firestore';
 import type { School } from '@/types';
 import './SchoolSelect.css';
 
@@ -22,16 +22,15 @@ const SchoolSelect = ({ value, onChange, disabled = false }: SchoolSelectProps) 
     const fetchSchools = async () => {
       setError(null);
       try {
-        const data = await getSchools();
-        if (cancelled) return;
-
-        const scoped = hasRole('supervisor')
-          ? data
-          : data.filter((s) => s.id === profile?.escuelaId);
-        setSchools(scoped);
-
-        if (!hasRole('supervisor') && scoped.length > 0) {
-          onChange(scoped[0].id);
+        if (hasRole('supervisor')) {
+          const data = await getSchools();
+          if (!cancelled) setSchools(data);
+        } else if (profile?.escuelaId) {
+          const school = await getSchoolById(profile.escuelaId);
+          if (!cancelled) {
+            setSchools(school ? [school] : []);
+            if (school) onChange(school.id);
+          }
         }
       } catch {
         if (!cancelled) setError('No se pudieron cargar las escuelas.');
