@@ -40,6 +40,7 @@ import SchoolDetailUsers from '@/components/supervisor/SchoolDetailUsers/SchoolD
 import SchoolDetailDocentes from '@/components/supervisor/SchoolDetailDocentes/SchoolDetailDocentes';
 import SchoolDetailFotos from '@/components/supervisor/SchoolDetailFotos/SchoolDetailFotos';
 import Lightbox from '@/components/supervisor/Lightbox/Lightbox';
+import useFeedback from '@/hooks/useFeedback';
 import { downloadCsv } from '@/utils/exportCsv';
 import {
   novedadTipoLabel,
@@ -71,30 +72,18 @@ const SupervisorSchoolDetail = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [expandedSection, setExpandedSection] = useState<string | null>('asistencias');
-  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
-  const [statusFeedback, setStatusFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-
-  const [verifyUpdatingId, setVerifyUpdatingId] = useState<string | null>(null);
-  const [verifyFeedback, setVerifyFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [exporting, setExporting] = useState<ExportType | null>(null);
+
+  const statusOp = useFeedback();
+  const verifyOp = useFeedback();
+  const docenteOp = useFeedback();
 
   const [docenteFormNombre, setDocenteFormNombre] = useState('');
   const [docenteFormMateria, setDocenteFormMateria] = useState('');
   const [docenteFormSubmitting, setDocenteFormSubmitting] = useState(false);
-  const [docenteUpdatingId, setDocenteUpdatingId] = useState<string | null>(null);
-  const [docenteFeedback, setDocenteFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
 
   useEffect(() => {
     if (!schoolId) return;
@@ -175,12 +164,12 @@ const SupervisorSchoolDetail = () => {
 
   const handleAddDocente = async (e: React.FormEvent) => {
     e.preventDefault();
-    setDocenteFeedback(null);
+    docenteOp.clear();
 
     if (!schoolId) return;
 
     if (!docenteFormNombre.trim()) {
-      setDocenteFeedback({ type: 'error', message: 'Ingresá el nombre del docente.' });
+      docenteOp.end({ type: 'error', message: 'Ingresá el nombre del docente.' });
       return;
     }
 
@@ -195,51 +184,43 @@ const SupervisorSchoolDetail = () => {
       setDocentes(updated);
       setDocenteFormNombre('');
       setDocenteFormMateria('');
-      setDocenteFeedback({ type: 'success', message: 'Docente agregado correctamente.' });
-      setTimeout(() => setDocenteFeedback(null), 3000);
+      docenteOp.end({ type: 'success', message: 'Docente agregado correctamente.' });
     } catch {
-      setDocenteFeedback({ type: 'error', message: 'No se pudo agregar el docente.' });
+      docenteOp.end({ type: 'error', message: 'No se pudo agregar el docente.' });
     } finally {
       setDocenteFormSubmitting(false);
     }
   };
 
   const handleToggleDocente = async (docenteId: string, activo: boolean) => {
-    setDocenteFeedback(null);
-    setDocenteUpdatingId(docenteId);
+    docenteOp.start(docenteId);
 
     try {
       await setDocenteActive(docenteId, activo);
       setDocentes((prev) => prev.map((d) => (d.id === docenteId ? { ...d, activo } : d)));
+      docenteOp.end(null);
     } catch {
-      setDocenteFeedback({ type: 'error', message: 'No se pudo actualizar el docente.' });
-    } finally {
-      setDocenteUpdatingId(null);
+      docenteOp.end({ type: 'error', message: 'No se pudo actualizar el docente.' });
     }
   };
 
   const handleStatusChange = async (incidentId: string, newStatus: IncidentStatus) => {
-    setStatusFeedback(null);
-    setStatusUpdatingId(incidentId);
+    statusOp.start(incidentId);
 
     try {
       await updateIncidentStatus(incidentId, newStatus);
       setIncidents((prev) =>
         prev.map((inc) => (inc.id === incidentId ? { ...inc, estado: newStatus } : inc))
       );
-      setStatusFeedback({ type: 'success', message: 'Estado del incidente actualizado.' });
-      setTimeout(() => setStatusFeedback(null), 3000);
+      statusOp.end({ type: 'success', message: 'Estado del incidente actualizado.' });
     } catch {
-      setStatusFeedback({ type: 'error', message: 'No se pudo actualizar el estado.' });
-    } finally {
-      setStatusUpdatingId(null);
+      statusOp.end({ type: 'error', message: 'No se pudo actualizar el estado.' });
     }
   };
 
   const handleVerifyAttendance = async (attendanceId: string, verified: boolean) => {
     if (!profile) return;
-    setVerifyFeedback(null);
-    setVerifyUpdatingId(attendanceId);
+    verifyOp.start(attendanceId);
 
     try {
       await setAttendanceVerified(attendanceId, verified, {
@@ -259,22 +240,18 @@ const SupervisorSchoolDetail = () => {
             : att
         )
       );
-      setVerifyFeedback({
+      verifyOp.end({
         type: 'success',
         message: verified ? 'Asistencia verificada.' : 'Verificación removida.',
       });
-      setTimeout(() => setVerifyFeedback(null), 3000);
     } catch {
-      setVerifyFeedback({ type: 'error', message: 'No se pudo actualizar la verificación.' });
-    } finally {
-      setVerifyUpdatingId(null);
+      verifyOp.end({ type: 'error', message: 'No se pudo actualizar la verificación.' });
     }
   };
 
   const handleVerifyDocenteAttendance = async (attendanceId: string, verified: boolean) => {
     if (!profile) return;
-    setVerifyFeedback(null);
-    setVerifyUpdatingId(attendanceId);
+    verifyOp.start(attendanceId);
 
     try {
       await setDocenteAttendanceVerified(attendanceId, verified, {
@@ -294,21 +271,18 @@ const SupervisorSchoolDetail = () => {
             : att
         )
       );
-      setVerifyFeedback({
+      verifyOp.end({
         type: 'success',
         message: verified ? 'Asistencia verificada.' : 'Verificación removida.',
       });
-      setTimeout(() => setVerifyFeedback(null), 3000);
     } catch {
-      setVerifyFeedback({ type: 'error', message: 'No se pudo actualizar la verificación.' });
-    } finally {
-      setVerifyUpdatingId(null);
+      verifyOp.end({ type: 'error', message: 'No se pudo actualizar la verificación.' });
     }
   };
 
   const handleExport = async (type: ExportType) => {
     if (!schoolId || !school) return;
-    setVerifyFeedback(null);
+    verifyOp.clear();
     setExporting(type);
 
     try {
@@ -379,10 +353,9 @@ const SupervisorSchoolDetail = () => {
         );
       }
 
-      setVerifyFeedback({ type: 'success', message: 'Exportación generada correctamente.' });
-      setTimeout(() => setVerifyFeedback(null), 3000);
+      verifyOp.end({ type: 'success', message: 'Exportación generada correctamente.' });
     } catch {
-      setVerifyFeedback({ type: 'error', message: 'No se pudo exportar. Intentá de nuevo.' });
+      verifyOp.end({ type: 'error', message: 'No se pudo exportar. Intentá de nuevo.' });
     } finally {
       setExporting(null);
     }
@@ -406,21 +379,21 @@ const SupervisorSchoolDetail = () => {
         registros
       </p>
 
-      {statusFeedback && (
+      {statusOp.feedback && (
         <div
-          className={`supervisor-detail__feedback supervisor-detail__feedback--${statusFeedback.type}`}
+          className={`supervisor-detail__feedback supervisor-detail__feedback--${statusOp.feedback.type}`}
           role="status"
         >
-          {statusFeedback.message}
+          {statusOp.feedback.message}
         </div>
       )}
 
-      {verifyFeedback && (
+      {verifyOp.feedback && (
         <div
-          className={`supervisor-detail__feedback supervisor-detail__feedback--${verifyFeedback.type}`}
+          className={`supervisor-detail__feedback supervisor-detail__feedback--${verifyOp.feedback.type}`}
           role="status"
         >
-          {verifyFeedback.message}
+          {verifyOp.feedback.message}
         </div>
       )}
 
@@ -448,7 +421,7 @@ const SupervisorSchoolDetail = () => {
           expandedSection={expandedSection ?? ''}
           onToggle={() => toggleSection('asistencias')}
           onVerify={handleVerifyAttendance}
-          verifyUpdatingId={verifyUpdatingId}
+          verifyUpdatingId={verifyOp.updatingId}
           onExport={() => handleExport('asistencias')}
           exporting={exporting === 'asistencias'}
         />
@@ -460,7 +433,7 @@ const SupervisorSchoolDetail = () => {
           expandedSection={expandedSection ?? ''}
           onToggle={() => toggleSection('asistencia-docentes')}
           onVerify={handleVerifyDocenteAttendance}
-          verifyUpdatingId={verifyUpdatingId}
+          verifyUpdatingId={verifyOp.updatingId}
           onExport={() => handleExport('docentes')}
           exporting={exporting === 'docentes'}
         />
@@ -478,7 +451,7 @@ const SupervisorSchoolDetail = () => {
           expandedSection={expandedSection ?? ''}
           onToggle={() => toggleSection('incidentes')}
           onStatusChange={handleStatusChange}
-          statusUpdatingId={statusUpdatingId}
+          statusUpdatingId={statusOp.updatingId}
           onLightbox={setLightbox}
           onExport={() => handleExport('incidentes')}
           exporting={exporting === 'incidentes'}
@@ -497,8 +470,8 @@ const SupervisorSchoolDetail = () => {
           formNombre={docenteFormNombre}
           formMateria={docenteFormMateria}
           formSubmitting={docenteFormSubmitting}
-          feedback={docenteFeedback}
-          updatingId={docenteUpdatingId}
+          feedback={docenteOp.feedback}
+          updatingId={docenteOp.updatingId}
           onNombreChange={setDocenteFormNombre}
           onMateriaChange={setDocenteFormMateria}
           onSubmit={handleAddDocente}
