@@ -5,9 +5,9 @@ import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import {
   getSchoolById,
-  getAllAttendancesBySchool,
-  getAllNewsBySchool,
-  getIncidentsBySchool,
+  subscribeAttendancesBySchool,
+  subscribeNewsBySchool,
+  subscribeIncidentsBySchool,
   getUsersBySchool,
   updateIncidentStatus,
   getDocentesBySchool,
@@ -15,11 +15,11 @@ import {
   setDocenteActive,
   getDocenteAttendancesBySchool,
   getFotosBySchool,
+  setAttendanceVerified,
+  setDocenteAttendanceVerified,
   getAttendancesBySchool,
   getNewsBySchool,
   getIncidentsBySchool as getIncidentsBySchoolRange,
-  setAttendanceVerified,
-  setDocenteAttendanceVerified,
 } from '@/services/api/firestore';
 import type {
   School,
@@ -89,45 +89,50 @@ const SupervisorSchoolDetail = () => {
 
   useEffect(() => {
     if (!schoolId) return;
+    let unmounted = false;
 
-    const loadSchoolData = async () => {
+    const loadStatic = async () => {
       try {
-        const [
-          schoolData,
-          attendancesData,
-          newsData,
-          incidentsData,
-          usersData,
-          docentesData,
-          docenteAttendancesData,
-          fotosData,
-        ] = await Promise.all([
-          getSchoolById(schoolId),
-          getAllAttendancesBySchool(schoolId),
-          getAllNewsBySchool(schoolId),
-          getIncidentsBySchool(schoolId),
-          getUsersBySchool(schoolId),
-          getDocentesBySchool(schoolId),
-          getDocenteAttendancesBySchool(schoolId),
-          getFotosBySchool(schoolId),
-        ]);
+        const [schoolData, usersData, docentesData, docenteAttendancesData, fotosData] =
+          await Promise.all([
+            getSchoolById(schoolId),
+            getUsersBySchool(schoolId),
+            getDocentesBySchool(schoolId),
+            getDocenteAttendancesBySchool(schoolId),
+            getFotosBySchool(schoolId),
+          ]);
 
+        if (unmounted) return;
         setSchool(schoolData);
-        setAttendances(attendancesData);
-        setNews(newsData);
-        setIncidents(incidentsData);
         setUsers(usersData);
         setDocentes(docentesData);
         setDocenteAttendances(docenteAttendancesData);
         setFotos(fotosData);
       } catch {
-        setError('No se pudieron cargar los datos de la escuela.');
+        if (!unmounted) setError('No se pudieron cargar los datos de la escuela.');
       } finally {
-        setIsLoading(false);
+        if (!unmounted) setIsLoading(false);
       }
     };
 
-    loadSchoolData();
+    loadStatic();
+
+    const unsubAttendances = subscribeAttendancesBySchool(schoolId, (data) => {
+      if (!unmounted) setAttendances(data);
+    });
+    const unsubNews = subscribeNewsBySchool(schoolId, (data) => {
+      if (!unmounted) setNews(data);
+    });
+    const unsubIncidents = subscribeIncidentsBySchool(schoolId, (data) => {
+      if (!unmounted) setIncidents(data);
+    });
+
+    return () => {
+      unmounted = true;
+      unsubAttendances();
+      unsubNews();
+      unsubIncidents();
+    };
   }, [schoolId]);
 
   if (isLoading) {

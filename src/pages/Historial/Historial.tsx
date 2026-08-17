@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
-  getAttendancesBySchool,
-  getDocenteAttendancesBySchool,
-  getNewsBySchool,
-  getIncidentsBySchool,
+  subscribeAttendancesBySchool,
+  subscribeNewsBySchool,
+  subscribeIncidentsBySchool,
+  subscribeDocenteAttendancesBySchool,
 } from '@/services/api/firestore';
 import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
@@ -32,8 +32,6 @@ const Historial = () => {
   const [docenteAttendances, setDocenteAttendances] = useState<DocenteAttendance[]>([]);
   const [news, setNews] = useState<News[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -50,30 +48,31 @@ const Historial = () => {
 
   useEffect(() => {
     if (!profile || !hasRole('director', 'vice', 'preceptor') || initialized.current) return;
+    if (!profile.escuelaId) return;
     initialized.current = true;
 
-    const loadHistory = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [atts, dAtts, newsData, incidentsData] = await Promise.all([
-          getAttendancesBySchool(profile.escuelaId, new Date(2000, 0, 1), new Date()),
-          getDocenteAttendancesBySchool(profile.escuelaId, new Date(2000, 0, 1), new Date()),
-          getNewsBySchool(profile.escuelaId, new Date(2000, 0, 1), new Date()),
-          getIncidentsBySchool(profile.escuelaId, new Date(2000, 0, 1), new Date()),
-        ]);
-        setAttendances(atts);
-        setDocenteAttendances(dAtts);
-        setNews(newsData);
-        setIncidents(incidentsData);
-      } catch {
-        setError('No se pudieron cargar los datos. Intentá de nuevo.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    let unmounted = false;
 
-    loadHistory();
+    const unsubAttendances = subscribeAttendancesBySchool(profile.escuelaId, (data) => {
+      if (!unmounted) setAttendances(data);
+    });
+    const unsubDocenteAtt = subscribeDocenteAttendancesBySchool(profile.escuelaId, (data) => {
+      if (!unmounted) setDocenteAttendances(data);
+    });
+    const unsubNews = subscribeNewsBySchool(profile.escuelaId, (data) => {
+      if (!unmounted) setNews(data);
+    });
+    const unsubIncidents = subscribeIncidentsBySchool(profile.escuelaId, (data) => {
+      if (!unmounted) setIncidents(data);
+    });
+
+    return () => {
+      unmounted = true;
+      unsubAttendances();
+      unsubDocenteAtt();
+      unsubNews();
+      unsubIncidents();
+    };
   }, [profile, hasRole]);
 
   const inRange = (ts: { toDate: () => Date }) =>
@@ -182,16 +181,7 @@ const Historial = () => {
         )}
       </div>
 
-      {error && (
-        <div className="historial__error" role="alert">
-          {error}
-        </div>
-      )}
-
-      {isLoading && <div className="historial__loading">Cargando historial...</div>}
-
-      {!isLoading && !error && (
-        <div className="historial__sections">
+      <div className="historial__sections">
           <div className="historial__section">
             <button
               className="historial__section-header"
@@ -395,7 +385,6 @@ const Historial = () => {
             })()}
           </div>
         </div>
-      )}
     </section>
   );
 };

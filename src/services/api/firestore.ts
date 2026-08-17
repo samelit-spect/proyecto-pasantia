@@ -12,7 +12,9 @@ import {
   orderBy,
   limit,
   Timestamp,
+  onSnapshot,
 } from 'firebase/firestore';
+import type { Unsubscribe } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 
 /**
@@ -523,4 +525,168 @@ export async function getFotosBySchool(schoolId: string): Promise<Foto[]> {
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto);
+}
+
+function startOfToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+export function subscribeTodayAttendances(callback: (data: Attendance[]) => void): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday())),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance));
+  });
+}
+
+export function subscribeTodayAttendancesBySchool(
+  schoolId: string,
+  callback: (data: Attendance[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('escuelaId', '==', schoolId),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday())),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance));
+  });
+}
+
+export function subscribeTodayNews(callback: (data: News[]) => void): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday())),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News));
+  });
+}
+
+export function subscribeTodayNewsBySchool(
+  schoolId: string,
+  callback: (data: News[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    where('escuelaId', '==', schoolId),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday())),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News));
+  });
+}
+
+export function subscribeTodayIncidents(callback: (data: Incident[]) => void): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday())),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident));
+  });
+}
+
+export function subscribeTodayIncidentsBySchool(
+  schoolId: string,
+  callback: (data: Incident[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    where('escuelaId', '==', schoolId),
+    where('fecha', '>=', Timestamp.fromDate(startOfToday())),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident));
+  });
+}
+
+export function subscribeRecentIncidents(
+  max: number,
+  callback: (data: Incident[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    orderBy('fecha', 'desc'),
+    limit(max)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident));
+  });
+}
+
+export function subscribeAttendancesBySchool(
+  schoolId: string,
+  callback: (data: Attendance[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance));
+  });
+}
+
+export function subscribeNewsBySchool(
+  schoolId: string,
+  callback: (data: News[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News));
+  });
+}
+
+export function subscribeIncidentsBySchool(
+  schoolId: string,
+  callback: (data: Incident[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident));
+  });
+}
+
+export function subscribeDocenteAttendancesBySchool(
+  schoolId: string,
+  callback: (data: DocenteAttendance[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.docenteAttendances),
+    where('escuelaId', '==', schoolId),
+    orderBy('fecha', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance));
+  });
 }
