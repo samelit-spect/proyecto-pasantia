@@ -523,7 +523,8 @@ export async function getFotosBySchool(schoolId: string): Promise<Foto[]> {
 
 function startOfToday(): Date {
   const d = new Date();
-  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0));
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
 export function subscribeTodayAttendances(callback: (data: Attendance[]) => void): Unsubscribe {

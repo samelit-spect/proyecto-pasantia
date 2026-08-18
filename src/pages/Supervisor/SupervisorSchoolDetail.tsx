@@ -8,12 +8,12 @@ import {
   subscribeAttendancesBySchool,
   subscribeNewsBySchool,
   subscribeIncidentsBySchool,
+  subscribeDocenteAttendancesBySchool,
   getUsersBySchool,
   updateIncidentStatus,
   getDocentesBySchool,
   addDocente,
   setDocenteActive,
-  getDocenteAttendancesBySchool,
   getFotosBySchool,
   setAttendanceVerified,
   setDocenteAttendanceVerified,
@@ -93,12 +93,11 @@ const SupervisorSchoolDetail = () => {
 
     const loadStatic = async () => {
       try {
-        const [schoolData, usersData, docentesData, docenteAttendancesData, fotosData] =
+        const [schoolData, usersData, docentesData, fotosData] =
           await Promise.all([
             getSchoolById(schoolId),
             getUsersBySchool(schoolId),
             getDocentesBySchool(schoolId),
-            getDocenteAttendancesBySchool(schoolId),
             getFotosBySchool(schoolId),
           ]);
 
@@ -106,7 +105,6 @@ const SupervisorSchoolDetail = () => {
         setSchool(schoolData);
         setUsers(usersData);
         setDocentes(docentesData);
-        setDocenteAttendances(docenteAttendancesData);
         setFotos(fotosData);
       } catch {
         if (!unmounted) setError('No se pudieron cargar los datos de la escuela.');
@@ -127,11 +125,16 @@ const SupervisorSchoolDetail = () => {
       if (!unmounted) setIncidents(data);
     });
 
+    const unsubDocenteAttendances = subscribeDocenteAttendancesBySchool(schoolId, (data) => {
+      if (!unmounted) setDocenteAttendances(data);
+    });
+
     return () => {
       unmounted = true;
       unsubAttendances();
       unsubNews();
       unsubIncidents();
+      unsubDocenteAttendances();
     };
   }, [schoolId]);
 
