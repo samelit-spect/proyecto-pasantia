@@ -16,13 +16,13 @@ import {
 import {
   getSchools,
   getSchoolById,
-  subscribeTodayAttendances,
-  subscribeTodayNews,
-  subscribeTodayIncidents,
-  subscribeRecentIncidents,
-  subscribeTodayAttendancesBySchool,
-  subscribeTodayNewsBySchool,
-  subscribeTodayIncidentsBySchool,
+  getTodayAttendances,
+  getTodayNews,
+  getTodayIncidents,
+  getRecentIncidents,
+  getTodayAttendancesBySchool,
+  getTodayNewsBySchool,
+  getTodayIncidentsBySchool,
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
@@ -57,42 +57,21 @@ const Home = () => {
 
     let unmounted = false;
 
-    const loadSchoolsAndSubscribe = async () => {
+    const loadAll = async () => {
       try {
-        const schools = await getSchools();
+        const [schools, attendances, news, incidents, recent] = await Promise.all([
+          getSchools(),
+          getTodayAttendances(),
+          getTodayNews(),
+          getTodayIncidents(),
+          getRecentIncidents(20),
+        ]);
         if (unmounted) return;
-        setStats((prev) => ({ ...prev, escuelas: schools.length }));
-      } catch {
-        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
-      }
-    };
-
-    loadSchoolsAndSubscribe();
-
-    const unsubAttendances = subscribeTodayAttendances((data) => {
-      if (!unmounted) {
-        setRecentAttendances(data.slice(0, 5));
-        setStats((prev) => ({ ...prev, asistencias: data.length }));
-      }
-    });
-
-    const unsubNews = subscribeTodayNews((data) => {
-      if (!unmounted) {
-        setRecentNews(data.slice(0, 5));
-        setStats((prev) => ({ ...prev, novedades: data.length }));
-      }
-    });
-
-    const unsubIncidents = subscribeTodayIncidents((data) => {
-      if (!unmounted) {
-        setRecentIncidents(data.slice(0, 5));
-        setStats((prev) => ({ ...prev, incidentes: data.length }));
-      }
-    });
-
-    const unsubRecent = subscribeRecentIncidents(20, (data) => {
-      if (!unmounted) {
-        const open = data
+        setStats({ escuelas: schools.length, asistencias: attendances.length, novedades: news.length, incidentes: incidents.length });
+        setRecentAttendances(attendances.slice(0, 5));
+        setRecentNews(news.slice(0, 5));
+        setRecentIncidents(incidents.slice(0, 5));
+        const open = recent
           .filter((i) => i.estado !== 'resuelto')
           .sort((a, b) => {
             const urgenciaOrder = { alta: 0, media: 1, baja: 2 };
@@ -103,15 +82,17 @@ const Home = () => {
           })
           .slice(0, 5);
         setOpenIncidents(open);
+      } catch {
+        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
       }
-    });
+    };
+
+    loadAll();
+    const interval = setInterval(loadAll, 30_000);
 
     return () => {
       unmounted = true;
-      unsubAttendances();
-      unsubNews();
-      unsubIncidents();
-      unsubRecent();
+      clearInterval(interval);
     };
   }, [hasRole]);
 
@@ -121,34 +102,30 @@ const Home = () => {
 
     let unmounted = false;
 
-    const loadSchool = async () => {
+    const loadAll = async () => {
       try {
-        const school = await getSchoolById(profile.escuelaId);
-        if (!unmounted) setMySchool(school);
+        const [school, attendances, news, incidents] = await Promise.all([
+          getSchoolById(profile.escuelaId),
+          getTodayAttendancesBySchool(profile.escuelaId),
+          getTodayNewsBySchool(profile.escuelaId),
+          getTodayIncidentsBySchool(profile.escuelaId),
+        ]);
+        if (unmounted) return;
+        setMySchool(school);
+        setMyAttendances(attendances);
+        setMyNews(news);
+        setMyIncidents(incidents);
       } catch {
         if (!unmounted) setStatsError('No se pudieron cargar los datos.');
       }
     };
 
-    loadSchool();
-
-    const unsubAttendances = subscribeTodayAttendancesBySchool(profile.escuelaId, (data) => {
-      if (!unmounted) setMyAttendances(data);
-    });
-
-    const unsubNews = subscribeTodayNewsBySchool(profile.escuelaId, (data) => {
-      if (!unmounted) setMyNews(data);
-    });
-
-    const unsubIncidents = subscribeTodayIncidentsBySchool(profile.escuelaId, (data) => {
-      if (!unmounted) setMyIncidents(data);
-    });
+    loadAll();
+    const interval = setInterval(loadAll, 30_000);
 
     return () => {
       unmounted = true;
-      unsubAttendances();
-      unsubNews();
-      unsubIncidents();
+      clearInterval(interval);
     };
   }, [hasRole, profile?.escuelaId]);
 
