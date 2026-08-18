@@ -77,8 +77,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadUserProfile]);
 
   const login = useCallback(async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
-  }, []);
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const profile = await loadUserProfile(result.user);
+    setState({
+      user: result.user,
+      profile,
+      isLoading: false,
+      isAuthenticated: true,
+    });
+  }, [loadUserProfile]);
 
   const logout = useCallback(async () => {
     await signOut(auth);
