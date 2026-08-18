@@ -57,17 +57,25 @@ const Home = () => {
 
     let unmounted = false;
 
-    const loadAll = async () => {
+    const loadSchools = async () => {
       try {
-        const [schools, attendances, news, incidents, recent] = await Promise.all([
-          getSchools(),
+        const schools = await getSchools();
+        if (!unmounted) setStats((prev) => ({ ...prev, escuelas: schools.length }));
+      } catch {
+        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
+      }
+    };
+
+    const loadActivity = async () => {
+      try {
+        const [attendances, news, incidents, recent] = await Promise.all([
           getTodayAttendances(),
           getTodayNews(),
           getTodayIncidents(),
           getRecentIncidents(20),
         ]);
         if (unmounted) return;
-        setStats({ escuelas: schools.length, asistencias: attendances.length, novedades: news.length, incidentes: incidents.length });
+        setStats((prev) => ({ ...prev, asistencias: attendances.length, novedades: news.length, incidentes: incidents.length }));
         setRecentAttendances(attendances.slice(0, 5));
         setRecentNews(news.slice(0, 5));
         setRecentIncidents(incidents.slice(0, 5));
@@ -87,12 +95,35 @@ const Home = () => {
       }
     };
 
-    loadAll();
-    const interval = setInterval(loadAll, 30_000);
+    loadSchools();
+    loadActivity();
+
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const startInterval = () => {
+      if (interval) return;
+      interval = setInterval(() => {
+        if (document.visibilityState === 'visible') loadActivity();
+      }, 30_000);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadActivity();
+        startInterval();
+      } else if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    startInterval();
 
     return () => {
       unmounted = true;
-      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (interval) clearInterval(interval);
     };
   }, [hasRole]);
 
@@ -102,16 +133,23 @@ const Home = () => {
 
     let unmounted = false;
 
-    const loadAll = async () => {
+    const loadSchool = async () => {
       try {
-        const [school, attendances, news, incidents] = await Promise.all([
-          getSchoolById(profile.escuelaId),
+        const school = await getSchoolById(profile.escuelaId);
+        if (!unmounted) setMySchool(school);
+      } catch {
+        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
+      }
+    };
+
+    const loadActivity = async () => {
+      try {
+        const [attendances, news, incidents] = await Promise.all([
           getTodayAttendancesBySchool(profile.escuelaId),
           getTodayNewsBySchool(profile.escuelaId),
           getTodayIncidentsBySchool(profile.escuelaId),
         ]);
         if (unmounted) return;
-        setMySchool(school);
         setMyAttendances(attendances);
         setMyNews(news);
         setMyIncidents(incidents);
@@ -120,12 +158,35 @@ const Home = () => {
       }
     };
 
-    loadAll();
-    const interval = setInterval(loadAll, 30_000);
+    loadSchool();
+    loadActivity();
+
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const startInterval = () => {
+      if (interval) return;
+      interval = setInterval(() => {
+        if (document.visibilityState === 'visible') loadActivity();
+      }, 30_000);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadActivity();
+        startInterval();
+      } else if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    startInterval();
 
     return () => {
       unmounted = true;
-      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (interval) clearInterval(interval);
     };
   }, [hasRole, profile?.escuelaId]);
 
