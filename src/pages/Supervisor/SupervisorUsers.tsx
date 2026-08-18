@@ -23,6 +23,7 @@ import { getAuthErrorMessage } from '@/utils/authErrors';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
+import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import './SupervisorUsers.css';
 
 const ROLES = ['director', 'vice', 'preceptor', 'secretario', 'conserje', 'supervisor'] as const;
@@ -62,6 +63,7 @@ const SupervisorUsers = () => {
   );
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'toggle' | 'reset'; user: UserProfile } | null>(null);
 
   const createForm = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
@@ -151,14 +153,9 @@ const SupervisorUsers = () => {
   };
 
   const handleToggleActive = async (user: UserProfile) => {
-    const isActive = user.activo ?? true;
-    const action = isActive ? 'desactivar' : 'activar';
-    if (!window.confirm(`¿Seguro que querés ${action} a ${user.nombre}?`)) return;
-
     if (togglingId) return;
     setTogglingId(user.uid);
     setFeedback(null);
-
     try {
       await setUserActive(user.uid, !(user.activo ?? true));
       setUsers((prev) =>
@@ -172,12 +169,9 @@ const SupervisorUsers = () => {
   };
 
   const handleResetPassword = async (user: UserProfile) => {
-    if (!window.confirm(`¿Enviar email de restablecimiento a ${user.email}?`)) return;
-
     if (resettingId) return;
     setResettingId(user.uid);
     setFeedback(null);
-
     try {
       await sendPasswordReset(user.email);
       showFeedback('success', `Email de restablecimiento enviado a ${user.email}.`);
@@ -186,6 +180,16 @@ const SupervisorUsers = () => {
     } finally {
       setResettingId(null);
     }
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+    if (confirmAction.type === 'toggle') {
+      handleToggleActive(confirmAction.user);
+    } else {
+      handleResetPassword(confirmAction.user);
+    }
+    setConfirmAction(null);
   };
 
   const schoolNameById = (schoolId: string) =>
@@ -241,6 +245,16 @@ const SupervisorUsers = () => {
               ))}
             </select>
           </label>
+        </div>
+      )}
+
+      {feedback && (
+        <div
+          className={`supervisor-users__feedback supervisor-users__feedback--${feedback.type}`}
+          role="alert"
+        >
+          <span>{feedback.message}</span>
+          <button className="supervisor-users__feedback-close" onClick={() => setFeedback(null)}>×</button>
         </div>
       )}
 
@@ -330,15 +344,6 @@ const SupervisorUsers = () => {
             )}
           />
 
-          {feedback && (
-            <div
-              className={`supervisor-users__feedback supervisor-users__feedback--${feedback.type}`}
-              role="alert"
-            >
-              {feedback.message}
-            </div>
-          )}
-
           <button type="submit" className="supervisor-users__submit" disabled={createForm.formState.isSubmitting}>
             {createForm.formState.isSubmitting ? 'Creando...' : 'Crear usuario'}
           </button>
@@ -416,15 +421,6 @@ const SupervisorUsers = () => {
             Para cambiar la contraseña, usá el botón "Restablecer" en la lista de usuarios.
           </p>
 
-          {feedback && (
-            <div
-              className={`supervisor-users__feedback supervisor-users__feedback--${feedback.type}`}
-              role="alert"
-            >
-              {feedback.message}
-            </div>
-          )}
-
           <div className="supervisor-users__form-actions">
             <button type="submit" className="supervisor-users__submit" disabled={editForm.formState.isSubmitting}>
               {editForm.formState.isSubmitting ? 'Guardando...' : 'Guardar cambios'}
@@ -485,7 +481,7 @@ const SupervisorUsers = () => {
                         <button
                           className="supervisor-users__action-btn"
                           data-tooltip="Enviar email para restablecer la contraseña"
-                          onClick={() => handleResetPassword(user)}
+                          onClick={() => setConfirmAction({ type: 'reset', user })}
                           disabled={resettingId === user.uid}
                         >
                           <RotateCcw size={14} strokeWidth={1.5} />
@@ -494,7 +490,7 @@ const SupervisorUsers = () => {
                         <button
                           className="supervisor-users__toggle"
                           data-tooltip={isActive ? 'Desactivar acceso del usuario' : 'Activar acceso del usuario'}
-                          onClick={() => handleToggleActive(user)}
+                          onClick={() => setConfirmAction({ type: 'toggle', user })}
                           disabled={togglingId === user.uid}
                         >
                           <Power size={16} strokeWidth={1.5} />
@@ -511,6 +507,20 @@ const SupervisorUsers = () => {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirmAction}
+        title={confirmAction?.type === 'toggle'
+          ? `${confirmAction?.user.activo === false ? 'Activar' : 'Desactivar'} usuario`
+          : 'Restablecer contraseña'}
+        message={confirmAction?.type === 'toggle'
+          ? `¿Seguro que querés ${confirmAction?.user.activo === false ? 'activar' : 'desactivar'} a ${confirmAction?.user.nombre}?`
+          : `¿Enviar email de restablecimiento a ${confirmAction?.user.email}?`}
+        confirmLabel={confirmAction?.type === 'toggle' ? 'Sí, continuar' : 'Enviar email'}
+        variant={confirmAction?.type === 'toggle' ? 'warning' : 'warning'}
+        onConfirm={handleConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />
     </>
   );
 };

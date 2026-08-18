@@ -63,6 +63,7 @@ const AttendanceForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  const modalRef = useRef<HTMLDivElement>(null);
   const sectionsRef = useRef(sections);
   const loadEntriesRef = useRef(loadEntries);
 
@@ -72,6 +73,16 @@ const AttendanceForm = ({
   useEffect(() => {
     loadEntriesRef.current = loadEntries;
   });
+
+  useEffect(() => {
+    if (!result) return;
+    modalRef.current?.focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setResult(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [result]);
 
   const escuelaId = profile?.escuelaId || '';
 
@@ -361,6 +372,8 @@ const AttendanceForm = ({
       {result && (
         <div
           className="attendance-form__overlay"
+          ref={modalRef}
+          tabIndex={-1}
           role="dialog"
           aria-modal="true"
           aria-label="Resultado del envío"

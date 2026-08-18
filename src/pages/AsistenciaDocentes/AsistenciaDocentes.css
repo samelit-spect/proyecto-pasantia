@@ -83,10 +83,27 @@
 }
 
 .asist-docentes__feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.75rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  text-align: center;
+}
+
+.asist-docentes__feedback-close {
+  background: none;
+  border: none;
+  font-size: 1.125rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+
+.asist-docentes__feedback-close:hover {
+  opacity: 1;
 }
 
 .asist-docentes__feedback--success {

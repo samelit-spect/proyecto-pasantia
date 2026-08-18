@@ -206,7 +206,8 @@ const Incidentes = () => {
             className={`incidentes__feedback incidentes__feedback--${feedback.type}`}
             role="alert"
           >
-            {feedback.message}
+            <span>{feedback.message}</span>
+            <button className="incidentes__feedback-close" onClick={() => setFeedback(null)}>×</button>
           </div>
         )}
 

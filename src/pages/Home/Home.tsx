@@ -50,6 +50,8 @@ const Home = () => {
   const [myNews, setMyNews] = useState<News[]>([]);
   const [myIncidents, setMyIncidents] = useState<Incident[]>([]);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     if (!hasRole('supervisor')) return;
 
@@ -93,8 +95,9 @@ const Home = () => {
       }
     };
 
-    loadSchools();
-    loadActivity();
+    Promise.all([loadSchools(), loadActivity()]).finally(() => {
+      if (!unmounted) setIsLoading(false);
+    });
 
     let interval: ReturnType<typeof setInterval> | null = null;
 
@@ -155,8 +158,9 @@ const Home = () => {
       }
     };
 
-    loadSchool();
-    loadActivity();
+    Promise.all([loadSchool(), loadActivity()]).finally(() => {
+      if (!unmounted) setIsLoading(false);
+    });
 
     let interval: ReturnType<typeof setInterval> | null = null;
 
@@ -260,11 +264,16 @@ const Home = () => {
 
       {statsError && (
         <div className="home__error" role="alert">
-          {statsError}
+          <span>{statsError}</span>
+          <button className="home__error-close" onClick={() => setStatsError(null)}>×</button>
         </div>
       )}
 
-      {!hasRole('supervisor') && mySchool && (
+      {isLoading && (
+        <div className="home__loading">Cargando datos...</div>
+      )}
+
+      {!isLoading && !hasRole('supervisor') && mySchool && (
         <div className="home__section">
           <h3 className="home__section-title">Mi escuela</h3>
           <div className="home__school-card">
@@ -296,7 +305,7 @@ const Home = () => {
         </div>
       )}
 
-      {!hasRole('supervisor') && (
+      {!isLoading && !hasRole('supervisor') && (
         <div className="home__section">
           <h3 className="home__section-title">
             <Clock size={14} strokeWidth={2} style={{ marginRight: '0.375rem', verticalAlign: 'middle' }} />
@@ -359,7 +368,7 @@ const Home = () => {
         </div>
       )}
 
-      {hasRole('supervisor') && (
+      {!isLoading && hasRole('supervisor') && (
         <>
           <div className="home__section">
             <h3 className="home__section-title">Resumen del día</h3>

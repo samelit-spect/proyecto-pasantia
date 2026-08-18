@@ -1,7 +1,7 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 17/08/2026
-> Commits totales: 47
+> Última actualización: 18/08/2026
+> Commits totales: 57
 
 ---
 
@@ -124,6 +124,49 @@
 - Detalle escuela supervisor: tiempo real en vista Hoy
 - Historial: tiempo real sin loading manual
 
+### ✅ Fix infinite re-render + Firestore undefined error + timezone (`f841179`)
+- AttendanceForm: `sections` y `loadEntries` en refs
+- Firestore: `motivo` se agrega condicionalmente (no `undefined`)
+- `startOfToday()` en UTC midnight para consistencia
+- Botones "Volver" en 5 páginas
+
+### ✅ Login race condition fix (`42077ee`)
+- `login()` espera carga de profile antes de resolver
+
+### ✅ Asistencia docentes simplificada (`7fa8dcb`)
+- Reescrita como carga de foto (sin registros individuales)
+- Tipo `DocenteAttendance` actualizado: `fotoDataUrl` en lugar de `registros`
+- CSS propio en `AsistenciaDocentes.css`
+
+### ✅ Home optimizado (`cccb8a0`, `1ca80bc`)
+- Reemplazadas suscripciones onSnapshot con fetch one-time + intervalo 30s
+- Optimización `visibilitychange`: pausa intervalo cuando tab inactivo
+
+### ✅ Fix dateKey + supervisor "Hoy" (`7b11b5b`)
+- `dateKey()` cambiado a UTC (`toISOString().split('T')[0]`)
+- Corregido bug donde la pestaña "Hoy" mostraba vacía
+
+### ✅ Strict Mode fixes (`7186fcb`)
+- Eliminados `initialized.current` refs en Home, Historial, SupervisorSchools, SupervisorUsers
+
+### ✅ Incident confirmation + foto delete (`9b4209d`)
+- `window.confirm` en cambio de estado de incidentes
+- Botón de eliminar foto en `SchoolDetailFotos`
+
+### ✅ Edit/delete schools + edit docentes (`7ed6829`)
+- `updateSchool` y `deleteSchool` en firestore.ts
+- UI de edición/eliminación en SupervisorSchools
+- `updateDocente` en firestore.ts
+- UI de edición de docentes en SupervisorSchoolDetail
+
+### ✅ UX crítica - 6 mejoras (sin commit aún, compilando limpio)
+- **Feedback fuera de forms**: SupervisorSchools y SupervisorUsers muestran feedback arriba del form, no dentro
+- **Estados de carga**: Home y Historial muestran spinner en vez de zeros
+- **Modal keyboard support**: AttendanceForm modal cierra con Escape, auto-focus
+- **Desktop navbar**: Links horizontales ≥768px, hamburger oculto en desktop
+- **ConfirmDialog**: Nuevo componente reemplaza `window.confirm()` en 4 lugares
+- **Feedback mejorado**: Timer 8s + botón × para cerrar en todas las páginas
+
 ---
 
 ## Arquitectura de componentes clave
@@ -132,30 +175,31 @@
 | Ruta | Componente | Rol |
 |---|---|---|
 | `/` | `Home.tsx` | Home universal (supervisor ve jurisdicción, director ve su escuela) |
-| `/escuelas` | `SupervisorSchools.tsx` | Supervisor — listado de escuelas |
-| `/escuelas/:id` | `SupervisorSchoolDetail.tsx` | Supervisor — detalle de escuela (Hoy/Histórico) |
+| `/supervisor` | `SupervisorSchools.tsx` | Supervisor — listado de escuelas |
+| `/supervisor/escuela/:id` | `SupervisorSchoolDetail.tsx` | Supervisor — detalle de escuela (Hoy/Histórico) |
 | `/asistencia` | `Asistencia.tsx` | Director/Vice/Preceptor — carga asistencia gestión |
-| `/asistencia-docentes` | `DocenteAttendance.tsx` | Director/Vice/Preceptor — carga asistencia docentes |
+| `/asistencia-docentes` | `AsistenciaDocentes.tsx` | Director/Vice/Preceptor — carga asistencia docentes (foto) |
 | `/novedades` | `Novedades.tsx` | Director/Vice — carga novedades |
 | `/incidentes` | `Incidentes.tsx` | Director/Vice — carga incidentes |
 | `/fotos` | `Fotos.tsx` | Preceptor — sube fotos de planillas |
 | `/historial` | `Historial.tsx` | Director/Vice/Preceptor — consulta histórica |
-| `/usuarios` | `SupervisorUsers.tsx` | Supervisor — gestión de usuarios |
+| `/supervisor/usuarios` | `SupervisorUsers.tsx` | Supervisor — gestión de usuarios |
 | `/tema` | `ThemeSettings.tsx` | Todos — configuración de apariencia |
 
 ### Components clave
 - `src/components/forms/AttendanceForm/` — Formulario compartido (gestión + docentes)
 - `src/components/supervisor/` — 8 subcomponentes de SupervisorSchoolDetail
+- `src/components/common/ConfirmDialog/` — Diálogo de confirmación reemplaza window.confirm()
 - `src/components/common/SchoolSelect/` — Selector de escuelas (usa `getSchoolById` para no-supervisores)
 - `src/components/common/Pagination/` — Paginación client-side
 - `src/components/common/ErrorBoundary/` — Error boundary global
 
 ### Servicios y utilidades
-- `src/services/api/firestore.ts` — Todas las queries + 12 suscripciones onSnapshot
+- `src/services/api/firestore.ts` — Todas las queries + suscripciones onSnapshot + CRUD schools/docentes
 - `src/context/AuthContext.tsx` — Auth state, `hasRole()`, `profile.escuelaId`
 - `src/utils/validation.ts` — Schemas Zod para formularios
-- `src/utils/constants.ts` — Labels, tipos, `FEEDBACK_AUTO_CLEAR_MS`
-- `src/utils/dateKey.ts` — Función `dateKey()` para normalizar fechas
+- `src/utils/constants.ts` — Labels, tipos, `FEEDBACK_AUTO_CLEAR_MS = 8000`
+- `src/utils/dateKey.ts` — Función `dateKey()` UTC-based para normalizar fechas
 - `src/utils/authErrors.ts` — Mensajes de error de Firebase Auth
 - `src/utils/image.ts` — `fileToCompressedDataUrl()` para fotos
 
@@ -166,14 +210,14 @@
 ### Colecciones
 | Colección | Descripción | Campos clave |
 |---|---|---|
-| `escuelas` | Escuelas de la jurisdicción | `nombre`, `activa`, `numero` |
+| `escuelas` | Escuelas de la jurisdicción | `nombre`, `turno`, `direccion`, `activa` |
 | `usuarios` | Perfiles de usuario | `uid`, `email`, `nombre`, `rol`, `escuelaId`, `activo` |
-| `asistencias` | Asistencia de gestión (masiva) | `escuelaId`, `fecha`, `entries[]`, `cargadoPor` |
-| `asistencia_docentes` | Asistencia de docentes | `escuelaId`, `fecha`, `entries[]`, `cargadoPor`, `materia` |
+| `asistencias` | Asistencia de gestión (masiva) | `escuelaId`, `fecha`, `registros[]`, `cargadoPor` |
+| `asistencia_docentes` | Asistencia de docentes (foto) | `escuelaId`, `fecha`, `fotoDataUrl`, `cargadoPorNombre`, `cargadoPor` |
 | `docentes` | Catálogo de docentes por escuela | `nombre`, `materia`, `escuelaId`, `activo` |
 | `fotos` | Fotos de planillas firmadas | `escuelaId`, `fecha`, `dataUrl`, `autorId` |
-| `novedades` | Novedades institucionales | `escuelaId`, `fecha`, `tipo`, `hora`, `texto` |
-| `incidentes` | Incidentes/informes | `escuelaId`, `fecha`, `categoria`, `urgencia`, `texto`, `ubicacion`, `fotoDataUrl`, `estado` |
+| `novedades` | Novedades institucionales | `escuelaId`, `fecha`, `tipo`, `hora`, `descripcion`, `cargadoPorNombre` |
+| `incidentes` | Incidentes/informes | `escuelaId`, `fecha`, `categoria`, `urgencia`, `descripcion`, `ubicacion`, `fotoDataUrl`, `estado` |
 
 ### Índices compuestos (`firestore.indexes.json`)
 - `asistencias`: `escuelaId + fecha`
@@ -199,18 +243,13 @@ Los formularios NO tienen dropdown de SchoolSelect. La escuela se toma automáti
 Cuando un director llama `getSchools()` (lectura de colección), Firestore bloquea documentos de otras escuelas → la query falla. Solución: usar `getSchoolById(escuelaId)` para leer un documento individual.
 
 ### 3. Tiempo real (onSnapshot)
-Todos los paneles principales se actualizan en tiempo real:
-- `subscribeTodayAttendances` / `subscribeTodayAttendancesBySchool`
-- `subscribeTodayNews` / `subscribeTodayNewsBySchool`
-- `subscribeTodayIncidents` / `subscribeTodayIncidentsBySchool`
-- `subscribeAttendancesBySchool` / `subscribeNewsBySchool` / `subscribeIncidentsBySchool`
-- `subscribeDocenteAttendancesBySchool`
+Las suscripciones onSnapshot se usan en Historial, SupervisorSchoolDetail (vista Hoy), y Home (no-supervisor activity). Home supervisor usa fetch one-time + intervalo 30s con pausa en `visibilitychange`.
 
-### 4. CSV export
-La exportación CSV en SupervisorSchoolDetail todavía usa queries one-time (no onSnapshot) para no interferir con la vista.
+### 4. Asistencia de docentes
+El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `registros[]` como `Attendance`. El componente `SchoolDetailAttendances` maneja ambos tipos.
 
 ### 5. Tests
-51 tests pasando. Ejecutar con `npx vitest run` o `npm run test`.
+52 tests pasando. Ejecutar con `npx vitest run` o `npm run test`.
 
 ### 6. Lint
 `npm run lint` debe retornar 0 errores, 0 warnings antes de cada commit.
@@ -227,12 +266,39 @@ Base64 comprimido (~1024px, JPEG ~0.6 calidad). Límite ~1MiB por documento Fire
 ### 10. Horarios de sesión
 La sesión de usuario se mantiene mientras Firebase Auth esté activo. No hay timeout custom.
 
+### 11. `dateKey()` y timezone
+`dateKey()` usa UTC (`toISOString().split('T')[0]`). Firestore guarda fechas en UTC midnight. Consistencia verificada.
+
+### 12. React 18/19 Strict Mode
+Los `initialized.current` refs en useEffect blocks rompen el re-mount de Strict Mode. Fueron eliminados de Home, Historial, SupervisorSchools, SupervisorUsers.
+
 ---
 
 ## Tareas pendientes conocidas
 
-- [ ] Crear 17 escuelas en Firestore y usuarios iniciales
-- [ ] Evaluar reducir bundle de Firebase (SDK monolítico ~930KB)
-- [ ] Tests de AuthContext, Firestore services, formularios de novedades/incidentes
-- [ ] La paginación del Historial para directores está funcionando con onSnapshot + dateFrom/dateTo
-- [ ] Considerar agregar índices compuestos adicionales si se necesitan más queries
+### Firebase Console
+- [ ] Crear 17 escuelas en Firestore `escuelas`
+- [ ] Crear usuarios iniciales (1 director por escuela)
+
+### Testing
+- [ ] Tests de AuthContext
+- [ ] Tests de Firestore services (CRUD schools, docentes, attendance)
+- [ ] Tests de formularios de novedades/incidentes
+
+### Mejoras futuras
+- [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
+- [ ] Evaluar índices compuestos adicionales
+- [ ] Offline: sync automático de incidentes creados sin conexión
+
+### UX media (audit completado, priorizado)
+- [ ] Incidetes: `object-fit: contain` en vez de `cover` para fotos
+- [ ] Incidentes: validación de tamaño de archivo
+- [ ] Novedades/Incidentes: feedback cuando user context falta
+- [ ] Historial: validación dateFrom > dateTo
+- [ ] Navbar: active page indicator en drawer
+- [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
+- [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado)
+- [ ] SupervisorUsers: sort controls en lista
+- [ ] Login: password visibility toggle
+- [ ] Login: focus management después de error
+- [ ] Home: empty state para supervisor cuando no hay actividad

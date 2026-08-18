@@ -143,7 +143,8 @@ const AsistenciaDocentes = () => {
             className={`asist-docentes__feedback asist-docentes__feedback--${feedback.type}`}
             role="alert"
           >
-            {feedback.message}
+            <span>{feedback.message}</span>
+            <button className="asist-docentes__feedback-close" onClick={() => setFeedback(null)}>×</button>
           </div>
         )}
 

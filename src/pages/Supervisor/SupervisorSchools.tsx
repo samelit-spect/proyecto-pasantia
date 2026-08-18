@@ -16,6 +16,7 @@ import {
 import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
+import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import './SupervisorSchools.css';
 
 const TURNOS = ['mañana', 'tarde', 'vespertino', 'nocturno'] as const;
@@ -42,6 +43,7 @@ const SupervisorSchools = () => {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
+  const [confirmDelete, setConfirmDelete] = useState<SchoolType | null>(null);
 
   const {
     register,
@@ -112,8 +114,10 @@ const SupervisorSchools = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (school: SchoolType) => {
-    if (!window.confirm(`¿Eliminar la escuela "${school.nombre}"? Esta acción no se puede deshacer.`)) return;
+  const handleDeleteConfirm = async () => {
+    if (!confirmDelete) return;
+    const school = confirmDelete;
+    setConfirmDelete(null);
     setFeedback(null);
     try {
       await deleteSchool(school.id);
@@ -169,6 +173,16 @@ const SupervisorSchools = () => {
         </Link>
       </div>
 
+      {feedback && (
+        <div
+          className={`supervisor-schools__feedback supervisor-schools__feedback--${feedback.type}`}
+          role="alert"
+        >
+          <span>{feedback.message}</span>
+          <button className="supervisor-schools__feedback-close" onClick={() => setFeedback(null)}>×</button>
+        </div>
+      )}
+
       {showForm && (
         <form className="supervisor-schools__form" onSubmit={handleSubmit(onSubmit)}>
           <div className="supervisor-schools__form-row">
@@ -204,15 +218,6 @@ const SupervisorSchools = () => {
               {...register('direccion')}
             />
           </label>
-
-          {feedback && (
-            <div
-              className={`supervisor-schools__feedback supervisor-schools__feedback--${feedback.type}`}
-              role="alert"
-            >
-              {feedback.message}
-            </div>
-          )}
 
           <button type="submit" className="supervisor-schools__submit" disabled={isSubmitting}>
             {isSubmitting ? 'Guardando...' : editingSchool ? 'Actualizar' : 'Crear escuela'}
@@ -362,7 +367,7 @@ const SupervisorSchools = () => {
                     <button
                       className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
                       title="Eliminar"
-                      onClick={(e) => { e.preventDefault(); handleDelete(school); }}
+                      onClick={(e) => { e.preventDefault(); setConfirmDelete(school); }}
                     >
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>
@@ -373,6 +378,15 @@ const SupervisorSchools = () => {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        title="Eliminar escuela"
+        message={`¿Eliminar la escuela "${confirmDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </>
   );
 };

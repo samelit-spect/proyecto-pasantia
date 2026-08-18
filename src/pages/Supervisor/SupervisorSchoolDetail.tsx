@@ -43,6 +43,7 @@ import SchoolDetailDocentes from '@/components/supervisor/SchoolDetailDocentes/S
 import SchoolDetailFotos from '@/components/supervisor/SchoolDetailFotos/SchoolDetailFotos';
 import Lightbox from '@/components/supervisor/Lightbox/Lightbox';
 import useFeedback from '@/hooks/useFeedback';
+import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { downloadCsv } from '@/utils/exportCsv';
 import { dateKey } from '@/utils/dateKey';
 import {
@@ -80,6 +81,7 @@ const SupervisorSchoolDetail = () => {
   const [dateTo, setDateTo] = useState('');
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [exporting, setExporting] = useState<ExportType | null>(null);
+  const [confirmDeleteFoto, setConfirmDeleteFoto] = useState<string | null>(null);
 
   const statusOp = useFeedback();
   const verifyOp = useFeedback();
@@ -368,6 +370,19 @@ const SupervisorSchoolDetail = () => {
     }
   };
 
+  const handleDeleteFotoConfirm = async () => {
+    if (!confirmDeleteFoto) return;
+    const fotoId = confirmDeleteFoto;
+    setConfirmDeleteFoto(null);
+    try {
+      await deleteFoto(fotoId);
+      setFotos((prev) => prev.filter((f) => f.id !== fotoId));
+      statusOp.end({ type: 'success', message: 'Foto eliminada.' });
+    } catch {
+      statusOp.end({ type: 'error', message: 'No se pudo eliminar la foto.' });
+    }
+  };
+
   return (
     <>
       <div className="supervisor__header">
@@ -611,22 +626,22 @@ const SupervisorSchoolDetail = () => {
               expandedSection={expandedSection ?? ''}
               onToggle={() => toggleSection('fotos')}
               onLightbox={setLightbox}
-              onDelete={async (fotoId) => {
-                if (!window.confirm('¿Seguro que querés eliminar esta foto?')) return;
-                try {
-                  await deleteFoto(fotoId);
-                  setFotos((prev) => prev.filter((f) => f.id !== fotoId));
-                  statusOp.end({ type: 'success', message: 'Foto eliminada.' });
-                } catch {
-                  statusOp.end({ type: 'error', message: 'No se pudo eliminar la foto.' });
-                }
-              }}
+              onDelete={(fotoId) => setConfirmDeleteFoto(fotoId)}
             />
           </div>
         </>
       )}
 
       {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
+
+      <ConfirmDialog
+        open={!!confirmDeleteFoto}
+        title="Eliminar foto"
+        message="¿Seguro que querés eliminar esta foto?"
+        confirmLabel="Eliminar"
+        onConfirm={handleDeleteFotoConfirm}
+        onCancel={() => setConfirmDeleteFoto(null)}
+      />
     </>
   );
 };

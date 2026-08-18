@@ -67,6 +67,64 @@ const Navbar = () => {
         </button>
       </nav>
 
+      <nav className="navbar__desktop">
+        <Link to="/" className="navbar__desktop-link">
+          <Home size={16} strokeWidth={1.5} />
+          Inicio
+        </Link>
+        {hasRole('director', 'vice', 'preceptor') && (
+          <>
+            <Link to="/asistencia" className="navbar__desktop-link">
+              <ClipboardCheck size={16} strokeWidth={1.5} />
+              Asistencia
+            </Link>
+            <Link to="/asistencia-docentes" className="navbar__desktop-link">
+              <Users size={16} strokeWidth={1.5} />
+              Docentes
+            </Link>
+            <Link to="/historial" className="navbar__desktop-link">
+              <History size={16} strokeWidth={1.5} />
+              Historial
+            </Link>
+          </>
+        )}
+        {hasRole('preceptor') && (
+          <Link to="/fotos" className="navbar__desktop-link">
+            <Camera size={16} strokeWidth={1.5} />
+            Fotos
+          </Link>
+        )}
+        {hasRole('director', 'vice') && (
+          <>
+            <Link to="/novedades" className="navbar__desktop-link">
+              <Newspaper size={16} strokeWidth={1.5} />
+              Novedades
+            </Link>
+            <Link to="/incidentes" className="navbar__desktop-link">
+              <AlertTriangle size={16} strokeWidth={1.5} />
+              Incidentes
+            </Link>
+          </>
+        )}
+        {hasRole('supervisor') && (
+          <>
+            <Link to="/supervisor" className="navbar__desktop-link">
+              <Eye size={16} strokeWidth={1.5} />
+              Supervisión
+            </Link>
+            <Link to="/supervisor/usuarios" className="navbar__desktop-link">
+              <Settings size={16} strokeWidth={1.5} />
+              Usuarios
+            </Link>
+          </>
+        )}
+        <div className="navbar__desktop-spacer" />
+        <button onClick={handleLogout} className="navbar__desktop-logout">
+          <LogOut size={16} strokeWidth={1.5} />
+          Salir
+        </button>
+      </nav>
+
       {isMenuOpen && <div className="navbar__overlay" />}
 
       <div ref={menuRef} className={`navbar__drawer ${isMenuOpen ? 'navbar__drawer--open' : ''}`}>

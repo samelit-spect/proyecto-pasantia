@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -48,6 +48,9 @@ const Historial = () => {
     incidentes: 1,
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+  const initialLoadedRef = useRef(0);
+
   useEffect(() => {
     if (!profile || !hasRole('director', 'vice', 'preceptor')) return;
     if (!profile.escuelaId) return;
@@ -56,15 +59,31 @@ const Historial = () => {
 
     const unsubAttendances = subscribeAttendancesBySchool(profile.escuelaId, (data) => {
       if (!unmounted) setAttendances(data);
+      if (initialLoadedRef.current < 4) {
+        initialLoadedRef.current++;
+        if (initialLoadedRef.current >= 4) setIsLoading(false);
+      }
     });
     const unsubDocenteAtt = subscribeDocenteAttendancesBySchool(profile.escuelaId, (data) => {
       if (!unmounted) setDocenteAttendances(data);
+      if (initialLoadedRef.current < 4) {
+        initialLoadedRef.current++;
+        if (initialLoadedRef.current >= 4) setIsLoading(false);
+      }
     });
     const unsubNews = subscribeNewsBySchool(profile.escuelaId, (data) => {
       if (!unmounted) setNews(data);
+      if (initialLoadedRef.current < 4) {
+        initialLoadedRef.current++;
+        if (initialLoadedRef.current >= 4) setIsLoading(false);
+      }
     });
     const unsubIncidents = subscribeIncidentsBySchool(profile.escuelaId, (data) => {
       if (!unmounted) setIncidents(data);
+      if (initialLoadedRef.current < 4) {
+        initialLoadedRef.current++;
+        if (initialLoadedRef.current >= 4) setIsLoading(false);
+      }
     });
 
     return () => {
@@ -186,7 +205,9 @@ const Historial = () => {
         )}
       </div>
 
-      <div className="historial__sections">
+      {isLoading && <div className="historial__loading">Cargando historial...</div>}
+
+      {!isLoading && <div className="historial__sections">
           <div className="historial__section">
             <button
               className="historial__section-header"
@@ -389,6 +410,7 @@ const Historial = () => {
             })()}
           </div>
         </div>
+        </div>}
     </section>
   );
 };
