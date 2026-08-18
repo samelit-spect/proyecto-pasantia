@@ -4,6 +4,10 @@ import AccordionSection from '../AccordionSection/AccordionSection';
 
 type AttendanceRecord = Attendance | DocenteAttendance;
 
+function hasRegistros(record: AttendanceRecord): record is Attendance {
+  return 'registros' in record;
+}
+
 interface SchoolDetailAttendancesProps {
   sectionId: string;
   title: string;
@@ -65,16 +69,25 @@ const SchoolDetailAttendances = ({
               {att.verificada ? 'Quitar verificación' : 'Verificar'}
             </button>
           </div>
-          <div className="supervisor-sub__record-list">
-            {att.registros.map((r, i) => (
-              <span
-                key={`${r.nombre}-${i}`}
-                className={`supervisor-sub__member ${r.presente ? 'supervisor-sub__member--present' : 'supervisor-sub__member--absent'}`}
-              >
-                {r.nombre} ({r.presente ? 'P' : 'A'})
-              </span>
-            ))}
-          </div>
+          {hasRegistros(att) ? (
+            <div className="supervisor-sub__record-list">
+              {att.registros.map((r, i) => (
+                <span
+                  key={`${r.nombre}-${i}`}
+                  className={`supervisor-sub__member ${r.presente ? 'supervisor-sub__member--present' : 'supervisor-sub__member--absent'}`}
+                >
+                  {r.nombre} ({r.presente ? 'P' : 'A'})
+                </span>
+              ))}
+            </div>
+          ) : (att as DocenteAttendance).fotoDataUrl ? (
+            <img
+              src={(att as DocenteAttendance).fotoDataUrl}
+              alt="Planilla de asistencia"
+              className="supervisor-sub__photo"
+              style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain', borderRadius: '0.375rem', marginTop: '0.5rem' }}
+            />
+          ) : null}
         </div>
       ))
     )}

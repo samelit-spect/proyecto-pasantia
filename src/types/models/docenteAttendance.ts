@@ -1,19 +1,12 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export interface DocenteAttendanceRecord {
-  nombre: string;
-  materia?: string;
-  presente: boolean;
-  motivo?: string;
-}
-
 export interface DocenteAttendance {
   id: string;
   escuelaId: string;
   fecha: Timestamp;
   cargadoPor: string;
   cargadoPorNombre: string;
-  registros: DocenteAttendanceRecord[];
+  fotoDataUrl?: string;
   createdAt: Timestamp;
   verificada?: boolean;
   verificadoPor?: string;
@@ -26,5 +19,5 @@ export interface AddDocenteAttendanceDTO {
   fecha: Date;
   cargadoPor: string;
   cargadoPorNombre: string;
-  registros: DocenteAttendanceRecord[];
+  fotoDataUrl?: string;
 }

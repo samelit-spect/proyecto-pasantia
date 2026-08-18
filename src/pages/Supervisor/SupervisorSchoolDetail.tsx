@@ -300,17 +300,13 @@ const SupervisorSchoolDetail = () => {
         const rows = await getDocenteAttendancesBySchool(schoolId, from, to);
         downloadCsv(
           `asistencia-docentes-${schoolSlug}-${rangeLabel}.csv`,
-          ['Fecha', 'Cargado por', 'Presentes', 'Ausentes', 'Verificada'],
-          rows.map((a) => {
-            const presentes = a.registros.filter((r) => r.presente).length;
-            return [
+          ['Fecha', 'Cargado por', 'Foto', 'Verificada'],
+          rows.map((a) => [
               dateToLabel(a.fecha.toDate()),
               a.cargadoPorNombre,
-              presentes,
-              a.registros.length - presentes,
+              a.fotoDataUrl ? 'Sí' : 'No',
               a.verificada ? 'Sí' : 'No',
-            ];
-          })
+            ])
         );
       } else if (type === 'novedades') {
         const rows = await getNewsBySchool(schoolId, from, to);
@@ -444,7 +440,7 @@ const SupervisorSchoolDetail = () => {
                     <div key={a.id} className="supervisor-detail__today-item">
                       <span>{a.cargadoPorNombre}</span>
                       <span className="supervisor-detail__today-item-detail">
-                        {a.registros.filter((r) => r.presente).length}/{a.registros.length} presentes
+                        {a.fotoDataUrl ? '📷 Con foto' : 'Sin foto'}
                       </span>
                     </div>
                   ))}

@@ -420,7 +420,7 @@ export async function addDocenteAttendance(data: AddDocenteAttendanceDTO): Promi
     fecha: Timestamp.fromDate(data.fecha),
     cargadoPor: data.cargadoPor,
     cargadoPorNombre: data.cargadoPorNombre,
-    registros: data.registros,
+    fotoDataUrl: data.fotoDataUrl || '',
     verificada: false,
     createdAt: Timestamp.now(),
   });

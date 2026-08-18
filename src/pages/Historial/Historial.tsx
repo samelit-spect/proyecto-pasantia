@@ -273,16 +273,15 @@ const Historial = () => {
                             Cargado por {att.cargadoPorNombre}
                           </span>
                         </div>
-                        <div className="historial__members">
-                          {att.registros.map((r, i) => (
-                            <span
-                              key={`${r.nombre}-${i}`}
-                              className={`historial__member ${r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
-                            >
-                              {r.nombre} ({r.presente ? 'P' : 'A'})
-                            </span>
-                          ))}
-                        </div>
+                        {att.fotoDataUrl ? (
+                          <img
+                            src={att.fotoDataUrl}
+                            alt="Planilla de asistencia"
+                            style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: '0.375rem', marginTop: '0.5rem' }}
+                          />
+                        ) : (
+                          <p className="historial__desc">Sin foto adjunta</p>
+                        )}
                       </div>
                     ))
                   )}
