@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -37,7 +37,6 @@ interface CardItem {
 
 const Home = () => {
   const { profile, hasRole } = useAuth();
-  const initialized = useRef(false);
 
   const [stats, setStats] = useState({ escuelas: 0, asistencias: 0, novedades: 0, incidentes: 0 });
   const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
@@ -52,8 +51,7 @@ const Home = () => {
   const [myIncidents, setMyIncidents] = useState<Incident[]>([]);
 
   useEffect(() => {
-    if (!hasRole('supervisor') || initialized.current) return;
-    initialized.current = true;
+    if (!hasRole('supervisor')) return;
 
     let unmounted = false;
 
@@ -128,8 +126,7 @@ const Home = () => {
   }, [hasRole]);
 
   useEffect(() => {
-    if (hasRole('supervisor') || !profile?.escuelaId || initialized.current) return;
-    initialized.current = true;
+    if (hasRole('supervisor') || !profile?.escuelaId) return;
 
     let unmounted = false;
 

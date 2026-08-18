@@ -189,6 +189,11 @@ const AttendanceForm = ({
         existing = await checkDuplicate(escuelaId, new Date(fecha));
       } catch (err) {
         console.error('Error verificando duplicado:', err);
+        setResult({
+          type: 'error',
+          message: 'No se pudo verificar si ya existe un registro. Verificá tu conexión.',
+        });
+        return;
       }
 
       if (existing) {

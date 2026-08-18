@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -29,7 +29,6 @@ type SectionKey = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 const Historial = () => {
   const { profile, hasRole } = useAuth();
   const navigate = useNavigate();
-  const initialized = useRef(false);
 
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [docenteAttendances, setDocenteAttendances] = useState<DocenteAttendance[]>([]);
@@ -50,9 +49,8 @@ const Historial = () => {
   });
 
   useEffect(() => {
-    if (!profile || !hasRole('director', 'vice', 'preceptor') || initialized.current) return;
+    if (!profile || !hasRole('director', 'vice', 'preceptor')) return;
     if (!profile.escuelaId) return;
-    initialized.current = true;
 
     let unmounted = false;
 

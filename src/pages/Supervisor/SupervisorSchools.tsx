@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,7 +34,6 @@ const SupervisorSchools = () => {
   const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const initialized = useRef(false);
 
   const [showForm, setShowForm] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
@@ -72,8 +71,6 @@ const SupervisorSchools = () => {
   };
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
     loadSchools();
   }, []);
 
