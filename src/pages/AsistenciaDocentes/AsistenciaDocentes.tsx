@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   getDocentesBySchool,
@@ -9,9 +11,15 @@ import type { Docente } from '@/types';
 
 const AsistenciaDocentes = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <AttendanceForm
+    <>
+      <button className="supervisor__back" onClick={() => navigate('/')}>
+        <ArrowLeft size={18} strokeWidth={1.5} />
+        Volver
+      </button>
+      <AttendanceForm
       title="Asistencia de Docentes"
       subtitle="Marcá si cada docente está presente o ausente. Si está ausente, el motivo es obligatorio."
       submitLabel="Enviar Asistencia"
@@ -46,7 +54,8 @@ const AsistenciaDocentes = () => {
           })),
         });
       }}
-    />
+      />
+    </>
   );
 };
 

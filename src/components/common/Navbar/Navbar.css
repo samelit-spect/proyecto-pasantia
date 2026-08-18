@@ -33,10 +33,11 @@
 }
 
 .navbar__brand-text {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   color: white;
+  text-transform: uppercase;
 }
 
 .navbar__hamburger {

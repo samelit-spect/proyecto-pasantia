@@ -231,11 +231,10 @@ export async function getNewsBySchool(
 }
 
 export async function getTodayAttendances(): Promise<Attendance[]> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const start = startOfToday();
   const q = query(
     collection(db, COLLECTIONS.attendances),
-    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    where('fecha', '>=', Timestamp.fromDate(start)),
     orderBy('fecha', 'desc'),
     limit(100)
   );
@@ -244,12 +243,11 @@ export async function getTodayAttendances(): Promise<Attendance[]> {
 }
 
 export async function getTodayAttendancesBySchool(schoolId: string): Promise<Attendance[]> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const start = startOfToday();
   const q = query(
     collection(db, COLLECTIONS.attendances),
     where('escuelaId', '==', schoolId),
-    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    where('fecha', '>=', Timestamp.fromDate(start)),
     orderBy('fecha', 'desc'),
     limit(100)
   );
@@ -258,11 +256,10 @@ export async function getTodayAttendancesBySchool(schoolId: string): Promise<Att
 }
 
 export async function getTodayNews(): Promise<News[]> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const start = startOfToday();
   const q = query(
     collection(db, COLLECTIONS.news),
-    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    where('fecha', '>=', Timestamp.fromDate(start)),
     orderBy('fecha', 'desc'),
     limit(100)
   );
@@ -271,12 +268,11 @@ export async function getTodayNews(): Promise<News[]> {
 }
 
 export async function getTodayNewsBySchool(schoolId: string): Promise<News[]> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const start = startOfToday();
   const q = query(
     collection(db, COLLECTIONS.news),
     where('escuelaId', '==', schoolId),
-    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    where('fecha', '>=', Timestamp.fromDate(start)),
     orderBy('fecha', 'desc'),
     limit(100)
   );
@@ -285,11 +281,10 @@ export async function getTodayNewsBySchool(schoolId: string): Promise<News[]> {
 }
 
 export async function getTodayIncidents(): Promise<Incident[]> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const start = startOfToday();
   const q = query(
     collection(db, COLLECTIONS.incidents),
-    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    where('fecha', '>=', Timestamp.fromDate(start)),
     orderBy('fecha', 'desc'),
     limit(100)
   );
@@ -298,12 +293,11 @@ export async function getTodayIncidents(): Promise<Incident[]> {
 }
 
 export async function getTodayIncidentsBySchool(schoolId: string): Promise<Incident[]> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const start = startOfToday();
   const q = query(
     collection(db, COLLECTIONS.incidents),
     where('escuelaId', '==', schoolId),
-    where('fecha', '>=', Timestamp.fromDate(startOfToday)),
+    where('fecha', '>=', Timestamp.fromDate(start)),
     orderBy('fecha', 'desc'),
     limit(100)
   );
@@ -529,8 +523,7 @@ export async function getFotosBySchool(schoolId: string): Promise<Foto[]> {
 
 function startOfToday(): Date {
   const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0));
 }
 
 export function subscribeTodayAttendances(callback: (data: Attendance[]) => void): Unsubscribe {

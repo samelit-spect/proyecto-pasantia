@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { addAttendance, getAttendanceByUserAndDate } from '@/services/api/firestore';
 import AttendanceForm from '@/components/forms/AttendanceForm/AttendanceForm';
@@ -13,9 +15,15 @@ const GESTION_SECTIONS: AttendanceSectionDef[] = [
 
 const Asistencia = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <AttendanceForm
+    <>
+      <button className="supervisor__back" onClick={() => navigate('/')}>
+        <ArrowLeft size={18} strokeWidth={1.5} />
+        Volver
+      </button>
+      <AttendanceForm
       title="Registrar Asistencia"
       subtitle="Marcá si cada integrante de la gestión está presente o ausente. Si está ausente, el motivo es obligatorio."
       submitLabel="Enviar Asistencia"
@@ -36,7 +44,8 @@ const Asistencia = () => {
           registros,
         });
       }}
-    />
+      />
+    </>
   );
 };
 

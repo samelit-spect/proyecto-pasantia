@@ -63,6 +63,16 @@ const AttendanceForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  const sectionsRef = useRef(sections);
+  const loadEntriesRef = useRef(loadEntries);
+
+  useEffect(() => {
+    sectionsRef.current = sections;
+  });
+  useEffect(() => {
+    loadEntriesRef.current = loadEntries;
+  });
+
   const escuelaId = profile?.escuelaId || '';
 
   useEffect(() => {
@@ -73,7 +83,7 @@ const AttendanceForm = ({
 
     if (mode === 'sections') {
       setEntries(
-        sections.map((s) => ({
+        sectionsRef.current.map((s) => ({
           id: nextId(),
           nombre: profile && s.cargo === profile.rol ? profile.nombre : '',
           cargo: s.cargo,
@@ -86,11 +96,11 @@ const AttendanceForm = ({
     }
 
     setIsLoading(true);
-    (loadEntries?.(escuelaId) ?? Promise.resolve([]))
+    (loadEntriesRef.current?.(escuelaId) ?? Promise.resolve([]))
       .then((list) => setEntries(list.map((e) => ({ ...e, id: nextId() }))))
       .catch(() => setEntries([]))
       .finally(() => setIsLoading(false));
-  }, [escuelaId, mode, sections, loadEntries, profile]);
+  }, [escuelaId, mode, profile]);
 
   const addRow = (cargo: string, label: string) => {
     setEntries((prev) => [
@@ -174,7 +184,13 @@ const AttendanceForm = ({
 
     setIsSubmitting(true);
     try {
-      const existing = await checkDuplicate(escuelaId, new Date(fecha));
+      let existing = false;
+      try {
+        existing = await checkDuplicate(escuelaId, new Date(fecha));
+      } catch (err) {
+        console.error('Error verificando duplicado:', err);
+      }
+
       if (existing) {
         setResult({
           type: 'error',
@@ -186,16 +202,22 @@ const AttendanceForm = ({
       await onSubmit({
         escuelaId,
         fecha: new Date(fecha),
-        registros: entries.map((m) => ({
-          nombre: m.nombre.trim() || m.label,
-          cargo: m.cargo,
-          presente: m.presente,
-          motivo: m.presente ? undefined : m.motivo,
-        })),
+        registros: entries.map((m) => {
+          const registro: AttendanceFormRecord = {
+            nombre: m.nombre.trim() || m.label,
+            cargo: m.cargo,
+            presente: m.presente,
+          };
+          if (!m.presente) {
+            registro.motivo = m.motivo;
+          }
+          return registro;
+        }),
       });
 
       setResult({ type: 'success', message: 'Asistencia enviada correctamente.' });
-    } catch {
+    } catch (err) {
+      console.error('Error al enviar asistencia:', err);
       setResult({
         type: 'error',
         message: 'No se pudo enviar el formulario. Revisá tu conexión e intentá de nuevo.',

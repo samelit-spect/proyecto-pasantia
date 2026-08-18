@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,6 +17,7 @@ type IncidentFormData = z.infer<typeof incidenteSchema>;
 
 const Incidentes = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
@@ -81,6 +84,10 @@ const Incidentes = () => {
 
   return (
     <section className="incidentes">
+      <button className="supervisor__back" onClick={() => navigate('/')}>
+        <ArrowLeft size={18} strokeWidth={1.5} />
+        Volver
+      </button>
       <h2 className="incidentes__title">Registrar Incidente</h2>
       <p className="incidentes__subtitle">
         Completá los datos para registrar un incidente institucional.

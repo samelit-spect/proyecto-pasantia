@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   subscribeAttendancesBySchool,
@@ -26,6 +28,7 @@ type SectionKey = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 
 const Historial = () => {
   const { profile, hasRole } = useAuth();
+  const navigate = useNavigate();
   const initialized = useRef(false);
 
   const [attendances, setAttendances] = useState<Attendance[]>([]);
@@ -108,6 +111,10 @@ const Historial = () => {
 
   return (
     <section className="historial">
+      <button className="supervisor__back" onClick={() => navigate('/')}>
+        <ArrowLeft size={18} strokeWidth={1.5} />
+        Volver
+      </button>
       <h2 className="historial__title">Historial de Cargas</h2>
       <p className="historial__subtitle">
         Consultá las asistencias, novedades e incidentes cargados en tu escuela.
