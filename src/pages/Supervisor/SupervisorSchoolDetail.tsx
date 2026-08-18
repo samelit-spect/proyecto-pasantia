@@ -13,6 +13,7 @@ import {
   updateIncidentStatus,
   getDocentesBySchool,
   addDocente,
+  updateDocente,
   setDocenteActive,
   getFotosBySchool,
   deleteFoto,
@@ -87,6 +88,7 @@ const SupervisorSchoolDetail = () => {
   const [docenteFormNombre, setDocenteFormNombre] = useState('');
   const [docenteFormMateria, setDocenteFormMateria] = useState('');
   const [docenteFormSubmitting, setDocenteFormSubmitting] = useState(false);
+  const [editingDocente, setEditingDocente] = useState<Docente | null>(null);
 
   useEffect(() => {
     if (!schoolId) return;
@@ -186,21 +188,37 @@ const SupervisorSchoolDetail = () => {
 
     setDocenteFormSubmitting(true);
     try {
-      await addDocente({
-        nombre: docenteFormNombre.trim(),
-        materia: docenteFormMateria.trim() || undefined,
-        escuelaId: schoolId,
-      });
+      if (editingDocente) {
+        await updateDocente(editingDocente.id, {
+          nombre: docenteFormNombre.trim(),
+          materia: docenteFormMateria.trim(),
+        });
+        docenteOp.end({ type: 'success', message: 'Docente actualizado correctamente.' });
+      } else {
+        await addDocente({
+          nombre: docenteFormNombre.trim(),
+          materia: docenteFormMateria.trim() || undefined,
+          escuelaId: schoolId,
+        });
+        docenteOp.end({ type: 'success', message: 'Docente agregado correctamente.' });
+      }
       const updated = await getDocentesBySchool(schoolId);
       setDocentes(updated);
       setDocenteFormNombre('');
       setDocenteFormMateria('');
-      docenteOp.end({ type: 'success', message: 'Docente agregado correctamente.' });
+      setEditingDocente(null);
     } catch {
-      docenteOp.end({ type: 'error', message: 'No se pudo agregar el docente.' });
+      docenteOp.end({ type: 'error', message: editingDocente ? 'No se pudo actualizar el docente.' : 'No se pudo agregar el docente.' });
     } finally {
       setDocenteFormSubmitting(false);
     }
+  };
+
+  const handleEditDocente = (docente: Docente) => {
+    setEditingDocente(docente);
+    setDocenteFormNombre(docente.nombre);
+    setDocenteFormMateria(docente.materia || '');
+    docenteOp.clear();
   };
 
   const handleToggleDocente = async (docenteId: string, activo: boolean) => {
@@ -584,6 +602,8 @@ const SupervisorSchoolDetail = () => {
               onMateriaChange={setDocenteFormMateria}
               onSubmit={handleAddDocente}
               onToggleDocente={handleToggleDocente}
+              onEditDocente={handleEditDocente}
+              isEditing={!!editingDocente}
             />
 
             <SchoolDetailFotos

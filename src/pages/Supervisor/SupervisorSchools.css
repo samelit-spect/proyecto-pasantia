@@ -258,21 +258,56 @@
 .supervisor-schools__card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem;
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: 0.625rem;
-  text-decoration: none;
-  color: inherit;
-  text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
 }
 
 .supervisor-schools__card:hover {
   border-color: var(--primary-light);
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
+}
+
+.supervisor-schools__card-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+}
+
+.supervisor-schools__card-actions {
+  display: flex;
+  border-top: 1px solid var(--border-color);
+}
+
+.supervisor-schools__card-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.supervisor-schools__card-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.supervisor-schools__card-btn--danger:hover {
+  color: #dc2626;
 }
 
 .supervisor-schools__card-icon {

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Pencil } from 'lucide-react';
 import type { Docente } from '@/types';
 import AccordionSection from '../AccordionSection/AccordionSection';
 
@@ -15,6 +16,8 @@ interface SchoolDetailDocentesProps {
   onMateriaChange: (v: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onToggleDocente: (id: string, activo: boolean) => void;
+  onEditDocente?: (docente: Docente) => void;
+  isEditing?: boolean;
 }
 
 const SchoolDetailDocentes = ({
@@ -30,6 +33,8 @@ const SchoolDetailDocentes = ({
   onMateriaChange,
   onSubmit,
   onToggleDocente,
+  onEditDocente,
+  isEditing,
 }: SchoolDetailDocentesProps) => (
   <AccordionSection
     title="Docentes"
@@ -72,7 +77,7 @@ const SchoolDetailDocentes = ({
         className="supervisor-detail__docente-submit"
         disabled={formSubmitting}
       >
-        {formSubmitting ? 'Agregando...' : 'Agregar Docente'}
+        {formSubmitting ? 'Guardando...' : isEditing ? 'Actualizar' : 'Agregar Docente'}
       </button>
     </form>
 
@@ -89,13 +94,24 @@ const SchoolDetailDocentes = ({
               <span className="supervisor-detail__docente-name">{d.nombre}</span>
               <span className="supervisor-detail__docente-materia">{d.materia || 'Docente'}</span>
             </div>
-            <button
-              className="supervisor-detail__docente-toggle"
-              disabled={updatingId === d.id}
-              onClick={() => onToggleDocente(d.id, d.activo === false)}
-            >
-              {d.activo === false ? 'Activar' : 'Desactivar'}
-            </button>
+            <div className="supervisor-detail__docente-actions">
+              {onEditDocente && (
+                <button
+                  className="supervisor-detail__docente-edit"
+                  title="Editar"
+                  onClick={() => onEditDocente(d)}
+                >
+                  <Pencil size={14} strokeWidth={1.5} />
+                </button>
+              )}
+              <button
+                className="supervisor-detail__docente-toggle"
+                disabled={updatingId === d.id}
+                onClick={() => onToggleDocente(d.id, d.activo === false)}
+              >
+                {d.activo === false ? 'Activar' : 'Desactivar'}
+              </button>
+            </div>
           </div>
         ))}
       </div>

@@ -88,6 +88,21 @@ export async function addSchool(data: {
   return docRef.id;
 }
 
+export async function updateSchool(
+  schoolId: string,
+  data: { nombre: string; turno: string; direccion?: string }
+): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.schools, schoolId), {
+    nombre: data.nombre,
+    turno: data.turno,
+    direccion: data.direccion || '',
+  });
+}
+
+export async function deleteSchool(schoolId: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTIONS.schools, schoolId));
+}
+
 export async function getUsersBySchool(schoolId: string): Promise<UserProfile[]> {
   const q = query(collection(db, COLLECTIONS.users), where('escuelaId', '==', schoolId));
   const snapshot = await getDocs(q);
@@ -412,6 +427,16 @@ export async function addDocente(data: AddDocenteDTO): Promise<string> {
 
 export async function setDocenteActive(docenteId: string, activo: boolean): Promise<void> {
   await updateDoc(doc(db, COLLECTIONS.docentes, docenteId), { activo });
+}
+
+export async function updateDocente(
+  docenteId: string,
+  data: { nombre: string; materia?: string }
+): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.docentes, docenteId), {
+    nombre: data.nombre,
+    materia: data.materia || '',
+  });
 }
 
 export async function addDocenteAttendance(data: AddDocenteAttendanceDTO): Promise<string> {

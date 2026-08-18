@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { School, Settings, Plus, X, ClipboardCheck, Newspaper, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { School, Settings, Plus, X, Pencil, Trash2, ClipboardCheck, Newspaper, AlertTriangle, ArrowLeft } from 'lucide-react';
 import {
   getSchools,
   addSchool,
+  updateSchool,
+  deleteSchool,
   getTodayAttendances,
   getTodayNews,
   getTodayIncidents,
@@ -36,6 +38,7 @@ const SupervisorSchools = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState(false);
+  const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
@@ -77,18 +80,48 @@ const SupervisorSchools = () => {
   const onSubmit = async (data: SchoolFormData) => {
     setFeedback(null);
     try {
-      await addSchool({
-        nombre: data.nombre.trim(),
-        turno: data.turno,
-        direccion: data.direccion?.trim() || undefined,
-      });
-      setFeedback({ type: 'success', message: 'Escuela creada correctamente.' });
+      if (editingSchool) {
+        await updateSchool(editingSchool.id, {
+          nombre: data.nombre.trim(),
+          turno: data.turno,
+          direccion: data.direccion?.trim() || undefined,
+        });
+        setFeedback({ type: 'success', message: 'Escuela actualizada correctamente.' });
+      } else {
+        await addSchool({
+          nombre: data.nombre.trim(),
+          turno: data.turno,
+          direccion: data.direccion?.trim() || undefined,
+        });
+        setFeedback({ type: 'success', message: 'Escuela creada correctamente.' });
+      }
       reset();
+      setEditingSchool(null);
       setShowForm(false);
       await loadSchools();
       setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
-      setFeedback({ type: 'error', message: 'Error al crear la escuela. Intentá de nuevo.' });
+      setFeedback({ type: 'error', message: 'Error al guardar la escuela. Intentá de nuevo.' });
+    }
+  };
+
+  const handleEdit = (school: SchoolType) => {
+    setEditingSchool(school);
+    reset({ nombre: school.nombre, turno: school.turno, direccion: school.direccion || '' });
+    setFeedback(null);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (school: SchoolType) => {
+    if (!window.confirm(`¿Eliminar la escuela "${school.nombre}"? Esta acción no se puede deshacer.`)) return;
+    setFeedback(null);
+    try {
+      await deleteSchool(school.id);
+      setFeedback({ type: 'success', message: 'Escuela eliminada.' });
+      await loadSchools();
+      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
+    } catch {
+      setFeedback({ type: 'error', message: 'No se pudo eliminar la escuela.' });
     }
   };
 
@@ -121,12 +154,13 @@ const SupervisorSchools = () => {
           className="supervisor-schools__add-btn"
           onClick={() => {
             reset();
+            setEditingSchool(null);
             setFeedback(null);
             setShowForm(!showForm);
           }}
         >
           {showForm ? <X size={16} strokeWidth={1.5} /> : <Plus size={16} strokeWidth={1.5} />}
-          {showForm ? 'Cancelar' : 'Nueva escuela'}
+          {showForm ? 'Cancelar' : editingSchool ? 'Editar escuela' : 'Nueva escuela'}
         </button>
 
         <Link to="/supervisor/usuarios" className="supervisor-schools__users-link">
@@ -181,7 +215,7 @@ const SupervisorSchools = () => {
           )}
 
           <button type="submit" className="supervisor-schools__submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Crear escuela'}
+            {isSubmitting ? 'Guardando...' : editingSchool ? 'Actualizar' : 'Crear escuela'}
           </button>
         </form>
       )}
@@ -289,34 +323,51 @@ const SupervisorSchools = () => {
               const nov = newsBySchool[school.id] || 0;
               const inc = incBySchool[school.id] || 0;
               return (
-                <Link
-                  key={school.id}
-                  to={`/supervisor/escuela/${school.id}`}
-                  className="supervisor-schools__card"
-                >
-                  <div className="supervisor-schools__card-icon">
-                    <School size={24} strokeWidth={1.5} />
+                <div key={school.id} className="supervisor-schools__card">
+                  <Link
+                    to={`/supervisor/escuela/${school.id}`}
+                    className="supervisor-schools__card-link"
+                  >
+                    <div className="supervisor-schools__card-icon">
+                      <School size={24} strokeWidth={1.5} />
+                    </div>
+                    <div className="supervisor-schools__card-content">
+                      <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
+                      <span className="supervisor-schools__card-turno">{school.turno}</span>
+                    </div>
+                    <div className="supervisor-schools__card-stats">
+                      <span className="supervisor-schools__card-stat" title="Asistencias hoy">
+                        <ClipboardCheck size={12} strokeWidth={2} />
+                        {att}
+                      </span>
+                      <span className="supervisor-schools__card-stat" title="Novedades hoy">
+                        <Newspaper size={12} strokeWidth={2} />
+                        {nov}
+                      </span>
+                      <span className="supervisor-schools__card-stat" title="Incidentes hoy">
+                        <AlertTriangle size={12} strokeWidth={2} />
+                        {inc}
+                      </span>
+                    </div>
+                    <span className="supervisor-schools__card-arrow">→</span>
+                  </Link>
+                  <div className="supervisor-schools__card-actions">
+                    <button
+                      className="supervisor-schools__card-btn"
+                      title="Editar"
+                      onClick={(e) => { e.preventDefault(); handleEdit(school); }}
+                    >
+                      <Pencil size={14} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
+                      title="Eliminar"
+                      onClick={(e) => { e.preventDefault(); handleDelete(school); }}
+                    >
+                      <Trash2 size={14} strokeWidth={1.5} />
+                    </button>
                   </div>
-                  <div className="supervisor-schools__card-content">
-                    <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
-                    <span className="supervisor-schools__card-turno">{school.turno}</span>
-                  </div>
-                  <div className="supervisor-schools__card-stats">
-                    <span className="supervisor-schools__card-stat" title="Asistencias hoy">
-                      <ClipboardCheck size={12} strokeWidth={2} />
-                      {att}
-                    </span>
-                    <span className="supervisor-schools__card-stat" title="Novedades hoy">
-                      <Newspaper size={12} strokeWidth={2} />
-                      {nov}
-                    </span>
-                    <span className="supervisor-schools__card-stat" title="Incidentes hoy">
-                      <AlertTriangle size={12} strokeWidth={2} />
-                      {inc}
-                    </span>
-                  </div>
-                  <span className="supervisor-schools__card-arrow">→</span>
-                </Link>
+                </div>
               );
             })}
           </div>
