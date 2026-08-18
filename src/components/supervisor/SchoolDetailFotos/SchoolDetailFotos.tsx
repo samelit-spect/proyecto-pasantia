@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Trash2 } from 'lucide-react';
 import type { Foto } from '@/types';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import AccordionSection from '../AccordionSection/AccordionSection';
@@ -8,9 +9,10 @@ interface SchoolDetailFotosProps {
   expandedSection: string;
   onToggle: () => void;
   onLightbox: (url: string) => void;
+  onDelete?: (fotoId: string) => void;
 }
 
-const SchoolDetailFotos = ({ fotos, expandedSection, onToggle, onLightbox }: SchoolDetailFotosProps) => (
+const SchoolDetailFotos = ({ fotos, expandedSection, onToggle, onLightbox, onDelete }: SchoolDetailFotosProps) => (
   <AccordionSection
     title="Fotos de Planillas"
     count={`${fotos.length} fotos`}
@@ -35,6 +37,15 @@ const SchoolDetailFotos = ({ fotos, expandedSection, onToggle, onLightbox }: Sch
               </span>
               <span className="supervisor-sub__record-author">{foto.subidoPorNombre}</span>
             </div>
+            {onDelete && (
+              <button
+                className="supervisor-detail__foto-delete"
+                title="Eliminar foto"
+                onClick={() => onDelete(foto.id)}
+              >
+                <Trash2 size={14} strokeWidth={1.5} />
+              </button>
+            )}
           </div>
         ))}
       </div>

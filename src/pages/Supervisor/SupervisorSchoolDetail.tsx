@@ -15,6 +15,7 @@ import {
   addDocente,
   setDocenteActive,
   getFotosBySchool,
+  deleteFoto,
   setAttendanceVerified,
   setDocenteAttendanceVerified,
   getAttendancesBySchool,
@@ -590,6 +591,16 @@ const SupervisorSchoolDetail = () => {
               expandedSection={expandedSection ?? ''}
               onToggle={() => toggleSection('fotos')}
               onLightbox={setLightbox}
+              onDelete={async (fotoId) => {
+                if (!window.confirm('¿Seguro que querés eliminar esta foto?')) return;
+                try {
+                  await deleteFoto(fotoId);
+                  setFotos((prev) => prev.filter((f) => f.id !== fotoId));
+                  statusOp.end({ type: 'success', message: 'Foto eliminada.' });
+                } catch {
+                  statusOp.end({ type: 'error', message: 'No se pudo eliminar la foto.' });
+                }
+              }}
             />
           </div>
         </>

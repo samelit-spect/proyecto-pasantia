@@ -81,7 +81,13 @@ const SchoolDetailIncidents = ({
                 className="supervisor-detail__status-select"
                 value={inc.estado}
                 disabled={statusUpdatingId === inc.id}
-                onChange={(e) => onStatusChange(inc.id, e.target.value as IncidentStatus)}
+                onChange={(e) => {
+                  const newStatus = e.target.value as IncidentStatus;
+                  if (!window.confirm(`¿Cambiar estado a "${newStatus.replace('_', ' ')}"?`)) {
+                    return;
+                  }
+                  onStatusChange(inc.id, newStatus);
+                }}
               >
                 <option value="pendiente" disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}>
                   Pendiente
