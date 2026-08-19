@@ -42,6 +42,7 @@ import SchoolDetailUsers from '@/components/supervisor/SchoolDetailUsers/SchoolD
 import SchoolDetailDocentes from '@/components/supervisor/SchoolDetailDocentes/SchoolDetailDocentes';
 import SchoolDetailFotos from '@/components/supervisor/SchoolDetailFotos/SchoolDetailFotos';
 import Lightbox from '@/components/supervisor/Lightbox/Lightbox';
+import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import useFeedback from '@/hooks/useFeedback';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorDetailSkeleton } from './SupervisorSkeleton';
@@ -386,6 +387,7 @@ const SupervisorSchoolDetail = () => {
 
   return (
     <>
+      <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Escuelas', to: '/supervisor' }, { label: school.nombre }]} />
       <div className="supervisor__header">
         <button className="supervisor__back" onClick={() => navigate('/supervisor')}>
           <ArrowLeft size={18} strokeWidth={1.5} />

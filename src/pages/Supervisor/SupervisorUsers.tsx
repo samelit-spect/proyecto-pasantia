@@ -24,6 +24,7 @@ import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import Button from '@/components/common/Button/Button';
+import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorUsersSkeleton } from './SupervisorSkeleton';
@@ -204,6 +205,7 @@ const SupervisorUsers = () => {
 
   return (
     <>
+      <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Usuarios' }]} />
       <div className="supervisor__header">
         <button className="supervisor__back" onClick={() => navigate('/supervisor')}>
           <ArrowLeft size={18} strokeWidth={1.5} />

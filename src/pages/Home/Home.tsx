@@ -27,6 +27,8 @@ import {
 import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
+import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
+import { useCountUp } from '@/hooks/useCountUp';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
 
@@ -36,6 +38,16 @@ interface CardItem {
   title: string;
   description: string;
 }
+
+const AnimatedStat = ({ value, label }: { value: number; label: string }) => {
+  const animated = useCountUp(value);
+  return (
+    <div className="home__stat">
+      <span className="home__stat-value">{animated}</span>
+      <span className="home__stat-label">{label}</span>
+    </div>
+  );
+};
 
 const Home = () => {
   const { profile, hasRole } = useAuth();
@@ -256,6 +268,7 @@ const Home = () => {
     <section className="home">
       <div className="home__header">
         <div className="home__header-text">
+          <Breadcrumb items={[{ label: 'Inicio' }]} />
           <h2 className="home__greeting">Hola, {profile?.nombre}</h2>
           <p className="home__subtitle">
             {hasRole('supervisor') ? 'Resumen del sistema educativo.' : '¿Qué deseas hacer hoy?'}
@@ -377,22 +390,10 @@ const Home = () => {
           <div className="home__section">
             <h3 className="home__section-title">Resumen del día</h3>
             <div className="home__stats">
-              <div className="home__stat">
-                <span className="home__stat-value">{stats.escuelas}</span>
-                <span className="home__stat-label">Escuelas</span>
-              </div>
-              <div className="home__stat">
-                <span className="home__stat-value">{stats.asistencias}</span>
-                <span className="home__stat-label">Asistencias</span>
-              </div>
-              <div className="home__stat">
-                <span className="home__stat-value">{stats.novedades}</span>
-                <span className="home__stat-label">Novedades</span>
-              </div>
-              <div className="home__stat">
-                <span className="home__stat-value">{stats.incidentes}</span>
-                <span className="home__stat-label">Incidentes</span>
-              </div>
+              <AnimatedStat value={stats.escuelas} label="Escuelas" />
+              <AnimatedStat value={stats.asistencias} label="Asistencias" />
+              <AnimatedStat value={stats.novedades} label="Novedades" />
+              <AnimatedStat value={stats.incidentes} label="Incidentes" />
             </div>
           </div>
 

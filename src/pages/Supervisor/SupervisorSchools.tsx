@@ -17,6 +17,7 @@ import {
 import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
+import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
@@ -146,6 +147,7 @@ const SupervisorSchools = () => {
 
   return (
     <>
+      <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Escuelas' }]} />
       <div className="supervisor__header">
         <button className="supervisor__back" onClick={() => navigate('/')}>
           <ArrowLeft size={18} strokeWidth={1.5} />

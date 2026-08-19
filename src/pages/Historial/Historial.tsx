@@ -12,6 +12,7 @@ import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import Pagination from '@/components/common/Pagination/Pagination';
+import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import {
   novedadTipoLabel,
   incidentCategoriaLabel,
@@ -129,6 +130,7 @@ const Historial = () => {
 
   return (
     <section className="historial">
+      <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Historial' }]} />
       <button className="supervisor__back" onClick={() => navigate('/')}>
         <ArrowLeft size={18} strokeWidth={1.5} />
         Volver
