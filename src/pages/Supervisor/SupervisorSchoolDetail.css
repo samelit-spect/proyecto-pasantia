@@ -276,7 +276,9 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
   padding: 1.5rem;
+  animation: fadeIn 0.2s ease;
 }
 
 .supervisor-detail__lightbox-img {

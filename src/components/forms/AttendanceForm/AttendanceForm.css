@@ -165,7 +165,9 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
   padding: 1rem;
+  animation: fadeIn 0.2s ease;
 }
 
 .attendance-form__modal {
@@ -181,14 +183,15 @@
   width: 100%;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: scaleIn 0.2s ease;
 }
 
 .attendance-form__modal-icon--success {
-  color: #16a34a;
+  color: var(--accent-green-text);
 }
 
 .attendance-form__modal-icon--error {
-  color: #dc2626;
+  color: var(--accent-red-text);
 }
 
 .attendance-form__modal-message {
