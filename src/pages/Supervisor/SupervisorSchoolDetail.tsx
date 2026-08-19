@@ -44,6 +44,7 @@ import SchoolDetailFotos from '@/components/supervisor/SchoolDetailFotos/SchoolD
 import Lightbox from '@/components/supervisor/Lightbox/Lightbox';
 import useFeedback from '@/hooks/useFeedback';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
+import { SupervisorDetailSkeleton } from './SupervisorSkeleton';
 import { downloadCsv } from '@/utils/exportCsv';
 import { dateKey } from '@/utils/dateKey';
 import {
@@ -144,7 +145,7 @@ const SupervisorSchoolDetail = () => {
   }, [schoolId]);
 
   if (isLoading) {
-    return <div className="supervisor__loading">Cargando datos de la escuela...</div>;
+    return <SupervisorDetailSkeleton />;
   }
 
   if (error) {

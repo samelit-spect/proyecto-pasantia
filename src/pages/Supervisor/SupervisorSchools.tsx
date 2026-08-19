@@ -17,6 +17,7 @@ import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
+import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
 import './SupervisorSchools.css';
 
 const TURNOS = ['mañana', 'tarde', 'vespertino', 'nocturno'] as const;
@@ -225,7 +226,7 @@ const SupervisorSchools = () => {
         </form>
       )}
 
-      {isLoading && <div className="supervisor__loading">Cargando escuelas...</div>}
+      {isLoading && <SupervisorSchoolsSkeleton />}
 
       {error && <div className="supervisor__loading supervisor__loading--error">{error}</div>}
 

@@ -26,6 +26,7 @@ import {
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
 
 interface CardItem {
@@ -269,9 +270,7 @@ const Home = () => {
         </div>
       )}
 
-      {isLoading && (
-        <div className="home__loading">Cargando datos...</div>
-      )}
+      {isLoading && <HomeSkeleton isSupervisor={hasRole('supervisor')} />}
 
       {!isLoading && !hasRole('supervisor') && mySchool && (
         <div className="home__section">

@@ -22,6 +22,7 @@ import {
 } from '@/utils/constants';
 import type { NovedadTipo, IncidentCategoria, IncidentUrgencia } from '@/types';
 import { dateKey } from '@/utils/dateKey';
+import HistorialSkeleton from './HistorialSkeleton';
 import './Historial.css';
 
 type SectionKey = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
@@ -205,7 +206,7 @@ const Historial = () => {
         )}
       </div>
 
-      {isLoading && <div className="historial__loading">Cargando historial...</div>}
+      {isLoading && <HistorialSkeleton />}
 
       {!isLoading && <div className="historial__sections">
           <div className="historial__section">
@@ -409,7 +410,6 @@ const Historial = () => {
               );
             })()}
           </div>
-        </div>
         </div>}
     </section>
   );

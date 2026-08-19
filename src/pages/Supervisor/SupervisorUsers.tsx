@@ -24,6 +24,7 @@ import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
+import { SupervisorUsersSkeleton } from './SupervisorSkeleton';
 import './SupervisorUsers.css';
 
 const ROLES = ['director', 'vice', 'preceptor', 'secretario', 'conserje', 'supervisor'] as const;
@@ -436,7 +437,7 @@ const SupervisorUsers = () => {
         </form>
       )}
 
-      {!error && isLoading && <div className="supervisor__loading">Cargando usuarios...</div>}
+      {!error && isLoading && <SupervisorUsersSkeleton />}
 
       {!error && !isLoading && (
         <div className="supervisor-users__section">
