@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X, School, Users, User, ArrowRight } from 'lucide-react';
 import { getSchools, getAllUsers, getAllDocentes } from '@/services/api/firestore';
-import type { School, UserProfile, Docente } from '@/types';
+import type { School as SchoolType, UserProfile, Docente } from '@/types';
 import './GlobalSearch.css';
 
 interface SearchResult {
@@ -19,7 +19,7 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [allData, setAllData] = useState<{ schools: School[]; users: UserProfile[]; docentes: Docente[] } | null>(null);
+  const [allData, setAllData] = useState<{ schools: SchoolType[]; users: UserProfile[]; docentes: Docente[] } | null>(null);
 
   useEffect(() => {
     if (open) {
