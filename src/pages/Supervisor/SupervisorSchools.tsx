@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { School, Settings, Plus, X, Pencil, Trash2, ClipboardCheck, Newspaper, AlertTriangle, ArrowLeft } from 'lucide-react';
 import Button from '@/components/common/Button/Button';
+import { useToast } from '@/context/ToastContext';
 import {
   getSchools,
   addSchool,
@@ -18,7 +19,6 @@ import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
-import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
 import './SupervisorSchools.css';
@@ -35,6 +35,7 @@ type SchoolFormData = z.infer<typeof schoolSchema>;
 
 const SupervisorSchools = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [schools, setSchools] = useState<SchoolType[]>([]);
   const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
   const [recentNews, setRecentNews] = useState<News[]>([]);
@@ -44,9 +45,6 @@ const SupervisorSchools = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
-    null
-  );
   const [confirmDelete, setConfirmDelete] = useState<SchoolType | null>(null);
 
   const {
@@ -84,7 +82,6 @@ const SupervisorSchools = () => {
   }, []);
 
   const onSubmit = async (data: SchoolFormData) => {
-    setFeedback(null);
     try {
       if (editingSchool) {
         await updateSchool(editingSchool.id, {
@@ -92,29 +89,27 @@ const SupervisorSchools = () => {
           turno: data.turno,
           direccion: data.direccion?.trim() || undefined,
         });
-        setFeedback({ type: 'success', message: 'Escuela actualizada correctamente.' });
+        addToast('success', 'Escuela actualizada correctamente.');
       } else {
         await addSchool({
           nombre: data.nombre.trim(),
           turno: data.turno,
           direccion: data.direccion?.trim() || undefined,
         });
-        setFeedback({ type: 'success', message: 'Escuela creada correctamente.' });
+        addToast('success', 'Escuela creada correctamente.');
       }
       reset();
       setEditingSchool(null);
       setShowForm(false);
       await loadSchools();
-      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
-      setFeedback({ type: 'error', message: 'Error al guardar la escuela. Intentá de nuevo.' });
+      addToast('error', 'Error al guardar la escuela. Intentá de nuevo.');
     }
   };
 
   const handleEdit = (school: SchoolType) => {
     setEditingSchool(school);
     reset({ nombre: school.nombre, turno: school.turno, direccion: school.direccion || '' });
-    setFeedback(null);
     setShowForm(true);
   };
 
@@ -122,14 +117,12 @@ const SupervisorSchools = () => {
     if (!confirmDelete) return;
     const school = confirmDelete;
     setConfirmDelete(null);
-    setFeedback(null);
     try {
       await deleteSchool(school.id);
-      setFeedback({ type: 'success', message: 'Escuela eliminada.' });
+      addToast('success', 'Escuela eliminada.');
       await loadSchools();
-      setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {
-      setFeedback({ type: 'error', message: 'No se pudo eliminar la escuela.' });
+      addToast('error', 'No se pudo eliminar la escuela.');
     }
   };
 
@@ -164,7 +157,6 @@ const SupervisorSchools = () => {
           onClick={() => {
             reset();
             setEditingSchool(null);
-            setFeedback(null);
             setShowForm(!showForm);
           }}
         >
@@ -177,16 +169,6 @@ const SupervisorSchools = () => {
           Usuarios
         </Link>
       </div>
-
-      {feedback && (
-        <div
-          className={`supervisor-schools__feedback supervisor-schools__feedback--${feedback.type}`}
-          role="alert"
-        >
-          <span>{feedback.message}</span>
-          <button className="supervisor-schools__feedback-close" onClick={() => setFeedback(null)}>×</button>
-        </div>
-      )}
 
       {showForm && (
         <form className="supervisor-schools__form" onSubmit={handleSubmit(onSubmit)}>

@@ -20,11 +20,11 @@ import {
 } from '@/services/api/firestore';
 import { createUserAccount, sendPasswordReset } from '@/services/api/auth';
 import { getAuthErrorMessage } from '@/utils/authErrors';
-import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import Button from '@/components/common/Button/Button';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
+import { useToast } from '@/context/ToastContext';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorUsersSkeleton } from './SupervisorSkeleton';
@@ -53,6 +53,7 @@ type EditUserFormData = z.infer<typeof editUserSchema>;
 
 const SupervisorUsers = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [schools, setSchools] = useState<School[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -62,9 +63,6 @@ const SupervisorUsers = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
-    null
-  );
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ type: 'toggle' | 'reset'; user: UserProfile } | null>(null);
@@ -100,13 +98,7 @@ const SupervisorUsers = () => {
     loadUsers();
   }, []);
 
-  const showFeedback = (type: 'success' | 'error', message: string) => {
-    setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
-  };
-
   const handleCreate = async (data: CreateUserFormData) => {
-    setFeedback(null);
     try {
       const uid = await createUserAccount(data.email, data.password);
       await addUserProfile({
@@ -117,18 +109,17 @@ const SupervisorUsers = () => {
         escuelaId: data.escuelaId,
         cargo: data.rol,
       });
-      showFeedback('success', 'Usuario creado correctamente.');
+      addToast('success', 'Usuario creado correctamente.');
       createForm.reset();
       setShowForm(false);
       await loadUsers();
     } catch (err) {
-      showFeedback('error', getAuthErrorMessage(err));
+      addToast('error', getAuthErrorMessage(err));
     }
   };
 
   const handleEdit = async (data: EditUserFormData) => {
     if (!editingUser) return;
-    setFeedback(null);
     try {
       await updateUserProfile(editingUser.uid, {
         nombre: data.nombre,
@@ -136,18 +127,17 @@ const SupervisorUsers = () => {
         rol: data.rol,
         escuelaId: data.escuelaId,
       });
-      showFeedback('success', 'Usuario actualizado correctamente.');
+      addToast('success', 'Usuario actualizado correctamente.');
       setEditingUser(null);
       await loadUsers();
     } catch {
-      showFeedback('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
+      addToast('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
     }
   };
 
   const startEditing = (user: UserProfile) => {
     setEditingUser(user);
     setShowForm(false);
-    setFeedback(null);
     editForm.reset({
       nombre: user.nombre,
       email: user.email,
@@ -159,14 +149,13 @@ const SupervisorUsers = () => {
   const handleToggleActive = async (user: UserProfile) => {
     if (togglingId) return;
     setTogglingId(user.uid);
-    setFeedback(null);
     try {
       await setUserActive(user.uid, !(user.activo ?? true));
       setUsers((prev) =>
         prev.map((u) => (u.uid === user.uid ? { ...u, activo: !(u.activo ?? true) } : u))
       );
     } catch {
-      showFeedback('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
+      addToast('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
     } finally {
       setTogglingId(null);
     }
@@ -175,12 +164,11 @@ const SupervisorUsers = () => {
   const handleResetPassword = async (user: UserProfile) => {
     if (resettingId) return;
     setResettingId(user.uid);
-    setFeedback(null);
     try {
       await sendPasswordReset(user.email);
-      showFeedback('success', `Email de restablecimiento enviado a ${user.email}.`);
+      addToast('success', `Email de restablecimiento enviado a ${user.email}.`);
     } catch (err) {
-      showFeedback('error', getAuthErrorMessage(err));
+      addToast('error', getAuthErrorMessage(err));
     } finally {
       setResettingId(null);
     }
@@ -223,7 +211,6 @@ const SupervisorUsers = () => {
             onClick={() => {
               createForm.reset();
               setEditingUser(null);
-              setFeedback(null);
               setShowForm(!showForm);
             }}
           >
@@ -250,16 +237,6 @@ const SupervisorUsers = () => {
               ))}
             </select>
           </label>
-        </div>
-      )}
-
-      {feedback && (
-        <div
-          className={`supervisor-users__feedback supervisor-users__feedback--${feedback.type}`}
-          role="alert"
-        >
-          <span>{feedback.message}</span>
-          <button className="supervisor-users__feedback-close" onClick={() => setFeedback(null)}>×</button>
         </div>
       )}
 
