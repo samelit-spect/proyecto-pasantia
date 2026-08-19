@@ -16,13 +16,16 @@ import {
   Users,
   Camera,
   History,
+  Search,
 } from 'lucide-react';
+import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
 import './Navbar.css';
 
 const Navbar = () => {
   const { profile, logout, hasRole } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
@@ -49,6 +52,17 @@ const Navbar = () => {
       document.body.style.overflow = '';
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   if (!profile) return null;
 
@@ -119,6 +133,10 @@ const Navbar = () => {
           </>
         )}
         <div className="navbar__desktop-spacer" />
+        <button onClick={() => setIsSearchOpen(true)} className="navbar__desktop-search" title="Buscar (Ctrl+K)">
+          <Search size={14} strokeWidth={2} />
+          <kbd>⌘K</kbd>
+        </button>
         <button onClick={handleLogout} className="navbar__desktop-logout">
           <LogOut size={16} strokeWidth={1.5} />
           Salir
@@ -247,6 +265,8 @@ const Navbar = () => {
           </button>
         </div>
       </div>
+
+      <GlobalSearch open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 };
