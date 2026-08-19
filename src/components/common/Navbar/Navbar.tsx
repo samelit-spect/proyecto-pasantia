@@ -19,6 +19,7 @@ import {
   Search,
 } from 'lucide-react';
 import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
+import NotificationBell from '@/components/common/NotificationBell/NotificationBell';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -76,9 +77,12 @@ const Navbar = () => {
           <span className="navbar__brand-text">SIPNAM</span>
         </Link>
 
-        <button className="navbar__hamburger" onClick={() => setIsMenuOpen(true)} title="Menú">
-          <Menu size={20} strokeWidth={1.5} />
-        </button>
+        <div className="navbar__right">
+          <NotificationBell />
+          <button className="navbar__hamburger" onClick={() => setIsMenuOpen(true)} title="Menú">
+            <Menu size={20} strokeWidth={1.5} />
+          </button>
+        </div>
       </nav>
 
       <nav className="navbar__desktop">
@@ -133,6 +137,7 @@ const Navbar = () => {
           </>
         )}
         <div className="navbar__desktop-spacer" />
+        <NotificationBell />
         <button onClick={() => setIsSearchOpen(true)} className="navbar__desktop-search" title="Buscar (Ctrl+K)">
           <Search size={14} strokeWidth={2} />
           <kbd>⌘K</kbd>
