@@ -389,7 +389,7 @@ const SupervisorSchoolDetail = () => {
     <>
       <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Escuelas', to: '/supervisor' }, { label: school.nombre }]} />
       <div className="supervisor__header">
-        <button className="supervisor__back" onClick={() => navigate('/supervisor')}>
+        <button className="supervisor__header-back" onClick={() => navigate('/supervisor')}>
           <ArrowLeft size={18} strokeWidth={1.5} />
         </button>
         <h2 className="supervisor__title">{school.nombre}</h2>
