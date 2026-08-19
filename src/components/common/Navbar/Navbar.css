@@ -251,7 +251,9 @@
   .navbar {
     padding: 0 1.5rem;
   }
-  
+}
+
+@media (min-width: 1024px) {
   .navbar__hamburger {
     display: none;
   }
