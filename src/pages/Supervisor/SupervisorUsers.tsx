@@ -23,6 +23,7 @@ import { getAuthErrorMessage } from '@/utils/authErrors';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
+import EmptyState from '@/components/common/EmptyState/EmptyState';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorUsersSkeleton } from './SupervisorSkeleton';
 import './SupervisorUsers.css';
@@ -444,7 +445,11 @@ const SupervisorUsers = () => {
           <h3 className="supervisor__section-title">Usuarios ({filteredUsers.length})</h3>
 
           {filteredUsers.length === 0 ? (
-            <div className="supervisor__empty">No hay usuarios registrados.</div>
+            <EmptyState
+              icon="users"
+              title="No hay usuarios"
+              description="Creá el primer usuario para asignarlo a una escuela."
+            />
           ) : (
             <div className="supervisor-users__list">
               {filteredUsers.map((user) => {

@@ -1,28 +1,28 @@
 .status-badge {
   display: inline-block;
   padding: 0.125rem 0.625rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
 }
 
 .status-badge--pendiente {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--accent-yellow-bg);
+  color: var(--accent-yellow-text);
 }
 
 .status-badge--analisis {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: var(--accent-blue-surface);
+  color: var(--accent-blue-text);
 }
 
 .status-badge--gestion {
-  background-color: #ffedd5;
+  background-color: var(--accent-yellow-bg);
   color: #9a3412;
 }
 
 .status-badge--resuelto {
-  background-color: #dcfce7;
-  color: #166534;
+  background-color: var(--accent-green-surface);
+  color: var(--accent-green-text);
 }

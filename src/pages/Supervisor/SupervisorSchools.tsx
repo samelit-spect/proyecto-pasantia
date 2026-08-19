@@ -15,6 +15,7 @@ import {
 } from '@/services/api/firestore';
 import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import EmptyState from '@/components/common/EmptyState/EmptyState';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
@@ -231,7 +232,11 @@ const SupervisorSchools = () => {
       {error && <div className="supervisor__loading supervisor__loading--error">{error}</div>}
 
       {!isLoading && !error && schools.length === 0 && (
-        <div className="supervisor__empty">No hay escuelas registradas.</div>
+        <EmptyState
+          icon="school"
+          title="No hay escuelas registradas"
+          description="Creá la primera escuela para comenzar a cargar datos."
+        />
       )}
 
       {!isLoading && !error && schools.length > 0 && (

@@ -29,6 +29,19 @@
   --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
+
+  --accent-green-bg: #f0fdf4;
+  --accent-green-surface: #dcfce7;
+  --accent-green-text: #166534;
+  --accent-blue-bg: #eff6ff;
+  --accent-blue-surface: #dbeafe;
+  --accent-blue-text: #1e40af;
+  --accent-red-bg: #fef2f2;
+  --accent-red-surface: #fecaca;
+  --accent-red-text: #dc2626;
+  --accent-yellow-bg: #fffbeb;
+  --accent-yellow-surface: #fde68a;
+  --accent-yellow-text: #b45309;
 }
 
 body {

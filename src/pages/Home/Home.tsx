@@ -26,6 +26,7 @@ import {
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import EmptyState from '@/components/common/EmptyState/EmptyState';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
 
@@ -311,7 +312,11 @@ const Home = () => {
             Actividad de hoy
           </h3>
           {myAttendances.length === 0 && myNews.length === 0 && myIncidents.length === 0 ? (
-            <p className="home__empty-activity">Sin actividad registrada hoy.</p>
+            <EmptyState
+              icon="clipboard"
+              title="Sin actividad hoy"
+              description="Cuando se carguen asistencias o novedades, aparecerán aquí."
+            />
           ) : (
             <div className="home__activity">
               {myAttendances.map((att) => (

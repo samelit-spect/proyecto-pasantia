@@ -45,12 +45,36 @@ const applyTheme = (theme: ThemeState) => {
     root.style.setProperty('--text-color', '#f1f5f9');
     root.style.setProperty('--text-secondary', '#94a3b8');
     root.style.setProperty('--border-color', '#334155');
+    root.style.setProperty('--accent-green-bg', '#052e16');
+    root.style.setProperty('--accent-green-surface', '#14532d');
+    root.style.setProperty('--accent-green-text', '#4ade80');
+    root.style.setProperty('--accent-blue-bg', '#172554');
+    root.style.setProperty('--accent-blue-surface', '#1e3a5f');
+    root.style.setProperty('--accent-blue-text', '#60a5fa');
+    root.style.setProperty('--accent-red-bg', '#450a0a');
+    root.style.setProperty('--accent-red-surface', '#7f1d1d');
+    root.style.setProperty('--accent-red-text', '#f87171');
+    root.style.setProperty('--accent-yellow-bg', '#451a03');
+    root.style.setProperty('--accent-yellow-surface', '#78350f');
+    root.style.setProperty('--accent-yellow-text', '#fbbf24');
   } else {
     root.style.setProperty('--background-color', '#f8fafc');
     root.style.setProperty('--surface-color', '#ffffff');
     root.style.setProperty('--text-color', '#1e293b');
     root.style.setProperty('--text-secondary', '#64748b');
     root.style.setProperty('--border-color', '#e2e8f0');
+    root.style.setProperty('--accent-green-bg', '#f0fdf4');
+    root.style.setProperty('--accent-green-surface', '#dcfce7');
+    root.style.setProperty('--accent-green-text', '#166534');
+    root.style.setProperty('--accent-blue-bg', '#eff6ff');
+    root.style.setProperty('--accent-blue-surface', '#dbeafe');
+    root.style.setProperty('--accent-blue-text', '#1e40af');
+    root.style.setProperty('--accent-red-bg', '#fef2f2');
+    root.style.setProperty('--accent-red-surface', '#fecaca');
+    root.style.setProperty('--accent-red-text', '#dc2626');
+    root.style.setProperty('--accent-yellow-bg', '#fffbeb');
+    root.style.setProperty('--accent-yellow-surface', '#fde68a');
+    root.style.setProperty('--accent-yellow-text', '#b45309');
   }
 };
 

@@ -93,7 +93,7 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-lg);
-  background-color: #dcfce7;
+  background-color: var(--accent-green-surface);
   color: var(--secondary-color);
   flex-shrink: 0;
 }
@@ -130,7 +130,7 @@
 }
 
 .home__card-icon--blue {
-  background-color: #dbeafe;
+  background-color: var(--accent-blue-surface);
   color: var(--primary-color);
 }
 
@@ -152,9 +152,9 @@
   padding: 0.75rem 1rem;
   margin-bottom: 1.75rem;
   font-size: 0.875rem;
-  color: #dc2626;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+  color: var(--accent-red-text);
+  background-color: var(--accent-red-bg);
+  border: 1px solid var(--accent-red-surface);
   border-radius: var(--radius-lg);
 }
 
@@ -162,7 +162,7 @@
   background: none;
   border: none;
   font-size: 1.125rem;
-  color: #dc2626;
+  color: var(--accent-red-text);
   cursor: pointer;
   opacity: 0.6;
   padding: 0 0.25rem;
@@ -186,8 +186,8 @@
   gap: 1rem;
   padding: 0.75rem 1rem;
   background-color: var(--surface-color);
-  border: 1px solid #fecaca;
-  border-left: 3px solid #dc2626;
+  border: 1px solid var(--accent-red-surface);
+  border-left: 3px solid var(--accent-red-text);
   border-radius: var(--radius-md);
   text-decoration: none;
   color: inherit;
@@ -279,15 +279,15 @@
 }
 
 .home__activity-dot--asistencia {
-  background-color: #16a34a;
+  background-color: var(--accent-green-text);
 }
 
 .home__activity-dot--novedades {
-  background-color: var(--primary-color);
+  background-color: var(--accent-blue-text);
 }
 
 .home__activity-dot--incidentes {
-  background-color: #dc2626;
+  background-color: var(--accent-red-text);
 }
 
 .home__activity-content {
@@ -381,15 +381,15 @@
 }
 
 .home__school-stat--asistencia {
-  background-color: #f0fdf4;
+  background-color: var(--accent-green-bg);
 }
 
 .home__school-stat--novedades {
-  background-color: #eff6ff;
+  background-color: var(--accent-blue-bg);
 }
 
 .home__school-stat--incidentes {
-  background-color: #fef2f2;
+  background-color: var(--accent-red-bg);
 }
 
 .home__school-stat-value {
@@ -399,15 +399,15 @@
 }
 
 .home__school-stat--asistencia .home__school-stat-value {
-  color: #16a34a;
+  color: var(--accent-green-text);
 }
 
 .home__school-stat--novedades .home__school-stat-value {
-  color: var(--primary-color);
+  color: var(--accent-blue-text);
 }
 
 .home__school-stat--incidentes .home__school-stat-value {
-  color: #dc2626;
+  color: var(--accent-red-text);
 }
 
 .home__school-stat-label {

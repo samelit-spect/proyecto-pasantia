@@ -91,23 +91,23 @@
 }
 
 .supervisor-detail__today-card--asistencia .supervisor-detail__today-card-icon {
-  background-color: #dcfce7;
-  color: #16a34a;
+  background-color: var(--accent-green-surface);
+  color: var(--accent-green-text);
 }
 
 .supervisor-detail__today-card--docentes .supervisor-detail__today-card-icon {
-  background-color: #dbeafe;
-  color: #2563eb;
+  background-color: var(--accent-blue-surface);
+  color: var(--accent-blue-text);
 }
 
 .supervisor-detail__today-card--novedades .supervisor-detail__today-card-icon {
-  background-color: #fef3c7;
-  color: #d97706;
+  background-color: var(--accent-yellow-bg);
+  color: var(--accent-yellow-text);
 }
 
 .supervisor-detail__today-card--incidentes .supervisor-detail__today-card-icon {
-  background-color: #fef2f2;
-  color: #dc2626;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red-text);
 }
 
 .supervisor-detail__today-card-header {
@@ -213,10 +213,10 @@
 .supervisor-detail__verify-badge {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #166534;
-  background-color: #dcfce7;
-  border: 1px solid #bbf7d0;
-  border-radius: 999px;
+  color: var(--accent-green-text);
+  background-color: var(--accent-green-surface);
+  border: 1px solid var(--accent-green-surface);
+  border-radius: var(--radius-full);
   padding: 0.125rem 0.625rem;
 }
 
@@ -400,15 +400,15 @@
 }
 
 .supervisor-detail__feedback--success {
-  background-color: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background-color: var(--accent-green-surface);
+  color: var(--accent-green-text);
+  border: 1px solid var(--accent-green-surface);
 }
 
 .supervisor-detail__feedback--error {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red-text);
+  border: 1px solid var(--accent-red-surface);
 }
 
 .supervisor-detail__filters {
@@ -462,21 +462,21 @@
 }
 
 .supervisor-detail__meta-tag--urgencia-alta {
-  background-color: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
+  background-color: var(--accent-red-bg);
+  border-color: var(--accent-red-surface);
+  color: var(--accent-red-text);
 }
 
 .supervisor-detail__meta-tag--urgencia-media {
-  background-color: #fffbeb;
-  border-color: #fde68a;
-  color: #b45309;
+  background-color: var(--accent-yellow-bg);
+  border-color: var(--accent-yellow-surface);
+  color: var(--accent-yellow-text);
 }
 
 .supervisor-detail__meta-tag--urgencia-baja {
-  background-color: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background-color: var(--accent-blue-bg);
+  border-color: var(--accent-blue-surface);
+  color: var(--accent-blue-text);
 }
 
 .supervisor-detail__incident-photo {
@@ -493,10 +493,26 @@
 }
 
 .supervisor-sub__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   text-align: center;
   padding: 2rem 1rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.supervisor-sub__empty::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background-color: var(--border-color);
+  opacity: 0.4;
+  margin-bottom: 0.25rem;
 }
 
 .supervisor-sub__record {

@@ -113,13 +113,13 @@
 }
 
 .supervisor-schools__feedback--success {
-  color: #166534;
-  background-color: #dcfce7;
+  color: var(--accent-green-text);
+  background-color: var(--accent-green-surface);
 }
 
 .supervisor-schools__feedback--error {
-  color: #dc2626;
-  background-color: #fef2f2;
+  color: var(--accent-red-text);
+  background-color: var(--accent-red-bg);
 }
 
 .supervisor-schools__error {
@@ -191,18 +191,18 @@
 }
 
 .supervisor-schools__summary-icon--asistencia {
-  background-color: #dcfce7;
-  color: #166534;
+  background-color: var(--accent-green-surface);
+  color: var(--accent-green-text);
 }
 
 .supervisor-schools__summary-icon--novedades {
-  background-color: #dbeafe;
-  color: var(--primary-color);
+  background-color: var(--accent-blue-surface);
+  color: var(--accent-blue-text);
 }
 
 .supervisor-schools__summary-icon--incidentes {
-  background-color: #fef2f2;
-  color: #dc2626;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red-text);
 }
 
 .supervisor-schools__summary-info {
@@ -337,8 +337,8 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-xl);
-  background-color: #dbeafe;
-  color: var(--primary-color);
+  background-color: var(--accent-blue-surface);
+  color: var(--accent-blue-text);
 }
 
 .supervisor-schools__card-content {
@@ -380,15 +380,15 @@
 }
 
 .supervisor-schools__card-stat:first-child {
-  color: #166534;
+  color: var(--accent-green-text);
 }
 
 .supervisor-schools__card-stat:nth-child(2) {
-  color: var(--primary-color);
+  color: var(--accent-blue-text);
 }
 
 .supervisor-schools__card-stat:nth-child(3) {
-  color: #dc2626;
+  color: var(--accent-red-text);
 }
 
 .supervisor-schools__card-arrow {

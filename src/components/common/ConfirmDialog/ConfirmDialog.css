@@ -31,8 +31,8 @@
 }
 
 .confirm-dialog__icon--danger {
-  background-color: #fef2f2;
-  color: #dc2626;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red-text);
 }
 
 .confirm-dialog__icon--warning {
