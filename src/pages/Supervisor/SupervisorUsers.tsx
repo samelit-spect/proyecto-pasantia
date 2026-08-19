@@ -23,6 +23,7 @@ import { getAuthErrorMessage } from '@/utils/authErrors';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
+import Button from '@/components/common/Button/Button';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorUsersSkeleton } from './SupervisorSkeleton';
@@ -346,9 +347,9 @@ const SupervisorUsers = () => {
             )}
           />
 
-          <button type="submit" className="supervisor-users__submit" disabled={createForm.formState.isSubmitting}>
-            {createForm.formState.isSubmitting ? 'Creando...' : 'Crear usuario'}
-          </button>
+          <Button type="submit" loading={createForm.formState.isSubmitting} className="supervisor-users__submit">
+            Crear usuario
+          </Button>
         </form>
       )}
 
@@ -424,9 +425,9 @@ const SupervisorUsers = () => {
           </p>
 
           <div className="supervisor-users__form-actions">
-            <button type="submit" className="supervisor-users__submit" disabled={editForm.formState.isSubmitting}>
-              {editForm.formState.isSubmitting ? 'Guardando...' : 'Guardar cambios'}
-            </button>
+            <Button type="submit" loading={editForm.formState.isSubmitting} className="supervisor-users__submit">
+              Guardar cambios
+            </Button>
             <button
               type="button"
               className="supervisor-users__cancel"

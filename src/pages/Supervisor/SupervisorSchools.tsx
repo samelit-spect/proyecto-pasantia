@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { School, Settings, Plus, X, Pencil, Trash2, ClipboardCheck, Newspaper, AlertTriangle, ArrowLeft } from 'lucide-react';
+import Button from '@/components/common/Button/Button';
 import {
   getSchools,
   addSchool,
@@ -221,9 +222,9 @@ const SupervisorSchools = () => {
             />
           </label>
 
-          <button type="submit" className="supervisor-schools__submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : editingSchool ? 'Actualizar' : 'Crear escuela'}
-          </button>
+          <Button type="submit" loading={isSubmitting} className="supervisor-schools__submit">
+            {editingSchool ? 'Actualizar' : 'Crear escuela'}
+          </Button>
         </form>
       )}
 

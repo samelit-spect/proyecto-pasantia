@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { getAuthErrorMessage } from '@/utils/authErrors';
+import Button from '@/components/common/Button/Button';
 import './Login.css';
 
 const Login = () => {
@@ -68,9 +69,9 @@ const Login = () => {
             </div>
           )}
 
-          <button type="submit" className="login__button" disabled={isLoading}>
-            {isLoading ? 'Ingresando...' : 'Iniciar Sesión'}
-          </button>
+          <Button type="submit" loading={isLoading} className="login__button">
+            Iniciar Sesión
+          </Button>
         </form>
       </div>
     </div>
