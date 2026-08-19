@@ -254,10 +254,6 @@
 }
 
 @media (min-width: 1024px) {
-  .navbar__hamburger {
-    display: none;
-  }
-  
   .navbar__desktop {
     display: flex;
     align-items: center;
