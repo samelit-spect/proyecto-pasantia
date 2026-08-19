@@ -1,0 +1,11 @@
+.main-layout__content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 1rem 2rem;
+}
+
+@media (max-width: 767px) {
+  .main-layout__content {
+    padding: 60px 1rem calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}

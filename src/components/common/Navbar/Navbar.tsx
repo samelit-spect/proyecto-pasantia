@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
 import NotificationBell from '@/components/common/NotificationBell/NotificationBell';
+import BottomNav from '@/components/common/BottomNav/BottomNav';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -272,6 +273,7 @@ const Navbar = () => {
       </div>
 
       <GlobalSearch open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <BottomNav onOpenDrawer={() => setIsMenuOpen(true)} />
     </>
   );
 };

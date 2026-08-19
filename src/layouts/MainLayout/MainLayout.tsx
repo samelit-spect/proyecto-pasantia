@@ -2,6 +2,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/common/Navbar/Navbar';
 import ConnectionBanner from '@/components/common/ConnectionBanner/ConnectionBanner';
+import './MainLayout.css';
 
 const PROTECTED_ROUTES = [
   '/asistencia',
@@ -41,11 +42,7 @@ const MainLayout = () => {
       <Navbar />
       <ConnectionBanner />
       <main
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '80px 1rem 2rem',
-        }}
+        className="main-layout__content"
       >
         <Outlet key={location.pathname} />
       </main>
