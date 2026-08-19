@@ -13,6 +13,7 @@ import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import Pagination from '@/components/common/Pagination/Pagination';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
+import FilterBar, { type ActiveFilter } from '@/components/common/FilterBar/FilterBar';
 import {
   novedadTipoLabel,
   incidentCategoriaLabel,
@@ -115,6 +116,31 @@ const Historial = () => {
   const hasActiveFilters =
     dateFrom || dateTo || tipoFilter || categoriaFilter || urgenciaFilter;
 
+  const activeFilters: ActiveFilter[] = [];
+  if (dateFrom) activeFilters.push({ key: 'dateFrom', label: 'Desde', value: dateFrom });
+  if (dateTo) activeFilters.push({ key: 'dateTo', label: 'Hasta', value: dateTo });
+  if (tipoFilter) activeFilters.push({ key: 'tipo', label: 'Tipo', value: tipoFilter });
+  if (categoriaFilter) activeFilters.push({ key: 'categoria', label: 'Categoría', value: categoriaFilter });
+  if (urgenciaFilter) activeFilters.push({ key: 'urgencia', label: 'Urgencia', value: urgenciaFilter });
+
+  const removeFilter = (key: string) => {
+    switch (key) {
+      case 'dateFrom': setDateFrom(''); break;
+      case 'dateTo': setDateTo(''); break;
+      case 'tipo': setTipoFilter(''); break;
+      case 'categoria': setCategoriaFilter(''); break;
+      case 'urgencia': setUrgenciaFilter(''); break;
+    }
+  };
+
+  const clearAllFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setTipoFilter('');
+    setCategoriaFilter('');
+    setUrgenciaFilter('');
+  };
+
   const toggleSection = (section: SectionKey) => {
     setExpanded(expanded === section ? null : section);
   };
@@ -140,73 +166,64 @@ const Historial = () => {
         Consultá las asistencias, novedades e incidentes cargados en tu escuela.
       </p>
 
-      <div className="historial__filters">
-        <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
-        <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
+      <FilterBar
+        activeFilters={activeFilters}
+        onRemoveFilter={removeFilter}
+        onClearAll={clearAllFilters}
+      >
+        <div className="historial__filters">
+          <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
+          <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
 
-        <label className="historial__filter-label">
-          Tipo novedad
-          <select
-            className="historial__filter-select"
-            value={tipoFilter}
-            onChange={(e) => setTipoFilter(e.target.value as NovedadTipo | '')}
-          >
-            <option value="">Todas</option>
-            {NOVEDAD_TIPOS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="historial__filter-label">
+            Tipo novedad
+            <select
+              className="historial__filter-select"
+              value={tipoFilter}
+              onChange={(e) => setTipoFilter(e.target.value as NovedadTipo | '')}
+            >
+              <option value="">Todas</option>
+              {NOVEDAD_TIPOS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="historial__filter-label">
-          Categoría
-          <select
-            className="historial__filter-select"
-            value={categoriaFilter}
-            onChange={(e) => setCategoriaFilter(e.target.value as IncidentCategoria | '')}
-          >
-            <option value="">Todas</option>
-            {INCIDENT_CATEGORIAS.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="historial__filter-label">
+            Categoría
+            <select
+              className="historial__filter-select"
+              value={categoriaFilter}
+              onChange={(e) => setCategoriaFilter(e.target.value as IncidentCategoria | '')}
+            >
+              <option value="">Todas</option>
+              {INCIDENT_CATEGORIAS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="historial__filter-label">
-          Urgencia
-          <select
-            className="historial__filter-select"
-            value={urgenciaFilter}
-            onChange={(e) => setUrgenciaFilter(e.target.value as IncidentUrgencia | '')}
-          >
-            <option value="">Todas</option>
-            {INCIDENT_URGENCIAS.map((u) => (
-              <option key={u.value} value={u.value}>
-                {u.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {hasActiveFilters && (
-          <button
-            className="historial__filters-clear"
-            onClick={() => {
-              setDateFrom('');
-              setDateTo('');
-              setTipoFilter('');
-              setCategoriaFilter('');
-              setUrgenciaFilter('');
-            }}
-          >
-            Limpiar filtros
-          </button>
-        )}
-      </div>
+          <label className="historial__filter-label">
+            Urgencia
+            <select
+              className="historial__filter-select"
+              value={urgenciaFilter}
+              onChange={(e) => setUrgenciaFilter(e.target.value as IncidentUrgencia | '')}
+            >
+              <option value="">Todas</option>
+              {INCIDENT_URGENCIAS.map((u) => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </FilterBar>
 
       {isLoading && <HistorialSkeleton />}
 

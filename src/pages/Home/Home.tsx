@@ -28,6 +28,7 @@ import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
+import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timeline';
 import { useCountUp } from '@/hooks/useCountUp';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
@@ -331,56 +332,39 @@ const Home = () => {
               description="Cuando se carguen asistencias o novedades, aparecerán aquí."
             />
           ) : (
-            <div className="home__activity">
-              {myAttendances.map((att) => (
-                <div key={att.id} className="home__activity-item">
-                  <div className="home__activity-dot home__activity-dot--asistencia" />
-                  <div className="home__activity-content">
-                    <span className="home__activity-text">
-                      Asistencia cargada por <strong>{att.cargadoPorNombre}</strong>
-                    </span>
-                    <span className="home__activity-time">
-                      {att.fecha
-                        .toDate()
-                        .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {myNews.map((n) => (
-                <div key={n.id} className="home__activity-item">
-                  <div className="home__activity-dot home__activity-dot--novedades" />
-                  <div className="home__activity-content">
-                    <span className="home__activity-text">
-                      Novedad cargada por <strong>{n.cargadoPorNombre}</strong>
-                    </span>
-                    <span className="home__activity-time">
-                      {n.fecha
-                        .toDate()
-                        .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {myIncidents.map((inc) => (
-                <div key={inc.id} className="home__activity-item">
-                  <div className="home__activity-dot home__activity-dot--incidentes" />
-                  <div className="home__activity-content">
-                    <span className="home__activity-text">
-                      Incidente cargado por <strong>{inc.cargadoPorNombre}</strong>
-                    </span>
-                    <div className="home__activity-meta">
-                      <StatusBadge status={inc.estado} />
-                      <span className="home__activity-time">
-                        {inc.fecha
-                          .toDate()
-                          .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Timeline
+              events={[
+                ...myAttendances.map((att): TimelineEvent => ({
+                  id: att.id,
+                  type: 'asistencia',
+                  text: `Asistencia cargada por ${att.cargadoPorNombre}`,
+                  time: att.fecha
+                    .toDate()
+                    .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+                })),
+                ...myNews.map((n): TimelineEvent => ({
+                  id: n.id,
+                  type: 'novedades',
+                  text: `Novedad cargada por ${n.cargadoPorNombre}`,
+                  time: n.fecha
+                    .toDate()
+                    .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+                })),
+                ...myIncidents.map((inc): TimelineEvent => ({
+                  id: inc.id,
+                  type: 'incidentes',
+                  text: `Incidente cargado por ${inc.cargadoPorNombre}`,
+                  time: inc.fecha
+                    .toDate()
+                    .toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+                  extra: <StatusBadge status={inc.estado} />,
+                })),
+              ].sort((a, b) => {
+                const timeA = a.time || '';
+                const timeB = b.time || '';
+                return timeB.localeCompare(timeA);
+              })}
+            />
           )}
         </div>
       )}
