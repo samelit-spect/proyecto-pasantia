@@ -1,7 +1,7 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 18/08/2026
-> Commits totales: 57
+> Última actualización: 19/08/2026
+> Commits totales: 72
 
 ---
 
@@ -9,9 +9,11 @@
 
 **SIPNAM** (Sistema Integrado de Partes de Novedades y Asistencias Móvil) + **SAI-Móvil** (Alertas de Incidentes Institucionales). Es una app web para gestión escolar en una jurisdicción educativa.
 
-**Stack:** React 19 + TypeScript + Vite 8 + Firebase (Firestore + Auth) + react-hook-form + Zod + Vitest
+**Stack:** React 19 + TypeScript + Vite 8 + Firebase (Firestore + Auth) + react-hook-form + Zod + Vitest + PWA
 
 **Presupuesto: NO hay.** Firebase Storage fue descartado. Las fotos se guardan como base64 comprimido en Firestore.
+
+**Mobile-first:** La app se usa mayormente en celular. Hay bottom nav bar, safe areas, touch targets de 44px. Se puede instalar como PWA.
 
 ---
 
@@ -159,13 +161,104 @@
 - `updateDocente` en firestore.ts
 - UI de edición de docentes en SupervisorSchoolDetail
 
-### ✅ UX crítica - 6 mejoras (sin commit aún, compilando limpio)
-- **Feedback fuera de forms**: SupervisorSchools y SupervisorUsers muestran feedback arriba del form, no dentro
-- **Estados de carga**: Home y Historial muestran spinner en vez de zeros
-- **Modal keyboard support**: AttendanceForm modal cierra con Escape, auto-focus
-- **Desktop navbar**: Links horizontales ≥768px, hamburger oculto en desktop
-- **ConfirmDialog**: Nuevo componente reemplaza `window.confirm()` en 4 lugares
-- **Feedback mejorado**: Timer 8s + botón × para cerrar en todas las páginas
+### ✅ UX crítica - 6 mejoras (`commit previo`)
+- Feedback fuera de forms, estados de carga, modal keyboard support
+- Desktop navbar, ConfirmDialog, feedback mejorado 8s
+
+---
+
+## UI/UX Mejoras — 12 features implementados
+
+### Par 1: Skeletons + CSS tokens (`f6cfa1d`)
+- Componente `Skeleton` reutilizable con shimmer animation
+- Skeletons en Home (stats + activity), Supervisor (schools list), Historial (table)
+- Tokens unificados: `--shadow-*`, `--radius-*`, `--space-*` en `global.css`
+
+### Par 2: Dark mode + Empty states (`01727e3`)
+- Variables CSS semánticas `--accent-*` (green, blue, red, yellow)
+- Dark mode integrado en ThemeSettings
+- Componente `EmptyState` con 7 ilustraciones SVG (sin escuelas, sin datos, etc.)
+
+### Par 3: Animaciones entry + Button spinner/success (`510c377`)
+- Keyframes globales: `fadeInUp`, `fadeIn`, `scaleIn`
+- Animaciones escalonadas en Home, Supervisor, Historial
+- Componente `Button` (4 variantes, spinner, checkmark de éxito)
+- Integrado en Login, SupervisorSchools, SupervisorUsers
+
+### Par 4: Contadores animados + Breadcrumbs (`cc1a065`)
+- Hook `useCountUp` con easing cúbico
+- Componente `AnimatedStat` para stats del Home
+- Componente `Breadcrumb` integrado en Home, SupervisorSchools, SupervisorUsers, SupervisorSchoolDetail, Historial
+
+### Par 5: Timeline visual + Filtros animados (`e7e6b99`)
+- Componente `Timeline` con línea vertical, dots coloreados, staggered animation
+- Componente `FilterBar` con expand/collapse animado (`grid-template-rows`), pills removibles
+- Integrado en Historial
+
+### Par 6: Focus rings + Backdrop blur (`74487a8`)
+- `:focus-visible` global con rings
+- `backdrop-filter: blur(4-6px)` en ConfirmDialog, AttendanceForm, Lightbox, Navbar
+- Slide-up en ConfirmDialog, scale-in en AttendanceForm
+- Colores hardcodeados → CSS variables
+
+### Extra 1: Splash screen (`b3197f1`)
+- Full-screen gradient, logo pulse, título slide-up, progress bar indeterminada
+- Componente `LoadingScreen` animado
+
+### Extra 2: Toasts animados (`f41460c`)
+- `ToastContext` + `useToast()` hook
+- 4 variantes: success, error, warning, info
+- Slide-in, auto-dismiss 4s
+- Reemplaza banners inline en SupervisorSchools y SupervisorUsers
+
+### Extra 3: Gráficos dashboard (`3c62843`)
+- `DashboardCharts` con recharts
+- Bar chart (actividad de hoy), donut (estado incidentes), horizontal bar (por categoría)
+- Responsive grid, integrado en Home supervisor
+
+### Extra 4: Exportar PDF (`88922ad`)
+- `pdfExport.ts` con jsPDF + jspdf-autotable
+- PDF branded SIPNAM con tablas multi-página
+- Respeta filtros de historial
+- Botón de exportación en Historial
+
+### Extra 5: Búsqueda global (`3d5ab0d`)
+- `GlobalSearch` con Ctrl+K
+- Modal con búsqueda en tiempo real (escuelas, usuarios, docentes)
+- Navegación por teclado (↑↓ Enter Escape)
+- Backdrop blur, responsive
+
+### Extra 6: Notificaciones in-app (`292ad43`)
+- `NotificationBell` con badge counter + dropdown panel
+- Firestore subscriptions en tiempo real (incidentes para supervisor, asistencia+novedades para otros)
+- Iconos coloreados por tipo
+- Auto-dismiss unread al abrir panel
+- Pulse animation en badge
+- **Importante:** El type `School` se renombró a `SchoolType` en GlobalSearch para evitar colisión con el icono de lucide-react
+
+### PWA (`0d63b11`)
+- `vite-plugin-pwa` con manifest, workbox, auto-update
+- Iconos 192x192 y 512x512 generados desde SVG (`scripts/generate-icons.mjs`)
+- Meta tags: `theme-color`, `mobile-web-app-capable`, `viewport-fit=cover`
+- Service worker: cachea assets estáticos + Firestore API (NetworkFirst)
+- Se puede instalar como app desde el navegador del celular
+
+### Bottom Nav + Mobile (`0d63b11`)
+- `BottomNav` componente: Inicio, Asistencia/Historial/Supervisión + "Más" → drawer
+- Solo visible en mobile (<768px)
+- Touch targets 44px, `safe-area-inset-bottom`
+- Layout responsive: 60px top + 72px bottom en móvil
+- `overscroll-behavior: none`, `tap-highlight-color: transparent`
+
+### Fix navbar tablet (`af18e32`, `9096180`)
+- Hamburger visible en TODAS las resoluciones (antes se ocultaba en 768px+)
+- Desktop links solo en ≥1024px
+- Tablet (768-1024px): hamburger + drawer
+
+### Fix botón volver (`f6138f6`)
+- Padding aumentado: 0.625rem 1rem, min-height 44px
+- Clase separada `supervisor__header-back` para botones icon-only (44x44)
+- Eliminadas definiciones duplicadas de CSS
 
 ---
 
@@ -186,22 +279,48 @@
 | `/supervisor/usuarios` | `SupervisorUsers.tsx` | Supervisor — gestión de usuarios |
 | `/tema` | `ThemeSettings.tsx` | Todos — configuración de apariencia |
 
-### Components clave
-- `src/components/forms/AttendanceForm/` — Formulario compartido (gestión + docentes)
-- `src/components/supervisor/` — 8 subcomponentes de SupervisorSchoolDetail
-- `src/components/common/ConfirmDialog/` — Diálogo de confirmación reemplaza window.confirm()
-- `src/components/common/SchoolSelect/` — Selector de escuelas (usa `getSchoolById` para no-supervisores)
-- `src/components/common/Pagination/` — Paginación client-side
-- `src/components/common/ErrorBoundary/` — Error boundary global
+### Components comunes (21)
+- `BottomNav/` — Bottom nav bar mobile
+- `Breadcrumb/` — Navegación de migas
+- `Button/` — Botón reutilizable (variantes, spinner, success)
+- `ConfirmDialog/` — Diálogo de confirmación
+- `ConnectionBanner/` — Banner offline/conexión
+- `DashboardCharts/` — Gráficos recharts
+- `DatePicker/` — Selector de fechas
+- `EmptyState/` — Estado vacío con ilustraciones
+- `ErrorBoundary/` — Error boundary global
+- `FilterBar/` — Barra de filtros animada
+- `FotoThumb/` — Miniatura de foto
+- `GlobalSearch/` — Búsqueda global Ctrl+K
+- `LoadingScreen/` — Splash/loading screen
+- `Navbar/` — Navbar top con hamburger + drawer
+- `NotificationBell/` — Campana de notificaciones en tiempo real
+- `Pagination/` — Paginación client-side
+- `SchoolSelect/` — Selector de escuelas
+- `Skeleton/` — Skeleton loading con shimmer
+- `StatusBadge/` — Badge de estado
+- `Timeline/` — Timeline visual de actividad
+
+### Components supervisor (8)
+- `AccordionSection/`, `Lightbox/`, `SchoolDetailAttendances/`, `SchoolDetailDocentes/`, `SchoolDetailFotos/`, `SchoolDetailIncidents/`, `SchoolDetailNews/`, `SchoolDetailUsers/`
+
+### Components forms (1)
+- `AttendanceForm/` — Formulario compartido asistencia gestión + docentes
 
 ### Servicios y utilidades
-- `src/services/api/firestore.ts` — Todas las queries + suscripciones onSnapshot + CRUD schools/docentes
-- `src/context/AuthContext.tsx` — Auth state, `hasRole()`, `profile.escuelaId`
+- `src/services/api/firestore.ts` — 52 exports (CRUD + suscripciones onSnapshot)
+- `src/services/api/auth.ts` — CreateUserAccount, sendPasswordReset (admin app aislada)
+- `src/context/AuthContext.tsx` — Auth state, `hasRole()`, `canAccess()`, `profile.escuelaId`
+- `src/context/ToastContext.tsx` — ToastProvider, `useToast()`, 4 variantes, auto-dismiss 4s
+- `src/hooks/useCountUp.ts` — Contador animado con easing cúbico
+- `src/hooks/useFeedback.ts` — Estados de operación (loading/success/error)
 - `src/utils/validation.ts` — Schemas Zod para formularios
 - `src/utils/constants.ts` — Labels, tipos, `FEEDBACK_AUTO_CLEAR_MS = 8000`
 - `src/utils/dateKey.ts` — Función `dateKey()` UTC-based para normalizar fechas
 - `src/utils/authErrors.ts` — Mensajes de error de Firebase Auth
 - `src/utils/image.ts` — `fileToCompressedDataUrl()` para fotos
+- `src/utils/pdfExport.ts` — Exportación PDF con jsPDF + autoTable
+- `src/utils/exportCsv.ts` — Exportación CSV
 
 ---
 
@@ -243,7 +362,7 @@ Los formularios NO tienen dropdown de SchoolSelect. La escuela se toma automáti
 Cuando un director llama `getSchools()` (lectura de colección), Firestore bloquea documentos de otras escuelas → la query falla. Solución: usar `getSchoolById(escuelaId)` para leer un documento individual.
 
 ### 3. Tiempo real (onSnapshot)
-Las suscripciones onSnapshot se usan en Historial, SupervisorSchoolDetail (vista Hoy), y Home (no-supervisor activity). Home supervisor usa fetch one-time + intervalo 30s con pausa en `visibilitychange`.
+Las suscripciones onSnapshot se usan en Historial, SupervisorSchoolDetail (vista Hoy), Home (no-supervisor activity), NotificationBell. Home supervisor usa fetch one-time + intervalo 30s con pausa en `visibilitychange`.
 
 ### 4. Asistencia de docentes
 El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `registros[]` como `Attendance`. El componente `SchoolDetailAttendances` maneja ambos tipos.
@@ -255,7 +374,7 @@ El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `r
 `npm run lint` debe retornar 0 errores, 0 warnings antes de cada commit.
 
 ### 7. Build
-`npx tsc -b --noEmit` debe pasar sin errores de tipos.
+`npx tsc -b --noEmit` debe pasar sin errores de tipos. `npx vite build` genera service worker + precache.
 
 ### 8. Tema/colores
 CSS variables: `--primary-color`, `--primary-light`, `--background-color`, `--surface-color`, `--text-color`, `--text-secondary`, `--border-color`. Persistencia en `localStorage` key `sipnam-theme`.
@@ -271,6 +390,24 @@ La sesión de usuario se mantiene mientras Firebase Auth esté activo. No hay ti
 
 ### 12. React 18/19 Strict Mode
 Los `initialized.current` refs en useEffect blocks rompen el re-mount de Strict Mode. Fueron eliminados de Home, Historial, SupervisorSchools, SupervisorUsers.
+
+### 13. PWA
+- Service worker generado por `vite-plugin-pwa` con workbox
+- Iconos generados con `sharp` via `scripts/generate-icons.mjs`
+- Manifest en `vite.config.ts` (VitePWA plugin)
+- Meta tags en `index.html`: `theme-color`, `mobile-web-app-capable`, `viewport-fit=cover`
+- Firestore API cacheada con `NetworkFirst` strategy
+
+### 14. Mobile-first
+- Bottom nav bar visible en <768px
+- Hamburger visible en todas las resoluciones
+- Desktop links solo en ≥1024px
+- Safe area insets para celulares con notch
+- Touch targets mínimos 44px
+- `overscroll-behavior: none` para evitar pull-to-refresh
+
+### 15. Import collision
+El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx` para evitar colisión con el icono `School` de `lucide-react`.
 
 ---
 
@@ -291,7 +428,7 @@ Los `initialized.current` refs en useEffect blocks rompen el re-mount de Strict 
 - [ ] Offline: sync automático de incidentes creados sin conexión
 
 ### UX media (audit completado, priorizado)
-- [ ] Incidetes: `object-fit: contain` en vez de `cover` para fotos
+- [ ] Incidentes: `object-fit: contain` en vez de `cover` para fotos
 - [ ] Incidentes: validación de tamaño de archivo
 - [ ] Novedades/Incidentes: feedback cuando user context falta
 - [ ] Historial: validación dateFrom > dateTo
@@ -302,3 +439,9 @@ Los `initialized.current` refs en useEffect blocks rompen el re-mount de Strict 
 - [ ] Login: password visibility toggle
 - [ ] Login: focus management después de error
 - [ ] Home: empty state para supervisor cuando no hay actividad
+
+### Mobile
+- [ ] Swipe gestures para navegar entre vistas
+- [ ] Pull-to-refresh en listas
+- [ ] Mejorar formularios para input nativo del celular (date, file)
+- [ ] Splash screen personalizado para iOS (apple-touch-startup-image)
