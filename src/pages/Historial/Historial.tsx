@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   subscribeAttendancesBySchool,
@@ -24,6 +24,8 @@ import {
 } from '@/utils/constants';
 import type { NovedadTipo, IncidentCategoria, IncidentUrgencia } from '@/types';
 import { dateKey } from '@/utils/dateKey';
+import { exportHistorialPDF } from '@/utils/pdfExport';
+import { useToast } from '@/context/ToastContext';
 import HistorialSkeleton from './HistorialSkeleton';
 import './Historial.css';
 
@@ -32,6 +34,7 @@ type SectionKey = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 const Historial = () => {
   const { profile, hasRole } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [docenteAttendances, setDocenteAttendances] = useState<DocenteAttendance[]>([]);
@@ -154,6 +157,22 @@ const Historial = () => {
     return { items: items.slice(start, start + PAGE_SIZE), totalPages, page };
   };
 
+  const handleExportPDF = () => {
+    try {
+      exportHistorialPDF({
+        attendances: filteredAttendances,
+        docenteAttendances: filteredDocenteAttendances,
+        news: filteredNews,
+        incidents: filteredIncidents,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      });
+      addToast('success', 'PDF descargado correctamente.');
+    } catch {
+      addToast('error', 'Error al generar el PDF.');
+    }
+  };
+
   return (
     <section className="historial">
       <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Historial' }]} />
@@ -162,9 +181,15 @@ const Historial = () => {
         Volver
       </button>
       <h2 className="historial__title">Historial de Cargas</h2>
-      <p className="historial__subtitle">
-        Consultá las asistencias, novedades e incidentes cargados en tu escuela.
-      </p>
+      <div className="historial__header-row">
+        <p className="historial__subtitle">
+          Consultá las asistencias, novedades e incidentes cargados en tu escuela.
+        </p>
+        <button className="historial__export-btn" onClick={handleExportPDF}>
+          <Download size={14} strokeWidth={2} />
+          Exportar PDF
+        </button>
+      </div>
 
       <FilterBar
         activeFilters={activeFilters}
