@@ -29,6 +29,7 @@ import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timeline';
+import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
 import { useCountUp } from '@/hooks/useCountUp';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
@@ -379,6 +380,15 @@ const Home = () => {
               <AnimatedStat value={stats.novedades} label="Novedades" />
               <AnimatedStat value={stats.incidentes} label="Incidentes" />
             </div>
+          </div>
+
+          <div className="home__section">
+            <h3 className="home__section-title">Dashboard</h3>
+            <DashboardCharts
+              attendances={recentAttendances}
+              news={recentNews}
+              incidents={recentIncidents}
+            />
           </div>
 
           {openIncidents.length > 0 && (
