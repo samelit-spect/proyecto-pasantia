@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { useParams, useNavigate, useViewTransitionState } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -689,7 +690,9 @@ const SupervisorSchoolDetail = () => {
         </>
       )}
 
-      {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
+      <AnimatePresence>
+        {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
+      </AnimatePresence>
 
       <ConfirmDialog
         open={!!confirmDeleteFoto}

@@ -69,6 +69,17 @@ import { LazyMotion, domAnimation, m } from 'motion/react';
 - `layoutId` para indicadores que se deslizan (BottomNav)
 - Cargar solo cuando la pantalla lo necesite (lazy import)
 
+### Lecciones aprendidas (medir SIEMPRE el build)
+
+- El bundle real creció más que lo documentado: `AnimatePresence` arrastra la maquinaria
+  de exit animations (~35kb gzip) aunque se use en un solo componente.
+- `domMax` (layout animations) sumó **+48kb gzip** sobre domAnimation: NO conviene para un solo efecto.
+- El loader dinámico de features (`features={() => import(...)}`) no ayuda si `AnimatePresence`
+  u otros exports pesados ya están importados estáticamente en cualquier archivo.
+- Bundle actual del chunk principal: ~305kb gzip (vs 270kb antes de Motion). Dominado por
+  firebase/jspdf/recharts; Motion aporta ~35kb de ese total. Si algún día hay que recortar,
+  las mejoras 8-10 pueden reimplementarse con keyframes CSS (~0kb) sacrificando exit animations.
+
 ## Mejoras planificadas
 
 | # | Mejora | Herramienta | Pantalla | Estado |
@@ -82,7 +93,7 @@ import { LazyMotion, domAnimation, m } from 'motion/react';
 | 7 | Morph card escuela → detalle (shared element) | View Transitions | /supervisor → detalle | ✅ Card extraída a componente `SchoolCard` con `useViewTransitionState`; `view-transition-name: school-hero` en card (origen) y header del detalle (destino); desactivado con reduced-motion |
 | 8 | ConfirmDialog/modal con salida animada (AnimatePresence) | Motion | Global | ✅ `motion` instalado; `LazyMotion features={domAnimation} strict` en main.tsx; ConfirmDialog con fade+scale entrada/salida vía `m.*` + `useReducedMotion`; keyframes CSS viejos removidos. Impacto bundle: ~5kb gzip |
 | 9 | RetentionBanner slide down/up | Motion | Home supervisor | ✅ Wrapper animado (height auto→0 + opacity + marginBottom) con AnimatePresence; margin movido del CSS al wrapper; `useReducedMotion`; test de cierre adaptado a salida animada (`advanceTimersByTimeAsync`) |
-| 10 | Lightbox zoom desde miniatura | Motion | Detalle escuela (fotos) | ⏳ |
+| 10 | Lightbox zoom desde miniatura | Motion | Detalle escuela (fotos) | ⚠️ Morph shared-element (`layoutId`/domMax) **descartado**: +48kb gzip y el loader dinámico no separa nada por imports estáticos de AnimatePresence en otros archivos. Implementado zoom centrado (scale .85→1 + fade overlay) con domAnimation ya presente. Costo incremental ≈ 0 sobre mejora 8 |
 | 11 | Indicador activo del BottomNav deslizante (layoutId) | Motion | BottomNav | ⏳ |
 | 12 | Crossfade skeleton → contenido | Motion/CSS | Pantallas con skeleton | ⏳ |
 
