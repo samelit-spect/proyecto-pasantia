@@ -1,3 +1,4 @@
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import type { IncidentStatusEvent } from '@/types';
 import { incidentStatusLabel } from '@/utils/constants';
 import './IncidentHistory.css';
@@ -22,10 +23,11 @@ const formatEventDate = (ts: { toDate: () => Date }) =>
   });
 
 const IncidentHistory = ({ events }: IncidentHistoryProps) => {
+  const [parent] = useAutoAnimate();
   if (!events || events.length === 0) return null;
 
   return (
-    <div className="incident-history">
+    <div className="incident-history" ref={parent}>
       <span className="incident-history__title">Historial de estados</span>
       {events.map((event, index) => (
         <div key={`${event.fecha.seconds}-${index}`} className="incident-history__item">
