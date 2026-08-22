@@ -71,6 +71,7 @@ const SupervisorSchools = () => {
   const [attListRef] = useAutoAnimate();
   const [newsListRef] = useAutoAnimate();
   const [incListRef] = useAutoAnimate();
+  const [schoolGridRef] = useAutoAnimate();
 
   const {
     register,
@@ -391,7 +392,7 @@ const SupervisorSchools = () => {
           </div>
 
           <h3 className="supervisor-schools__section-title">Escuelas</h3>
-          <div className="supervisor-schools__grid">
+          <div className="supervisor-schools__grid" ref={schoolGridRef}>
             {schools.map((school) => {
               const att = attBySchool[school.id] || 0;
               const nov = newsBySchool[school.id] || 0;

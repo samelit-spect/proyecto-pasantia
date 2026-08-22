@@ -74,7 +74,7 @@ import { LazyMotion, domAnimation, m } from 'motion/react';
 | # | Mejora | Herramienta | Pantalla | Estado |
 |---|--------|-------------|----------|--------|
 | 1 | Actividad reciente animada (inserción en vivo por onSnapshot) | auto-animate | Home + Panel supervisor + Timeline | ✅ `useAutoAnimate` en `.home__activity`, `.home__alerts`, 3 summary-lists de /supervisor y contenedor de `Timeline` |
-| 2 | Lista de escuelas: alta/eliminación animada | auto-animate | /supervisor | ⏳ |
+| 2 | Lista de escuelas: alta/eliminación animada | auto-animate | /supervisor | ✅ `useAutoAnimate` en `.supervisor-schools__grid` (inserta, elimina y reacomoda cards) |
 | 3 | Acordeones de secciones (expandir/colapsar suave) | auto-animate | Detalle escuela | ⏳ |
 | 4 | Toasts con entrada/salida animada | auto-animate | Global (ToastContext) | ⏳ |
 | 5 | Historial de estados de incidentes animado | auto-animate | SupervisorDetail + Historial | ⏳ |
