@@ -59,8 +59,20 @@ const BottomNav = ({ onOpenDrawer }: BottomNavProps) => {
     onClick: onOpenDrawer,
   });
 
+  const activeIndex = items.findIndex((item) => item.active);
+
   return (
     <nav className="bottom-nav">
+      {activeIndex >= 0 && (
+        <span
+          aria-hidden="true"
+          className="bottom-nav__indicator"
+          style={{
+            width: `${100 / items.length}%`,
+            transform: `translateX(${activeIndex * 100}%)`,
+          }}
+        />
+      )}
       {items.map((item, i) => {
         if (item.isMore) {
           return (
