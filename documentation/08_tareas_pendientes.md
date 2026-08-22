@@ -1,7 +1,7 @@
 # 08 - Tareas Pendientes
 
-> Última actualización: 18/08/2026
-> Commits totales: 57
+> Última actualización: 22/08/2026
+> Commits totales: 98
 
 ---
 
@@ -111,7 +111,43 @@
 
 ---
 
+## Completado — Tiempo real supervisor (21/08/2026, `e04683c`)
+
+- ✅ `/supervisor`: indicadores del día con `subscribeToday*` (onSnapshot en vez de fetch one-time)
+- ✅ Home supervisor: polling 30s reemplazado por 4 suscripciones onSnapshot + contador de settle para el skeleton
+- ✅ Detalle escuela: fotos en vivo con nueva `subscribeFotosBySchool` (índice ya existía)
+- Única excepción: Home no-supervisor mantiene fetch + intervalo 30s
+
+---
+
+## Completado — Animaciones y colores (22/08/2026)
+
+Plan de 12 mejoras con detalle técnico por ítem en `documentation/18_animaciones.md`. Resumen de commits:
+
+- ✅ `d4399f2` Listas de actividad con auto-animate (Home, Timeline, /supervisor)
+- ✅ `af80f33` Grilla de escuelas animada (entradas/salidas)
+- ✅ `c8c89d8` Acordeones con useAutoAnimate (AccordiónSection genérico)
+- ✅ `d2c8b3c` Toasts con entrada/salida animada
+- ✅ `b359aa9` IncidentHistory animado
+- ✅ `c55d764` View Transitions en toda la navegación (prop viewTransition)
+- ✅ `4bfbd05` Morph card escuela → detalle (view-transition-name school-hero)
+- ✅ `56e9929` ConfirmDialog con Motion (LazyMotion domAnimation strict instalado en main.tsx)
+- ✅ `ebceadc` RetentionBanner slide down/up + test adaptado
+- ✅ `c4bedf1` Lightbox zoom centrado (morph shared-element descartado: +48kb gzip)
+- ✅ `9afcded` Crossfade skeleton → contenido (reutiliza .animate-fade-in)
+- ✅ `29af763` Paleta derivada con color-mix(in oklch) + aurora ambiental animada + gradiente en botones primarios/saludo (0kb JS)
+
+Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35kb gzip efectivo).
+
+### Fix UI
+- ✅ `4be4996` Botones editar/eliminar del SchoolCard siempre al fondo (fila propia full-width en móvil; link flex:1 en desktop)
+
+---
+
 ## Pendiente
+
+### Bugs (prioritario)
+- [ ] **Firestore: permission-denied al iniciar sesión** (`AuthContext.tsx:45`). La regla `usuarios.read` en `firestore.rules` evalúa `isSupervisor()` (con `get()`) antes del check de uid propio; si el perfil no existe aún, deniega. Fix: reordenar regla (uid propio primero), blindar `userProfile()` con `exists()`, y `firebase deploy --only firestore:rules`.
 
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`

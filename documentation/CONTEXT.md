@@ -1,7 +1,7 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 19/08/2026
-> Commits totales: 72
+> Última actualización: 22/08/2026
+> Commits totales: 98
 
 ---
 
@@ -36,6 +36,30 @@
 - **Export global:** queries jurisdiccionales sin límite (`getAll*` en firestore.ts) + util `exportAll.ts` (4 CSV con columna Escuela, incluye motivos de ausencia). Tarjeta "Respaldo de datos" en Panel de Supervisión con rango de fechas, ConfirmDialog y progreso. Las fotos NO se incluyen (base64 pesado; Firebase 12 quitó `select()`).
 - **Banner borrado anual:** `RetentionBanner` en Home del supervisor, activo desde 60 días antes del 31/12 (`constants.ts`), cierre diario vía localStorage, CTA → /supervisor. Se auto-reinicia cada año.
 - **Trazabilidad incidentes:** modelo `IncidentStatusEvent[]` en `historialEstados`; `addIncident` siembra evento inicial; `updateIncidentStatus(id, nuevo, actor, anterior)` usa `arrayUnion`. Componente `IncidentHistory` visible para supervisor Y escuelas (/historial). `incidentStatusLabel` centralizado. `window.confirm` reemplazado por `ConfirmDialog`.
+
+### ✅ Tiempo real en todas las vistas del supervisor (`e04683c`)
+- `/supervisor` (SupervisorSchools): indicadores del día con `subscribeToday*` (onSnapshot; antes fetch one-time)
+- Home supervisor: polling de 30s reemplazado por 4 suscripciones onSnapshot con contador de "settle" (`TOTAL_INIT_STEPS = 5`) para soltar el skeleton
+- Detalle escuela: galería de fotos en vivo con `subscribeFotosBySchool` (nueva en firestore.ts); el índice compuesto ya existía
+- Única vista que sigue con fetch + intervalo 30s: Home no-supervisor
+
+### ✅ Animaciones, colores y fixes UI (sesión 21–22/08/2026)
+Plan de 12 mejoras documentado ítem por ítem en `documentation/18_animaciones.md` (tabla con estado, librería y notas técnicas).
+
+**Librerías incorporadas:**
+- `@formkit/auto-animate` (~3kb): listas de actividad, grilla de escuelas, acordeones (AccordiónSection genérico), toasts, IncidentHistory
+- View Transitions API (0kb): prop `viewTransition` en Links/navigate + keyframes `vt-exit/vt-enter` globales; morph card escuela → detalle con `view-transition-name: school-hero` y `useViewTransitionState`
+- `motion` (~35kb gzip efectivo): LazyMotion `domAnimation` strict en main.tsx (obliga a usar `m.*`, nunca `motion.*`), AnimatePresence para ConfirmDialog, RetentionBanner y Lightbox
+
+**Lección de bundle (medir SIEMPRE):** `domMax` sumaba +48kb gzip → descartado; el loader dinámico de features no sirve si AnimatePresence ya está importado estático. Mejora 10 (lightbox) quedó como zoom centrado con domAnimation. Bundle principal: ~305kb gzip. Si hay que recortar, mejoras 8–10 se pueden rehacer con CSS puro.
+
+**Colores (0kb JS, `29af763`):**
+- Tokens derivados con `color-mix(in oklch)` en global.css: `--primary-tint`, `--primary-tint-strong`, `--gradient-accent` — siguen automáticamente al color elegido en /tema y funcionan en claro/oscuro
+- Aurora ambiental animada: `body::before` fijo con 2 halos radiales que derivan lentamente (26s, transform compositable, reduced-motion off)
+- Gradiente aplicado a `.btn--primary`, botón Guardar de /tema y nombre del saludo (`background-clip: text`)
+- Utilidades `.animate-fade-in` reutilizadas para crossfade skeleton → contenido en Home, /supervisor y detalle
+
+**Fix UI (`4be4996`):** botones editar/eliminar del SchoolCard siempre al fondo — en móvil bajan a una fila propia de ancho completo (link horizontal icono|nombre|stats), en desktop el link crece con flex:1 para pegarlas al borde inferior
 
 ### ✅ 1.2 — Tests de componentes (`0258180`)
 - 52 tests totales (33 nuevos). Instalado `@testing-library/user-event`.
@@ -373,16 +397,16 @@ Las suscripciones onSnapshot se usan en Historial, SupervisorSchoolDetail (vista
 El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `registros[]` como `Attendance`. El componente `SchoolDetailAttendances` maneja ambos tipos.
 
 ### 5. Tests
-52 tests pasando. Ejecutar con `npx vitest run` o `npm run test`.
+57 tests (56 pasan + 1 falla PRE-EXISTENTE de Login "muestra texto de carga en el botón"). Ejecutar con `npx vitest run` o `npm run test`.
 
 ### 6. Lint
-`npm run lint` debe retornar 0 errores, 0 warnings antes de cada commit.
+Línea base actual: 12 problemas PRE-EXISTENTES (11 errores react-compiler por setState síncrono en effects + 1 warning `any` en pdfExport.ts). No "arreglarlos" silenciosamente; un cambio no debe agregar problemas nuevos.
 
 ### 7. Build
 `npx tsc -b --noEmit` debe pasar sin errores de tipos. `npx vite build` genera service worker + precache.
 
 ### 8. Tema/colores
-CSS variables: `--primary-color`, `--primary-light`, `--background-color`, `--surface-color`, `--text-color`, `--text-secondary`, `--border-color`. Persistencia en `localStorage` key `sipnam-theme`.
+CSS variables base: `--primary-color`, `--primary-light`, `--background-color`, `--surface-color`, `--text-color`, `--text-secondary`, `--border-color`. Persistencia en `localStorage` key `sipnam-theme`. Desde 22/08 existen además tokens DERIVADOS con `color-mix(in oklch)` (`--primary-tint`, `--primary-tint-strong`, `--gradient-accent`) definidos en global.css que siguen a `--primary-color` automáticamente — usar estos en vez de hardcodear tonos del primario.
 
 ### 9. Fotos
 Base64 comprimido (~1024px, JPEG ~0.6 calidad). Límite ~1MiB por documento Firestore. Sin Firebase Storage.
@@ -414,9 +438,19 @@ Los `initialized.current` refs en useEffect blocks rompen el re-mount de Strict 
 ### 15. Import collision
 El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx` para evitar colisión con el icono `School` de `lucide-react`.
 
+### 16. Reglas de animación (ver 18_animaciones.md)
+- Listas/acordeones/toasts: `useAutoAnimate` de @formkit/auto-animate
+- Navegación entre páginas: prop `viewTransition` en `<Link>` / `navigate()`
+- Modales y banners con salida: Motion SIEMPRE con `m.*` (LazyMotion es strict, `motion.*` tira error), envueltos en AnimatePresence donde el componente se monta/desmonta
+- Toda animación nueva: respetar `prefers-reduced-motion` (useReducedMotion o media query)
+- Antes de sumar features de Motion, medir el build — ver lección domMax en 18_animaciones.md
+
 ---
 
 ## Tareas pendientes conocidas
+
+### Bugs (prioritario)
+- [ ] **Firestore: permission-denied al iniciar sesión** (`AuthContext.tsx:45` lee `usuarios/{uid}`). Diagnóstico: en `firestore.rules` la regla `usuarios.read` evalúa `isSupervisor()` (que hace `get()`) ANTES del check `userId == request.auth.uid`; si el perfil aún no existe o el get falla, la condición entera deniega. Fix propuesto: reordenar la regla poniendo `request.auth.uid == userId` primero, blindar `userProfile()` con `exists(...)`, y desplegar con `firebase deploy --only firestore:rules`.
 
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`
