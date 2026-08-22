@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -66,6 +67,10 @@ const SupervisorSchools = () => {
   const [confirmExport, setConfirmExport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgressLabel, setExportProgressLabel] = useState('');
+
+  const [attListRef] = useAutoAnimate();
+  const [newsListRef] = useAutoAnimate();
+  const [incListRef] = useAutoAnimate();
 
   const {
     register,
@@ -312,7 +317,7 @@ const SupervisorSchools = () => {
                   </span>
                 </div>
               </div>
-              <div className="supervisor-schools__summary-list">
+              <div className="supervisor-schools__summary-list" ref={attListRef}>
                 {recentAttendances.length === 0 ? (
                   <span className="supervisor-schools__summary-empty">Sin registros</span>
                 ) : (
@@ -340,7 +345,7 @@ const SupervisorSchools = () => {
                   <span className="supervisor-schools__summary-count">{recentNews.length} hoy</span>
                 </div>
               </div>
-              <div className="supervisor-schools__summary-list">
+              <div className="supervisor-schools__summary-list" ref={newsListRef}>
                 {recentNews.length === 0 ? (
                   <span className="supervisor-schools__summary-empty">Sin registros</span>
                 ) : (
@@ -368,7 +373,7 @@ const SupervisorSchools = () => {
                   </span>
                 </div>
               </div>
-              <div className="supervisor-schools__summary-list">
+              <div className="supervisor-schools__summary-list" ref={incListRef}>
                 {recentIncidents.length === 0 ? (
                   <span className="supervisor-schools__summary-empty">Sin registros</span>
                 ) : (

@@ -1,3 +1,4 @@
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import './Timeline.css';
 
 export interface TimelineEvent {
@@ -13,8 +14,9 @@ interface TimelineProps {
 }
 
 const Timeline = ({ events }: TimelineProps) => {
+  const [parent] = useAutoAnimate();
   return (
-    <div className="timeline">
+    <div className="timeline" ref={parent}>
       {events.map((event, index) => (
         <div
           key={event.id}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useAuth } from '@/context/AuthContext';
 import {
   ClipboardCheck,
@@ -54,6 +55,9 @@ const AnimatedStat = ({ value, label }: { value: number; label: string }) => {
 
 const Home = () => {
   const { profile, hasRole } = useAuth();
+
+  const [activityRef] = useAutoAnimate();
+  const [alertsRef] = useAutoAnimate();
 
   const [stats, setStats] = useState({ escuelas: 0, asistencias: 0, novedades: 0, incidentes: 0 });
   const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
@@ -392,7 +396,7 @@ const Home = () => {
           {openIncidents.length > 0 && (
             <div className="home__section">
               <h3 className="home__section-title">Alertas de incidentes</h3>
-              <div className="home__alerts">
+              <div className="home__alerts" ref={alertsRef}>
                 {openIncidents.map((inc) => (
                   <Link key={inc.id} to="/supervisor" className="home__alert">
                     <div className="home__alert-content">
@@ -449,7 +453,7 @@ const Home = () => {
             recentIncidents.length > 0) && (
             <div className="home__section">
               <h3 className="home__section-title">Actividad de hoy</h3>
-              <div className="home__activity">
+              <div className="home__activity" ref={activityRef}>
                 {recentAttendances.map((att) => (
                   <div key={att.id} className="home__activity-item">
                     <div className="home__activity-dot home__activity-dot--asistencia" />
