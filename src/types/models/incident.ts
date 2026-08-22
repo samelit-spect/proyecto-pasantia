@@ -7,6 +7,14 @@ export type IncidentCategoria =
 
 export type IncidentUrgencia = 'baja' | 'media' | 'alta';
 
+export interface IncidentStatusEvent {
+  estadoAnterior?: IncidentStatus;
+  estadoNuevo: IncidentStatus;
+  cambiadoPor: string;
+  cambiadoPorNombre: string;
+  fecha: Timestamp;
+}
+
 export interface Incident {
   id: string;
   escuelaId: string;
@@ -17,6 +25,7 @@ export interface Incident {
   fotoDataUrl?: string;
   descripcion: string;
   estado: IncidentStatus;
+  historialEstados?: IncidentStatusEvent[];
   cargadoPor: string;
   cargadoPorNombre: string;
   createdAt: Timestamp;

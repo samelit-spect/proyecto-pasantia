@@ -1,4 +1,5 @@
 import {
+  arrayUnion,
   collection,
   doc,
   getDocs,
@@ -359,6 +360,14 @@ export async function addIncident(data: AddIncidentDTO): Promise<string> {
     fotoDataUrl: data.fotoDataUrl || '',
     descripcion: data.descripcion,
     estado: 'pendiente' as IncidentStatus,
+    historialEstados: [
+      {
+        estadoNuevo: 'pendiente' as IncidentStatus,
+        cambiadoPor: data.cargadoPor,
+        cambiadoPorNombre: data.cargadoPorNombre,
+        fecha: now,
+      },
+    ],
     cargadoPor: data.cargadoPor,
     cargadoPorNombre: data.cargadoPorNombre,
     createdAt: now,
@@ -390,12 +399,21 @@ export async function getIncidentsBySchool(
 
 export async function updateIncidentStatus(
   incidentId: string,
-  newStatus: IncidentStatus
+  newStatus: IncidentStatus,
+  actor: { uid: string; nombre: string },
+  estadoAnterior?: IncidentStatus
 ): Promise<void> {
   const docRef = doc(db, COLLECTIONS.incidents, incidentId);
   await updateDoc(docRef, {
     estado: newStatus,
     updatedAt: Timestamp.now(),
+    historialEstados: arrayUnion({
+      estadoAnterior,
+      estadoNuevo: newStatus,
+      cambiadoPor: actor.uid,
+      cambiadoPorNombre: actor.nombre,
+      fecha: Timestamp.now(),
+    }),
   });
 }
 

@@ -92,6 +92,12 @@
 - ✅ Cierre diario (localStorage `sipnam-retention-dismissed`), reaparece al día siguiente
 - ✅ Tests con fechas simuladas (`RetentionBanner.test.tsx`, 4 casos)
 
+### Trazabilidad de incidentes — servicio (Parte 3a)
+- ✅ Tipo `IncidentStatusEvent` + campo `historialEstados[]` en el modelo Incident
+- ✅ `addIncident` siembra el evento inicial ("pendiente" creado por la escuela)
+- ✅ `updateIncidentStatus(incidentId, newStatus, actor, estadoAnterior)` agrega cada cambio con `arrayUnion`: quién, cuándo y desde qué estado
+- ✅ Caller en SupervisorSchoolDetail pasa el perfil del supervisor como actor
+
 ---
 
 ## Pendiente

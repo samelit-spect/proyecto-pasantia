@@ -247,10 +247,17 @@ const SupervisorSchoolDetail = () => {
   };
 
   const handleStatusChange = async (incidentId: string, newStatus: IncidentStatus) => {
+    if (!profile) return;
+    const estadoAnterior = incidents.find((inc) => inc.id === incidentId)?.estado;
     statusOp.start(incidentId);
 
     try {
-      await updateIncidentStatus(incidentId, newStatus);
+      await updateIncidentStatus(
+        incidentId,
+        newStatus,
+        { uid: profile.uid, nombre: profile.nombre },
+        estadoAnterior
+      );
       setIncidents((prev) =>
         prev.map((inc) => (inc.id === incidentId ? { ...inc, estado: newStatus } : inc))
       );
