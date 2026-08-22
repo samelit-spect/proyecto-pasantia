@@ -13,6 +13,7 @@ import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import Pagination from '@/components/common/Pagination/Pagination';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
+import IncidentHistory from '@/components/common/IncidentHistory/IncidentHistory';
 import FilterBar, { type ActiveFilter } from '@/components/common/FilterBar/FilterBar';
 import {
   novedadTipoLabel,
@@ -483,6 +484,7 @@ const Historial = () => {
                             )}
                           </div>
                           <p className="historial__desc">{inc.descripcion}</p>
+                          <IncidentHistory events={inc.historialEstados} />
                         </div>
                       ))
                     )}

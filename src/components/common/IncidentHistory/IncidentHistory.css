@@ -1,0 +1,62 @@
+.incident-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  background-color: var(--background-color);
+  border-radius: var(--radius-sm);
+  margin-top: 0.5rem;
+}
+
+.incident-history__title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.incident-history__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.incident-history__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.incident-history__dot--pendiente {
+  background-color: var(--accent-yellow-text);
+}
+
+.incident-history__dot--analisis {
+  background-color: var(--accent-blue-text);
+}
+
+.incident-history__dot--gestion {
+  background-color: #9a3412;
+}
+
+.incident-history__dot--resuelto {
+  background-color: var(--accent-green-text);
+}
+
+.incident-history__status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-color);
+  flex-shrink: 0;
+}
+
+.incident-history__meta {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

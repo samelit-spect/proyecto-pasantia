@@ -1,10 +1,13 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { Incident, IncidentStatus } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
+import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
+import IncidentHistory from '@/components/common/IncidentHistory/IncidentHistory';
 import {
   incidentCategoriaLabel,
   incidentUrgenciaLabel,
+  incidentStatusLabel,
   canTransitionIncidentStatus,
 } from '@/utils/constants';
 import AccordionSection from '../AccordionSection/AccordionSection';
@@ -20,6 +23,11 @@ interface SchoolDetailIncidentsProps {
   exporting?: boolean;
 }
 
+interface PendingStatusChange {
+  incidentId: string;
+  newStatus: IncidentStatus;
+}
+
 const SchoolDetailIncidents = ({
   incidents,
   expandedSection,
@@ -29,101 +37,125 @@ const SchoolDetailIncidents = ({
   onLightbox,
   onExport,
   exporting,
-}: SchoolDetailIncidentsProps) => (
-  <AccordionSection
-    title="Incidentes"
-    count={`${incidents.length} registros`}
-    isExpanded={expandedSection === 'incidentes'}
-    onToggle={onToggle}
-    onExport={onExport}
-    exporting={exporting}
-  >
-    {incidents.length === 0 ? (
-      <div className="supervisor-sub__empty">No hay registros de incidentes.</div>
-    ) : (
-      incidents.map((inc) => (
-        <div key={inc.id} className="supervisor-sub__record supervisor-detail__incident">
-          <div className="supervisor-sub__record-header">
-            <span className="supervisor-sub__record-date">
-              {inc.fecha.toDate().toLocaleDateString('es-AR')}
-            </span>
-            <StatusBadge status={inc.estado} />
-          </div>
-          <div className="supervisor-detail__meta">
-            <span className="supervisor-detail__meta-tag">
-              {incidentCategoriaLabel(inc.categoria)}
-            </span>
-            {inc.urgencia && (
-              <span
-                className={`supervisor-detail__meta-tag supervisor-detail__meta-tag--urgencia-${inc.urgencia}`}
-              >
-                Urgencia {incidentUrgenciaLabel(inc.urgencia)}
-              </span>
-            )}
-            {inc.ubicacion && (
-              <span className="supervisor-detail__meta-tag">Ubicación: {inc.ubicacion}</span>
-            )}
-          </div>
-          <p className="supervisor-detail__desc">{inc.descripcion}</p>
-          {inc.fotoDataUrl && (
-            <div className="supervisor-detail__incident-photo">
-              <button
-                className="supervisor-detail__foto-btn"
-                onClick={() => onLightbox(inc.fotoDataUrl ?? '')}
-              >
-                <FotoThumb dataUrl={inc.fotoDataUrl} alt="Foto del incidente" />
-              </button>
+}: SchoolDetailIncidentsProps) => {
+  const [pendingChange, setPendingChange] = useState<PendingStatusChange | null>(null);
+
+  const handleSelectChange = (incidentId: string, newStatus: IncidentStatus) => {
+    setPendingChange({ incidentId, newStatus });
+  };
+
+  return (
+    <>
+      <AccordionSection
+        title="Incidentes"
+        count={`${incidents.length} registros`}
+        isExpanded={expandedSection === 'incidentes'}
+        onToggle={onToggle}
+        onExport={onExport}
+        exporting={exporting}
+      >
+        {incidents.length === 0 ? (
+          <div className="supervisor-sub__empty">No hay registros de incidentes.</div>
+        ) : (
+          incidents.map((inc) => (
+            <div key={inc.id} className="supervisor-sub__record supervisor-detail__incident">
+              <div className="supervisor-sub__record-header">
+                <span className="supervisor-sub__record-date">
+                  {inc.fecha.toDate().toLocaleDateString('es-AR')}
+                </span>
+                <StatusBadge status={inc.estado} />
+              </div>
+              <div className="supervisor-detail__meta">
+                <span className="supervisor-detail__meta-tag">
+                  {incidentCategoriaLabel(inc.categoria)}
+                </span>
+                {inc.urgencia && (
+                  <span
+                    className={`supervisor-detail__meta-tag supervisor-detail__meta-tag--urgencia-${inc.urgencia}`}
+                  >
+                    Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+                  </span>
+                )}
+                {inc.ubicacion && (
+                  <span className="supervisor-detail__meta-tag">Ubicación: {inc.ubicacion}</span>
+                )}
+              </div>
+              <p className="supervisor-detail__desc">{inc.descripcion}</p>
+              {inc.fotoDataUrl && (
+                <div className="supervisor-detail__incident-photo">
+                  <button
+                    className="supervisor-detail__foto-btn"
+                    onClick={() => onLightbox(inc.fotoDataUrl ?? '')}
+                  >
+                    <FotoThumb dataUrl={inc.fotoDataUrl} alt="Foto del incidente" />
+                  </button>
+                </div>
+              )}
+              <IncidentHistory events={inc.historialEstados} />
+              <div className="supervisor-detail__incident-footer">
+                <span className="supervisor-sub__record-author">
+                  Cargado por: {inc.cargadoPorNombre}
+                </span>
+                <label className="supervisor-detail__status-control">
+                  <span className="supervisor-detail__status-label">Estado</span>
+                  <select
+                    className="supervisor-detail__status-select"
+                    value={inc.estado}
+                    disabled={statusUpdatingId === inc.id}
+                    onChange={(e) => handleSelectChange(inc.id, e.target.value as IncidentStatus)}
+                  >
+                    <option
+                      value="pendiente"
+                      disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}
+                    >
+                      Pendiente
+                    </option>
+                    <option
+                      value="en_analisis"
+                      disabled={!canTransitionIncidentStatus(inc.estado, 'en_analisis')}
+                    >
+                      En análisis
+                    </option>
+                    <option
+                      value="en_gestion"
+                      disabled={!canTransitionIncidentStatus(inc.estado, 'en_gestion')}
+                    >
+                      En gestión
+                    </option>
+                    <option
+                      value="resuelto"
+                      disabled={!canTransitionIncidentStatus(inc.estado, 'resuelto')}
+                    >
+                      Resuelto
+                    </option>
+                  </select>
+                </label>
+              </div>
             </div>
-          )}
-          <div className="supervisor-detail__incident-footer">
-            <span className="supervisor-sub__record-author">
-              Cargado por: {inc.cargadoPorNombre}
-            </span>
-            <label className="supervisor-detail__status-control">
-              <span className="supervisor-detail__status-label">Estado</span>
-              <select
-                className="supervisor-detail__status-select"
-                value={inc.estado}
-                disabled={statusUpdatingId === inc.id}
-                onChange={(e) => {
-                  const newStatus = e.target.value as IncidentStatus;
-                  if (!window.confirm(`¿Cambiar estado a "${newStatus.replace('_', ' ')}"?`)) {
-                    return;
-                  }
-                  onStatusChange(inc.id, newStatus);
-                }}
-              >
-                <option
-                  value="pendiente"
-                  disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}
-                >
-                  Pendiente
-                </option>
-                <option
-                  value="en_analisis"
-                  disabled={!canTransitionIncidentStatus(inc.estado, 'en_analisis')}
-                >
-                  En análisis
-                </option>
-                <option
-                  value="en_gestion"
-                  disabled={!canTransitionIncidentStatus(inc.estado, 'en_gestion')}
-                >
-                  En gestión
-                </option>
-                <option
-                  value="resuelto"
-                  disabled={!canTransitionIncidentStatus(inc.estado, 'resuelto')}
-                >
-                  Resuelto
-                </option>
-              </select>
-            </label>
-          </div>
-        </div>
-      ))
-    )}
-  </AccordionSection>
-);
+          ))
+        )}
+      </AccordionSection>
+
+      <ConfirmDialog
+        open={!!pendingChange}
+        title="Cambiar estado del incidente"
+        message={
+          pendingChange
+            ? `¿Cambiar el estado a "${incidentStatusLabel(pendingChange.newStatus)}"? El cambio quedará registrado en el historial.`
+            : ''
+        }
+        confirmLabel="Cambiar estado"
+        variant="warning"
+        onConfirm={() => {
+          if (pendingChange) {
+            onStatusChange(pendingChange.incidentId, pendingChange.newStatus);
+          }
+          setPendingChange(null);
+        }}
+        onCancel={() => setPendingChange(null)}
+      />
+    </>
+  );
+};
 
 export default memo(SchoolDetailIncidents);

@@ -51,6 +51,17 @@ export function canTransitionIncidentStatus(
   return INCIDENT_STATUS_ORDER.indexOf(next) > INCIDENT_STATUS_ORDER.indexOf(current);
 }
 
+export const INCIDENT_STATUS_LABELS: Record<IncidentStatus, string> = {
+  pendiente: 'Pendiente',
+  en_analisis: 'En análisis',
+  en_gestion: 'En gestión',
+  resuelto: 'Resuelto',
+};
+
+export function incidentStatusLabel(estado: IncidentStatus): string {
+  return INCIDENT_STATUS_LABELS[estado] ?? estado;
+}
+
 /**
  * Política de retención anual: la base de datos gratuita se vacía al cierre
  * del año. El aviso se muestra al supervisor durante los días previos.

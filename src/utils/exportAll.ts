@@ -6,15 +6,13 @@ import {
   getAllNews,
   getAllIncidents,
 } from '@/services/api/firestore';
-import { novedadTipoLabel, incidentCategoriaLabel, incidentUrgenciaLabel } from '@/utils/constants';
-import type { Attendance, DocenteAttendance, News, Incident, IncidentStatus } from '@/types';
-
-const ESTADO_LABELS: Record<IncidentStatus, string> = {
-  pendiente: 'Pendiente',
-  en_analisis: 'En análisis',
-  en_gestion: 'En gestión',
-  resuelto: 'Resuelto',
-};
+import {
+  novedadTipoLabel,
+  incidentCategoriaLabel,
+  incidentUrgenciaLabel,
+  incidentStatusLabel,
+} from '@/utils/constants';
+import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 
 const toDateLabel = (d: Date) => d.toLocaleDateString('es-AR');
 
@@ -136,7 +134,7 @@ export async function exportAllData({
       incidentCategoriaLabel(i.categoria),
       i.urgencia ? incidentUrgenciaLabel(i.urgencia) : '',
       i.ubicacion || '',
-      ESTADO_LABELS[i.estado],
+      incidentStatusLabel(i.estado),
       i.descripcion,
       i.cargadoPorNombre,
     ])

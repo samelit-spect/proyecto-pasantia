@@ -98,6 +98,14 @@
 - ✅ `updateIncidentStatus(incidentId, newStatus, actor, estadoAnterior)` agrega cada cambio con `arrayUnion`: quién, cuándo y desde qué estado
 - ✅ Caller en SupervisorSchoolDetail pasa el perfil del supervisor como actor
 
+### Trazabilidad de incidentes — UI (Parte 3b)
+- ✅ Componente `IncidentHistory` (common): historial compacto con dots por estado y colores consistentes con StatusBadge
+- ✅ Panel supervisor: historial visible dentro de cada incidente (`SchoolDetailIncidents`)
+- ✅ Escuelas: las escuelas ven el avance del incidente en `/historial` (quién cambió el estado y cuándo)
+- ✅ Reemplazado `window.confirm` nativo por `ConfirmDialog` en cambio de estado de incidentes
+- ✅ Refactor: `incidentStatusLabel` centralizado en constants.ts (usado por StatusBadge data, export CSV y confirmación)
+- ✅ Tests de IncidentHistory (2 casos)
+
 ---
 
 ## Pendiente
