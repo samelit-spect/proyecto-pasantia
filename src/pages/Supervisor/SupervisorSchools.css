@@ -383,6 +383,8 @@
   text-decoration: none;
   color: inherit;
   text-align: center;
+  /* Empuja las acciones al fondo cuando la grila estira la card */
+  flex: 1;
 }
 
 .supervisor-schools__card-actions {
@@ -499,15 +501,29 @@
   }
 
   .supervisor-schools__card {
+    flex-wrap: wrap;
+    padding: 1rem 1rem 0;
+    gap: 0.75rem;
+  }
+
+  /* Link horizontal: icono | nombre | stats. Las acciones bajan a una
+     fila propia que ocupa todo el ancho, separadas por el border-top. */
+  .supervisor-schools__card-link {
     flex-direction: row;
+    align-items: center;
     text-align: left;
-    padding: 1rem;
+    padding: 0;
     gap: 1rem;
   }
 
   .supervisor-schools__card-content {
     align-items: flex-start;
     flex: 1;
+  }
+
+  .supervisor-schools__card-actions {
+    width: 100%;
+    margin-top: 0.25rem;
   }
 
   .supervisor-schools__card-icon {
