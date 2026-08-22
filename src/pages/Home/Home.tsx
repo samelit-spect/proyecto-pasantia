@@ -251,7 +251,7 @@ const Home = () => {
   }
 
   const renderCard = (card: CardItem) => (
-    <Link key={card.to} to={card.to} className="home__card">
+    <Link viewTransition key={card.to} to={card.to} className="home__card">
       <div className="home__card-icon">{card.icon}</div>
       <div className="home__card-content">
         <h3 className="home__card-title">{card.title}</h3>
@@ -398,7 +398,7 @@ const Home = () => {
               <h3 className="home__section-title">Alertas de incidentes</h3>
               <div className="home__alerts" ref={alertsRef}>
                 {openIncidents.map((inc) => (
-                  <Link key={inc.id} to="/supervisor" className="home__alert">
+                  <Link viewTransition key={inc.id} to="/supervisor" className="home__alert">
                     <div className="home__alert-content">
                       <span className="home__alert-title">
                         {inc.cargadoPorNombre} · {inc.fecha.toDate().toLocaleDateString('es-AR')}
@@ -415,7 +415,7 @@ const Home = () => {
           <div className="home__section">
             <h3 className="home__section-title">Acciones rápidas</h3>
             <div className="home__cards">
-              <Link to="/supervisor" className="home__card">
+              <Link viewTransition to="/supervisor" className="home__card">
                 <div className="home__card-icon home__card-icon--blue">
                   <Eye size={28} strokeWidth={1.5} />
                 </div>
@@ -425,7 +425,7 @@ const Home = () => {
                 </div>
                 <span className="home__card-arrow">Ir →</span>
               </Link>
-              <Link to="/supervisor/usuarios" className="home__card">
+              <Link viewTransition to="/supervisor/usuarios" className="home__card">
                 <div className="home__card-icon home__card-icon--purple">
                   <Settings size={28} strokeWidth={1.5} />
                 </div>
@@ -435,7 +435,7 @@ const Home = () => {
                 </div>
                 <span className="home__card-arrow">Ir →</span>
               </Link>
-              <Link to="/tema" className="home__card">
+              <Link viewTransition to="/tema" className="home__card">
                 <div className="home__card-icon home__card-icon--teal">
                   <Palette size={28} strokeWidth={1.5} />
                 </div>

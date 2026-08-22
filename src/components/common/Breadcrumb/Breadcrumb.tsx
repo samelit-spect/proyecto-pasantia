@@ -24,7 +24,7 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
                 </span>
               ) : (
                 <>
-                  <Link to={item.to || '#'} className="breadcrumb__link">
+                  <Link viewTransition to={item.to || '#'} className="breadcrumb__link">
                     {item.label}
                   </Link>
                   <span className="breadcrumb__separator" aria-hidden="true">

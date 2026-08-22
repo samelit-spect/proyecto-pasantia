@@ -424,7 +424,10 @@ const SupervisorSchoolDetail = () => {
         ]}
       />
       <div className="supervisor__header">
-        <button className="supervisor__header-back" onClick={() => navigate('/supervisor')}>
+        <button
+          className="supervisor__header-back"
+          onClick={() => navigate('/supervisor', { viewTransition: true })}
+        >
           <ArrowLeft size={18} strokeWidth={1.5} />
         </button>
         <h2 className="supervisor__title">{school.nombre}</h2>

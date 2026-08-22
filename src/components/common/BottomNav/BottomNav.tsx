@@ -80,7 +80,7 @@ const BottomNav = ({ onOpenDrawer }: BottomNavProps) => {
           <button
             key={i}
             className={`bottom-nav__item ${item.active ? 'bottom-nav__item--active' : ''}`}
-            onClick={() => navigate(item.to!)}
+            onClick={() => navigate(item.to!, { viewTransition: true })}
             aria-label={item.label}
           >
             {item.icon}

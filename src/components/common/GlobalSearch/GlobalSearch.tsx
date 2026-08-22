@@ -97,7 +97,7 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
 
   const handleSelect = useCallback(
     (result: SearchResult) => {
-      navigate(result.to);
+      navigate(result.to, { viewTransition: true });
       onClose();
     },
     [navigate, onClose]

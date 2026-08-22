@@ -71,7 +71,7 @@ const Navbar = () => {
   return (
     <>
       <nav className="navbar">
-        <Link to="/" className="navbar__brand">
+        <Link viewTransition to="/" className="navbar__brand">
           <span className="navbar__brand-icon">
             <Shield size={18} strokeWidth={2} />
           </span>
@@ -87,39 +87,39 @@ const Navbar = () => {
       </nav>
 
       <nav className="navbar__desktop">
-        <Link to="/" className="navbar__desktop-link">
+        <Link viewTransition to="/" className="navbar__desktop-link">
           <Home size={16} strokeWidth={1.5} />
           Inicio
         </Link>
         {hasRole('director', 'vice', 'preceptor') && (
           <>
-            <Link to="/asistencia" className="navbar__desktop-link">
+            <Link viewTransition to="/asistencia" className="navbar__desktop-link">
               <ClipboardCheck size={16} strokeWidth={1.5} />
               Asistencia
             </Link>
-            <Link to="/asistencia-docentes" className="navbar__desktop-link">
+            <Link viewTransition to="/asistencia-docentes" className="navbar__desktop-link">
               <Users size={16} strokeWidth={1.5} />
               Docentes
             </Link>
-            <Link to="/historial" className="navbar__desktop-link">
+            <Link viewTransition to="/historial" className="navbar__desktop-link">
               <History size={16} strokeWidth={1.5} />
               Historial
             </Link>
           </>
         )}
         {hasRole('preceptor') && (
-          <Link to="/fotos" className="navbar__desktop-link">
+          <Link viewTransition to="/fotos" className="navbar__desktop-link">
             <Camera size={16} strokeWidth={1.5} />
             Fotos
           </Link>
         )}
         {hasRole('director', 'vice') && (
           <>
-            <Link to="/novedades" className="navbar__desktop-link">
+            <Link viewTransition to="/novedades" className="navbar__desktop-link">
               <Newspaper size={16} strokeWidth={1.5} />
               Novedades
             </Link>
-            <Link to="/incidentes" className="navbar__desktop-link">
+            <Link viewTransition to="/incidentes" className="navbar__desktop-link">
               <AlertTriangle size={16} strokeWidth={1.5} />
               Incidentes
             </Link>
@@ -127,11 +127,11 @@ const Navbar = () => {
         )}
         {hasRole('supervisor') && (
           <>
-            <Link to="/supervisor" className="navbar__desktop-link">
+            <Link viewTransition to="/supervisor" className="navbar__desktop-link">
               <Eye size={16} strokeWidth={1.5} />
               Supervisión
             </Link>
-            <Link to="/supervisor/usuarios" className="navbar__desktop-link">
+            <Link viewTransition to="/supervisor/usuarios" className="navbar__desktop-link">
               <Settings size={16} strokeWidth={1.5} />
               Usuarios
             </Link>
@@ -178,7 +178,12 @@ const Navbar = () => {
         </div>
 
         <div className="navbar__drawer-body">
-          <Link to="/" className="navbar__drawer-link" onClick={() => setIsMenuOpen(false)}>
+          <Link
+            viewTransition
+            to="/"
+            className="navbar__drawer-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
             <Home size={18} strokeWidth={1.5} />
             Inicio
           </Link>
@@ -186,6 +191,7 @@ const Navbar = () => {
           {hasRole('director', 'vice', 'preceptor') && (
             <>
               <Link
+                viewTransition
                 to="/asistencia"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}
@@ -194,6 +200,7 @@ const Navbar = () => {
                 Asistencia de Gestión
               </Link>
               <Link
+                viewTransition
                 to="/asistencia-docentes"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}
@@ -202,6 +209,7 @@ const Navbar = () => {
                 Asistencia de Docentes
               </Link>
               <Link
+                viewTransition
                 to="/historial"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}
@@ -213,7 +221,12 @@ const Navbar = () => {
           )}
 
           {hasRole('preceptor') && (
-            <Link to="/fotos" className="navbar__drawer-link" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              viewTransition
+              to="/fotos"
+              className="navbar__drawer-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
               <Camera size={18} strokeWidth={1.5} />
               Foto Diaria
             </Link>
@@ -222,6 +235,7 @@ const Navbar = () => {
           {hasRole('director', 'vice') && (
             <>
               <Link
+                viewTransition
                 to="/novedades"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}
@@ -230,6 +244,7 @@ const Navbar = () => {
                 Novedades
               </Link>
               <Link
+                viewTransition
                 to="/incidentes"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}
@@ -243,6 +258,7 @@ const Navbar = () => {
           {hasRole('supervisor') && (
             <>
               <Link
+                viewTransition
                 to="/supervisor"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}
@@ -251,6 +267,7 @@ const Navbar = () => {
                 Panel Supervisor
               </Link>
               <Link
+                viewTransition
                 to="/supervisor/usuarios"
                 className="navbar__drawer-link"
                 onClick={() => setIsMenuOpen(false)}

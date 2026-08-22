@@ -45,7 +45,7 @@ const RetentionBanner = () => {
           {daysLabel(days)} Revisá la información y exportá un respaldo antes de esa fecha.
         </p>
       </div>
-      <Link to="/supervisor" className="retention-banner__action">
+      <Link viewTransition to="/supervisor" className="retention-banner__action">
         Exportar respaldo
       </Link>
       <button

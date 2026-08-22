@@ -222,7 +222,7 @@ const SupervisorSchools = () => {
           {showForm ? 'Cancelar' : editingSchool ? 'Editar escuela' : 'Nueva escuela'}
         </button>
 
-        <Link to="/supervisor/usuarios" className="supervisor-schools__users-link">
+        <Link viewTransition to="/supervisor/usuarios" className="supervisor-schools__users-link">
           <Settings size={16} strokeWidth={1.5} />
           Usuarios
         </Link>
@@ -400,6 +400,7 @@ const SupervisorSchools = () => {
               return (
                 <div key={school.id} className="supervisor-schools__card">
                   <Link
+                    viewTransition
                     to={`/supervisor/escuela/${school.id}`}
                     className="supervisor-schools__card-link"
                   >

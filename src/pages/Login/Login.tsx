@@ -20,7 +20,7 @@ const Login = () => {
 
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/', { viewTransition: true });
     } catch (err) {
       setError(getAuthErrorMessage(err));
     } finally {

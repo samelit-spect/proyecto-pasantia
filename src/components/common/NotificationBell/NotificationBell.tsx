@@ -118,7 +118,7 @@ const NotificationBell = () => {
   }, [isOpen]);
 
   const handleNotificationClick = (notification: Notification) => {
-    navigate(notification.to);
+    navigate(notification.to, { viewTransition: true });
     setIsOpen(false);
   };
 

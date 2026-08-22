@@ -19,7 +19,7 @@ const Asistencia = () => {
 
   return (
     <>
-      <button className="supervisor__back" onClick={() => navigate('/')}>
+      <button className="supervisor__back" onClick={() => navigate('/', { viewTransition: true })}>
         <ArrowLeft size={18} strokeWidth={1.5} />
         Volver
       </button>

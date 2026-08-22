@@ -186,7 +186,7 @@ const Historial = () => {
   return (
     <section className="historial">
       <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Historial' }]} />
-      <button className="supervisor__back" onClick={() => navigate('/')}>
+      <button className="supervisor__back" onClick={() => navigate('/', { viewTransition: true })}>
         <ArrowLeft size={18} strokeWidth={1.5} />
         Volver
       </button>
