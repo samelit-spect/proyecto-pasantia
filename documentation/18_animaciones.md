@@ -80,7 +80,7 @@ import { LazyMotion, domAnimation, m } from 'motion/react';
 | 5 | Historial de estados de incidentes animado | auto-animate | SupervisorDetail + Historial | ✅ `useAutoAnimate` en contenedor de `IncidentHistory`; el evento nuevo aparece animado en vivo cuando cambia el estado |
 | 6 | Transiciones entre páginas (fade/slide) | View Transitions | Toda la app | ✅ `viewTransition` en BottomNav, Navbar (desktop+drawer), Home cards, panel supervisor, Breadcrumb, RetentionBanner, GlobalSearch, NotificationBell, botones Volver y post-login. CSS global en index.css (`::view-transition-old/new(root)`, fade + slide sutil, con guard de reduced-motion) |
 | 7 | Morph card escuela → detalle (shared element) | View Transitions | /supervisor → detalle | ✅ Card extraída a componente `SchoolCard` con `useViewTransitionState`; `view-transition-name: school-hero` en card (origen) y header del detalle (destino); desactivado con reduced-motion |
-| 8 | ConfirmDialog/modal con salida animada (AnimatePresence) | Motion | Global | ⏳ |
+| 8 | ConfirmDialog/modal con salida animada (AnimatePresence) | Motion | Global | ✅ `motion` instalado; `LazyMotion features={domAnimation} strict` en main.tsx; ConfirmDialog con fade+scale entrada/salida vía `m.*` + `useReducedMotion`; keyframes CSS viejos removidos. Impacto bundle: ~5kb gzip |
 | 9 | RetentionBanner slide down/up | Motion | Home supervisor | ⏳ |
 | 10 | Lightbox zoom desde miniatura | Motion | Detalle escuela (fotos) | ⏳ |
 | 11 | Indicador activo del BottomNav deslizante (layoutId) | Motion | BottomNav | ⏳ |
