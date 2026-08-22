@@ -286,7 +286,7 @@ const Home = () => {
       {isLoading && <HomeSkeleton isSupervisor={hasRole('supervisor')} />}
 
       {!isLoading && !hasRole('supervisor') && mySchool && (
-        <div className="home__section">
+        <div className="home__section animate-fade-in">
           <h3 className="home__section-title">Mi escuela</h3>
           <div className="home__school-card">
             <div className="home__school-card-header">
@@ -318,7 +318,7 @@ const Home = () => {
       )}
 
       {!isLoading && !hasRole('supervisor') && (
-        <div className="home__section">
+        <div className="home__section animate-fade-in">
           <h3 className="home__section-title">
             <Clock
               size={14}
@@ -372,7 +372,7 @@ const Home = () => {
       )}
 
       {!isLoading && hasRole('supervisor') && (
-        <>
+        <div className="animate-fade-in">
           <RetentionBanner />
           <div className="home__section">
             <h3 className="home__section-title">Resumen del día</h3>
@@ -505,18 +505,18 @@ const Home = () => {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {attendanceCards.length > 0 && (
-        <div className="home__section">
+        <div className="home__section animate-fade-in">
           <h3 className="home__section-title">Asistencia</h3>
           <div className="home__cards">{attendanceCards.map(renderCard)}</div>
         </div>
       )}
 
       {managementCards.length > 0 && (
-        <div className="home__section">
+        <div className="home__section animate-fade-in">
           <h3 className="home__section-title">Gestión</h3>
           <div className="home__cards">{managementCards.map(renderCard)}</div>
         </div>

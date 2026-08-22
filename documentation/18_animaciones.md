@@ -95,7 +95,7 @@ import { LazyMotion, domAnimation, m } from 'motion/react';
 | 9 | RetentionBanner slide down/up | Motion | Home supervisor | ✅ Wrapper animado (height auto→0 + opacity + marginBottom) con AnimatePresence; margin movido del CSS al wrapper; `useReducedMotion`; test de cierre adaptado a salida animada (`advanceTimersByTimeAsync`) |
 | 10 | Lightbox zoom desde miniatura | Motion | Detalle escuela (fotos) | ⚠️ Morph shared-element (`layoutId`/domMax) **descartado**: +48kb gzip y el loader dinámico no separa nada por imports estáticos de AnimatePresence en otros archivos. Implementado zoom centrado (scale .85→1 + fade overlay) con domAnimation ya presente. Costo incremental ≈ 0 sobre mejora 8 |
 | 11 | Indicador activo del BottomNav deslizante (layoutId) | CSS (en vez de Motion) | BottomNav | ✅ Barra superior 3px posicionada por slot (`translateX(index * 100%)` con width = 100/n%) + transition transform; descartado layoutId/domMax (+48kb gzip). Reduced-motion: sin transición |
-| 12 | Crossfade skeleton → contenido | Motion/CSS | Pantallas con skeleton | ⏳ |
+| 12 | Crossfade skeleton → contenido | CSS (utilidades existentes) | Pantallas con skeleton | ✅ Reutilizada la utilidad `.animate-fade-in` de global.css sobre los bloques `!isLoading` (wrapper div donde había fragment); guard global reduced-motion para las utilidades animate-* |
 
 ## Reglas para implementar
 

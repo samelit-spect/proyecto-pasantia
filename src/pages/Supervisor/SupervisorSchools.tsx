@@ -363,15 +363,17 @@ const SupervisorSchools = () => {
       {error && <div className="supervisor__loading supervisor__loading--error">{error}</div>}
 
       {!isLoading && !error && schools.length === 0 && (
-        <EmptyState
-          icon="school"
-          title="No hay escuelas registradas"
-          description="Creá la primera escuela para comenzar a cargar datos."
-        />
+        <div className="animate-fade-in">
+          <EmptyState
+            icon="school"
+            title="No hay escuelas registradas"
+            description="Creá la primera escuela para comenzar a cargar datos."
+          />
+        </div>
       )}
 
       {!isLoading && !error && schools.length > 0 && (
-        <>
+        <div className="animate-fade-in">
           <div className="supervisor-schools__summary">
             <div className="supervisor-schools__summary-card">
               <div className="supervisor-schools__summary-header">
@@ -472,7 +474,7 @@ const SupervisorSchools = () => {
               />
             ))}
           </div>
-        </>
+        </div>
       )}
 
       <ConfirmDialog

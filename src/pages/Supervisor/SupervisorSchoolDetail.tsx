@@ -419,7 +419,7 @@ const SupervisorSchoolDetail = () => {
   };
 
   return (
-    <>
+    <div className="animate-fade-in">
       <Breadcrumb
         items={[
           { label: 'Inicio', to: '/' },
@@ -702,7 +702,7 @@ const SupervisorSchoolDetail = () => {
         onConfirm={handleDeleteFotoConfirm}
         onCancel={() => setConfirmDeleteFoto(null)}
       />
-    </>
+    </div>
   );
 };
 
