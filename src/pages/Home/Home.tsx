@@ -16,10 +16,10 @@ import {
 import {
   getSchools,
   getSchoolById,
-  getTodayAttendances,
-  getTodayNews,
-  getTodayIncidents,
-  getRecentIncidents,
+  subscribeTodayAttendances,
+  subscribeTodayNews,
+  subscribeTodayIncidents,
+  subscribeRecentIncidents,
   getTodayAttendancesBySchool,
   getTodayNewsBySchool,
   getTodayIncidentsBySchool,
@@ -74,79 +74,64 @@ const Home = () => {
 
     let unmounted = false;
 
-    const loadSchools = async () => {
-      try {
-        const schools = await getSchools();
-        if (!unmounted) setStats((prev) => ({ ...prev, escuelas: schools.length }));
-      } catch {
-        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
-      }
+    // Cada fuente marca su primer snapshot; cuando todas llegaron, se apaga el skeleton.
+    const TOTAL_INIT_STEPS = 5;
+    let pendingSteps = TOTAL_INIT_STEPS;
+    const settledSteps = new Set<string>();
+    const settle = (key: string) => {
+      if (settledSteps.has(key)) return;
+      settledSteps.add(key);
+      pendingSteps -= 1;
+      if (pendingSteps <= 0 && !unmounted) setIsLoading(false);
     };
 
-    const loadActivity = async () => {
-      try {
-        const [attendances, news, incidents, recent] = await Promise.all([
-          getTodayAttendances(),
-          getTodayNews(),
-          getTodayIncidents(),
-          getRecentIncidents(20),
-        ]);
+    getSchools()
+      .then((schools) => {
+        if (!unmounted) setStats((prev) => ({ ...prev, escuelas: schools.length }));
+      })
+      .catch(() => {
+        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
+      })
+      .finally(() => settle('escuelas'));
+
+    const unsubs = [
+      subscribeTodayAttendances((data) => {
         if (unmounted) return;
-        setStats((prev) => ({
-          ...prev,
-          asistencias: attendances.length,
-          novedades: news.length,
-          incidentes: incidents.length,
-        }));
-        setRecentAttendances(attendances.slice(0, 5));
-        setRecentNews(news.slice(0, 5));
-        setRecentIncidents(incidents.slice(0, 5));
+        setStats((prev) => ({ ...prev, asistencias: data.length }));
+        setRecentAttendances(data.slice(0, 5));
+        settle('asistencias');
+      }),
+      subscribeTodayNews((data) => {
+        if (unmounted) return;
+        setStats((prev) => ({ ...prev, novedades: data.length }));
+        setRecentNews(data.slice(0, 5));
+        settle('novedades');
+      }),
+      subscribeTodayIncidents((data) => {
+        if (unmounted) return;
+        setStats((prev) => ({ ...prev, incidentes: data.length }));
+        setRecentIncidents(data.slice(0, 5));
+        settle('incidentes');
+      }),
+      subscribeRecentIncidents(20, (recent) => {
+        if (unmounted) return;
+        const urgenciaOrder = { alta: 0, media: 1, baja: 2 };
         const open = recent
           .filter((i) => i.estado !== 'resuelto')
-          .sort((a, b) => {
-            const urgenciaOrder = { alta: 0, media: 1, baja: 2 };
-            return (
+          .sort(
+            (a, b) =>
               (urgenciaOrder[a.urgencia ?? 'baja'] ?? 3) -
               (urgenciaOrder[b.urgencia ?? 'baja'] ?? 3)
-            );
-          })
+          )
           .slice(0, 5);
         setOpenIncidents(open);
-      } catch {
-        if (!unmounted) setStatsError('No se pudieron cargar los datos.');
-      }
-    };
-
-    Promise.all([loadSchools(), loadActivity()]).finally(() => {
-      if (!unmounted) setIsLoading(false);
-    });
-
-    let interval: ReturnType<typeof setInterval> | null = null;
-
-    const startInterval = () => {
-      if (interval) return;
-      interval = setInterval(() => {
-        if (document.visibilityState === 'visible') loadActivity();
-      }, 30_000);
-    };
-
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        loadActivity();
-        startInterval();
-      } else if (interval) {
-        clearInterval(interval);
-        interval = null;
-      }
-    };
-
-    document.addEventListener('visibilitychange', onVisibility);
-    startInterval();
+        settle('abiertos');
+      }),
+    ];
 
     return () => {
       unmounted = true;
-      document.removeEventListener('visibilitychange', onVisibility);
-      if (interval) clearInterval(interval);
+      unsubs.forEach((unsub) => unsub());
     };
   }, [hasRole]);
 

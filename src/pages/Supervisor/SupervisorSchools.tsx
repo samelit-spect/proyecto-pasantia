@@ -23,9 +23,9 @@ import {
   addSchool,
   updateSchool,
   deleteSchool,
-  getTodayAttendances,
-  getTodayNews,
-  getTodayIncidents,
+  subscribeTodayAttendances,
+  subscribeTodayNews,
+  subscribeTodayIncidents,
 } from '@/services/api/firestore';
 import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
@@ -79,17 +79,8 @@ const SupervisorSchools = () => {
 
   const loadSchools = async () => {
     try {
-      const [schoolsData, attendancesData, newsData, incidentsData] = await Promise.all([
-        getSchools(),
-        getTodayAttendances(),
-        getTodayNews(),
-        getTodayIncidents(),
-      ]);
+      const schoolsData = await getSchools();
       setSchools(schoolsData);
-
-      setRecentAttendances(attendancesData.slice(0, 10));
-      setRecentNews(newsData.slice(0, 10));
-      setRecentIncidents(incidentsData.slice(0, 10));
     } catch {
       setError('No se pudieron cargar los datos. Intentá de nuevo.');
     } finally {
@@ -99,6 +90,23 @@ const SupervisorSchools = () => {
 
   useEffect(() => {
     loadSchools();
+  }, []);
+
+  useEffect(() => {
+    const unsubAttendances = subscribeTodayAttendances((data) => {
+      setRecentAttendances(data.slice(0, 10));
+    });
+    const unsubNews = subscribeTodayNews((data) => {
+      setRecentNews(data.slice(0, 10));
+    });
+    const unsubIncidents = subscribeTodayIncidents((data) => {
+      setRecentIncidents(data.slice(0, 10));
+    });
+    return () => {
+      unsubAttendances();
+      unsubNews();
+      unsubIncidents();
+    };
   }, []);
 
   const onSubmit = async (data: SchoolFormData) => {

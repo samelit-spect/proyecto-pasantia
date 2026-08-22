@@ -778,3 +778,18 @@ export function subscribeDocenteAttendancesBySchool(
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance));
   });
 }
+
+export function subscribeFotosBySchool(
+  schoolId: string,
+  callback: (data: Foto[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTIONS.fotos),
+    where('escuelaId', '==', schoolId),
+    orderBy('createdAt', 'desc'),
+    limit(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto));
+  });
+}

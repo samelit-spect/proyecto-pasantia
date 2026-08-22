@@ -54,7 +54,10 @@
 
 ### Funcionalidad
 - ✅ Asistencia docentes simplificada a foto upload
-- ✅ Home optimizado (fetch + intervalo 30s + visibilitychange)
+- ✅ Home supervisor migrado de polling 30s a onSnapshot (tiempo real real)
+- ✅ Panel /supervisor con suscripciones subscribeToday* (indicadores del día en vivo)
+- ✅ Galería de fotos del detalle de escuela con subscribeFotosBySchool (en vivo)
+- ✅ Home no-supervisor mantiene polling 30s + visibilitychange (única vista sin tiempo real)
 - ✅ Edit/delete schools desde supervisor UI
 - ✅ Edit docentes desde supervisor UI
 - ✅ Confirmación cambio estado incidentes

@@ -367,7 +367,7 @@ Los formularios NO tienen dropdown de SchoolSelect. La escuela se toma automáti
 Cuando un director llama `getSchools()` (lectura de colección), Firestore bloquea documentos de otras escuelas → la query falla. Solución: usar `getSchoolById(escuelaId)` para leer un documento individual.
 
 ### 3. Tiempo real (onSnapshot)
-Las suscripciones onSnapshot se usan en Historial, SupervisorSchoolDetail (vista Hoy), Home (no-supervisor activity), NotificationBell. Home supervisor usa fetch one-time + intervalo 30s con pausa en `visibilitychange`.
+Las suscripciones onSnapshot se usan en Historial, SupervisorSchoolDetail (vista Hoy + fotos), Home supervisor y Home no-supervisor, NotificationBell. SupervisorSchools (panel de escuelas) usa suscripciones subscribeToday* para los indicadores del día; la lista de escuelas queda como fetch one-time. El Home no-supervisor mantiene fetch one-time + intervalo 30s con pausa en `visibilitychange`.
 
 ### 4. Asistencia de docentes
 El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `registros[]` como `Attendance`. El componente `SchoolDetailAttendances` maneja ambos tipos.
