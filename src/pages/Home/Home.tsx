@@ -28,6 +28,7 @@ import type { Attendance, News, Incident, School } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
+import RetentionBanner from '@/components/common/RetentionBanner/RetentionBanner';
 import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timeline';
 import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
 import { useCountUp } from '@/hooks/useCountUp';
@@ -383,6 +384,7 @@ const Home = () => {
 
       {!isLoading && hasRole('supervisor') && (
         <>
+          <RetentionBanner />
           <div className="home__section">
             <h3 className="home__section-title">Resumen del día</h3>
             <div className="home__stats">

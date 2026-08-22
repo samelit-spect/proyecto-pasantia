@@ -86,6 +86,12 @@
 - ✅ Util `exportAll.ts`: descarga 4 CSV (gestión, docentes, novedades, incidentes) con columna Escuela + detalle de motivos
 - ✅ Tarjeta "Respaldo de datos" en Panel de Supervisión con rango de fechas opcional, ConfirmDialog y progreso
 
+### Banner de borrado anual (Parte 2)
+- ✅ Constantes de retención en `constants.ts`: `RETENTION_WARNING_DAYS_BEFORE` (60 días), `getYearEndPurgeDate()`, `daysUntilYearEndPurge()`, `shouldShowRetentionWarning()`
+- ✅ Componente `RetentionBanner`: aviso amarillo persistente en Home para el supervisor desde 60 días antes del 31/12, con CTA "Exportar respaldo" → /supervisor
+- ✅ Cierre diario (localStorage `sipnam-retention-dismissed`), reaparece al día siguiente
+- ✅ Tests con fechas simuladas (`RetentionBanner.test.tsx`, 4 casos)
+
 ---
 
 ## Pendiente

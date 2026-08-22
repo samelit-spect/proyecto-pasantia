@@ -50,3 +50,25 @@ export function canTransitionIncidentStatus(
 ): boolean {
   return INCIDENT_STATUS_ORDER.indexOf(next) > INCIDENT_STATUS_ORDER.indexOf(current);
 }
+
+/**
+ * Política de retención anual: la base de datos gratuita se vacía al cierre
+ * del año. El aviso se muestra al supervisor durante los días previos.
+ */
+export const RETENTION_WARNING_DAYS_BEFORE = 60;
+
+export function getYearEndPurgeDate(now = new Date()): Date {
+  return new Date(now.getFullYear(), 11, 31);
+}
+
+export function daysUntilYearEndPurge(now = new Date()): number {
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const purge = startOfDay(getYearEndPurgeDate(now));
+  const today = startOfDay(now);
+  return Math.round((purge.getTime() - today.getTime()) / 86_400_000);
+}
+
+export function shouldShowRetentionWarning(now = new Date()): boolean {
+  const days = daysUntilYearEndPurge(now);
+  return days >= 0 && days <= RETENTION_WARNING_DAYS_BEFORE;
+}

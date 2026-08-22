@@ -1,0 +1,93 @@
+.retention-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--accent-yellow-bg);
+  border: 1px solid var(--accent-yellow-surface);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+}
+
+.retention-banner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: var(--accent-yellow-text);
+  background-color: var(--accent-yellow-surface);
+  border-radius: var(--radius-md);
+}
+
+.retention-banner__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.retention-banner__title {
+  margin: 0 0 0.125rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--accent-yellow-text);
+}
+
+.retention-banner__text {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.retention-banner__action {
+  align-self: center;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: white;
+  background-color: var(--accent-yellow-text);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.retention-banner__action:hover {
+  opacity: 0.9;
+}
+
+.retention-banner__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.retention-banner__close:hover {
+  color: var(--text-color);
+  background-color: var(--accent-yellow-surface);
+}
+
+@media (max-width: 640px) {
+  .retention-banner {
+    flex-wrap: wrap;
+  }
+
+  .retention-banner__action {
+    order: 3;
+    width: 100%;
+    text-align: center;
+    padding: 0.625rem;
+  }
+}
