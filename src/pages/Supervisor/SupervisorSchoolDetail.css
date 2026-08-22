@@ -835,3 +835,14 @@
     font-size: 0.6875rem;
   }
 }
+
+/* Destino del morph card escuela -> detalle */
+.supervisor__header--hero {
+  view-transition-name: school-hero;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supervisor__header--hero {
+    view-transition-name: none;
+  }
+}

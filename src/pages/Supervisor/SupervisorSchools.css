@@ -525,3 +525,14 @@
     align-items: flex-end;
   }
 }
+
+/* Morph card -> detalle durante la view transition */
+.supervisor-schools__card--transitioning {
+  view-transition-name: school-hero;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supervisor-schools__card--transitioning {
+    view-transition-name: none;
+  }
+}

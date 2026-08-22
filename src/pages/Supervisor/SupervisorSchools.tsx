@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useViewTransitionState } from 'react-router-dom';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,6 +47,73 @@ const schoolSchema = z.object({
 });
 
 type SchoolFormData = z.infer<typeof schoolSchema>;
+
+interface SchoolCardProps {
+  school: SchoolType;
+  att: number;
+  nov: number;
+  inc: number;
+  onEdit: (school: SchoolType) => void;
+  onDelete: (school: SchoolType) => void;
+}
+
+const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps) => {
+  const to = `/supervisor/escuela/${school.id}`;
+  const isTransitioning = useViewTransitionState(to);
+
+  return (
+    <div
+      className={`supervisor-schools__card ${isTransitioning ? 'supervisor-schools__card--transitioning' : ''}`}
+    >
+      <Link viewTransition to={to} className="supervisor-schools__card-link">
+        <div className="supervisor-schools__card-icon">
+          <School size={24} strokeWidth={1.5} />
+        </div>
+        <div className="supervisor-schools__card-content">
+          <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
+          <span className="supervisor-schools__card-turno">{school.turno}</span>
+        </div>
+        <div className="supervisor-schools__card-stats">
+          <span className="supervisor-schools__card-stat" title="Asistencias hoy">
+            <ClipboardCheck size={12} strokeWidth={2} />
+            {att}
+          </span>
+          <span className="supervisor-schools__card-stat" title="Novedades hoy">
+            <Newspaper size={12} strokeWidth={2} />
+            {nov}
+          </span>
+          <span className="supervisor-schools__card-stat" title="Incidentes hoy">
+            <AlertTriangle size={12} strokeWidth={2} />
+            {inc}
+          </span>
+        </div>
+        <span className="supervisor-schools__card-arrow">→</span>
+      </Link>
+      <div className="supervisor-schools__card-actions">
+        <button
+          className="supervisor-schools__card-btn"
+          title="Editar"
+          onClick={(e) => {
+            e.preventDefault();
+            onEdit(school);
+          }}
+        >
+          <Pencil size={14} strokeWidth={1.5} />
+        </button>
+        <button
+          className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
+          title="Eliminar"
+          onClick={(e) => {
+            e.preventDefault();
+            onDelete(school);
+          }}
+        >
+          <Trash2 size={14} strokeWidth={1.5} />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const SupervisorSchools = () => {
   const navigate = useNavigate();
@@ -393,65 +460,17 @@ const SupervisorSchools = () => {
 
           <h3 className="supervisor-schools__section-title">Escuelas</h3>
           <div className="supervisor-schools__grid" ref={schoolGridRef}>
-            {schools.map((school) => {
-              const att = attBySchool[school.id] || 0;
-              const nov = newsBySchool[school.id] || 0;
-              const inc = incBySchool[school.id] || 0;
-              return (
-                <div key={school.id} className="supervisor-schools__card">
-                  <Link
-                    viewTransition
-                    to={`/supervisor/escuela/${school.id}`}
-                    className="supervisor-schools__card-link"
-                  >
-                    <div className="supervisor-schools__card-icon">
-                      <School size={24} strokeWidth={1.5} />
-                    </div>
-                    <div className="supervisor-schools__card-content">
-                      <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
-                      <span className="supervisor-schools__card-turno">{school.turno}</span>
-                    </div>
-                    <div className="supervisor-schools__card-stats">
-                      <span className="supervisor-schools__card-stat" title="Asistencias hoy">
-                        <ClipboardCheck size={12} strokeWidth={2} />
-                        {att}
-                      </span>
-                      <span className="supervisor-schools__card-stat" title="Novedades hoy">
-                        <Newspaper size={12} strokeWidth={2} />
-                        {nov}
-                      </span>
-                      <span className="supervisor-schools__card-stat" title="Incidentes hoy">
-                        <AlertTriangle size={12} strokeWidth={2} />
-                        {inc}
-                      </span>
-                    </div>
-                    <span className="supervisor-schools__card-arrow">→</span>
-                  </Link>
-                  <div className="supervisor-schools__card-actions">
-                    <button
-                      className="supervisor-schools__card-btn"
-                      title="Editar"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleEdit(school);
-                      }}
-                    >
-                      <Pencil size={14} strokeWidth={1.5} />
-                    </button>
-                    <button
-                      className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
-                      title="Eliminar"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setConfirmDelete(school);
-                      }}
-                    >
-                      <Trash2 size={14} strokeWidth={1.5} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {schools.map((school) => (
+              <SchoolCard
+                key={school.id}
+                school={school}
+                att={attBySchool[school.id] || 0}
+                nov={newsBySchool[school.id] || 0}
+                inc={incBySchool[school.id] || 0}
+                onEdit={handleEdit}
+                onDelete={setConfirmDelete}
+              />
+            ))}
           </div>
         </>
       )}

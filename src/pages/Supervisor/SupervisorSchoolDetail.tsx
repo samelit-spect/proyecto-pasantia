@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useViewTransitionState } from 'react-router-dom';
 import {
   ArrowLeft,
   CalendarDays,
@@ -98,6 +98,9 @@ const SupervisorSchoolDetail = () => {
   const [docenteFormMateria, setDocenteFormMateria] = useState('');
   const [docenteFormSubmitting, setDocenteFormSubmitting] = useState(false);
   const [editingDocente, setEditingDocente] = useState<Docente | null>(null);
+
+  // True mientras la navegación entrante proviene del click en una card de escuela.
+  const isEnteringViaCard = useViewTransitionState(`/supervisor/escuela/${schoolId}`);
 
   useEffect(() => {
     if (!schoolId) return;
@@ -423,7 +426,7 @@ const SupervisorSchoolDetail = () => {
           { label: school.nombre },
         ]}
       />
-      <div className="supervisor__header">
+      <div className={`supervisor__header ${isEnteringViaCard ? 'supervisor__header--hero' : ''}`}>
         <button
           className="supervisor__header-back"
           onClick={() => navigate('/supervisor', { viewTransition: true })}
