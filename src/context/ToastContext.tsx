@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -25,6 +26,7 @@ let counter = 0;
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const [containerRef] = useAutoAnimate();
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -48,7 +50,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="toast-container" role="status" aria-live="polite">
+      <div className="toast-container" role="status" aria-live="polite" ref={containerRef}>
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
         ))}

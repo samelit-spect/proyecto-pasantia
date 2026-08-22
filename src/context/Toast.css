@@ -21,7 +21,6 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
-  animation: toastSlideIn 0.3s ease-out;
 }
 
 .toast__icon {
@@ -82,17 +81,6 @@
 
 .toast--info {
   border-left: 3px solid var(--accent-blue-text);
-}
-
-@keyframes toastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 @media (max-width: 480px) {
