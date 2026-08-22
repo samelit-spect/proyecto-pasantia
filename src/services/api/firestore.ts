@@ -14,7 +14,7 @@ import {
   Timestamp,
   onSnapshot,
 } from 'firebase/firestore';
-import type { Unsubscribe } from 'firebase/firestore';
+import type { QueryConstraint, Unsubscribe } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 
 /**
@@ -546,6 +546,62 @@ export async function getFotosBySchool(schoolId: string): Promise<Foto[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto);
 }
 
+/**
+ * Funciones de exportación global (respaldo anual).
+ * A diferencia de las funciones por escuela, NO aplican limit(): traen
+ * todos los documentos de la jurisdicción. Los filtros de rango usan el
+ * mismo campo que el orderBy, por lo que no requieren composite indexes.
+ */
+function globalRangeClauses(field: 'fecha', startDate?: Date, endDate?: Date): QueryConstraint[] {
+  const clauses: QueryConstraint[] = [];
+  if (startDate) clauses.push(where(field, '>=', Timestamp.fromDate(startDate)));
+  if (endDate) clauses.push(where(field, '<=', Timestamp.fromDate(endDate)));
+  return clauses;
+}
+
+export async function getAllAttendances(startDate?: Date, endDate?: Date): Promise<Attendance[]> {
+  const q = query(
+    collection(db, COLLECTIONS.attendances),
+    ...globalRangeClauses('fecha', startDate, endDate),
+    orderBy('fecha', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
+}
+
+export async function getAllDocenteAttendances(
+  startDate?: Date,
+  endDate?: Date
+): Promise<DocenteAttendance[]> {
+  const q = query(
+    collection(db, COLLECTIONS.docenteAttendances),
+    ...globalRangeClauses('fecha', startDate, endDate),
+    orderBy('fecha', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as DocenteAttendance);
+}
+
+export async function getAllNews(startDate?: Date, endDate?: Date): Promise<News[]> {
+  const q = query(
+    collection(db, COLLECTIONS.news),
+    ...globalRangeClauses('fecha', startDate, endDate),
+    orderBy('fecha', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
+}
+
+export async function getAllIncidents(startDate?: Date, endDate?: Date): Promise<Incident[]> {
+  const q = query(
+    collection(db, COLLECTIONS.incidents),
+    ...globalRangeClauses('fecha', startDate, endDate),
+    orderBy('fecha', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident);
+}
+
 function startOfToday(): Date {
   const d = new Date();
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0));
@@ -639,11 +695,7 @@ export function subscribeRecentIncidents(
   max: number,
   callback: (data: Incident[]) => void
 ): Unsubscribe {
-  const q = query(
-    collection(db, COLLECTIONS.incidents),
-    orderBy('fecha', 'desc'),
-    limit(max)
-  );
+  const q = query(collection(db, COLLECTIONS.incidents), orderBy('fecha', 'desc'), limit(max));
   return onSnapshot(q, (snap) => {
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident));
   });
