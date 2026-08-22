@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Download } from 'lucide-react';
 
 interface AccordionSectionProps {
@@ -19,34 +20,37 @@ const AccordionSection = ({
   onExport,
   exporting,
   children,
-}: AccordionSectionProps) => (
-  <div className="supervisor-detail__section">
-    <div className="supervisor-detail__section-header-row">
-      <button className="supervisor-detail__section-header" onClick={onToggle}>
-        <div className="supervisor-detail__section-info">
-          <span className="supervisor__section-title">{title}</span>
-          <span className="supervisor__section-count">{count}</span>
-        </div>
-        <span
-          className={`supervisor-detail__arrow ${isExpanded ? 'supervisor-detail__arrow--open' : ''}`}
-        >
-          ▾
-        </span>
-      </button>
-      {onExport && (
-        <button
-          className="supervisor-detail__export-btn"
-          onClick={onExport}
-          disabled={!!exporting}
-          title={`Exportar ${title.toLowerCase()} a CSV`}
-        >
-          <Download size={14} strokeWidth={1.5} />
-          {exporting ? '...' : 'CSV'}
+}: AccordionSectionProps) => {
+  const [sectionRef] = useAutoAnimate();
+  return (
+    <div className="supervisor-detail__section" ref={sectionRef}>
+      <div className="supervisor-detail__section-header-row">
+        <button className="supervisor-detail__section-header" onClick={onToggle}>
+          <div className="supervisor-detail__section-info">
+            <span className="supervisor__section-title">{title}</span>
+            <span className="supervisor__section-count">{count}</span>
+          </div>
+          <span
+            className={`supervisor-detail__arrow ${isExpanded ? 'supervisor-detail__arrow--open' : ''}`}
+          >
+            ▾
+          </span>
         </button>
-      )}
+        {onExport && (
+          <button
+            className="supervisor-detail__export-btn"
+            onClick={onExport}
+            disabled={!!exporting}
+            title={`Exportar ${title.toLowerCase()} a CSV`}
+          >
+            <Download size={14} strokeWidth={1.5} />
+            {exporting ? '...' : 'CSV'}
+          </button>
+        )}
+      </div>
+      {isExpanded && <div className="supervisor-detail__section-body">{children}</div>}
     </div>
-    {isExpanded && <div className="supervisor-detail__section-body">{children}</div>}
-  </div>
-);
+  );
+};
 
 export default memo(AccordionSection);
