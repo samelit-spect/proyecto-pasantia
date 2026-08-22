@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import RetentionBanner from '@/components/common/RetentionBanner/RetentionBanner';
 
@@ -41,7 +41,7 @@ describe('RetentionBanner', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it('se oculta al cerrarlo y no reaparece el mismo día', () => {
+  it('se oculta al cerrarlo y no reaparece el mismo día', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 11, 15));
     const { rerender } = renderBanner();
@@ -52,6 +52,10 @@ describe('RetentionBanner', () => {
         <RetentionBanner />
       </MemoryRouter>
     );
+    // La salida es animada: avanzar los timers hasta que AnimatePresence desmonte el banner.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
     expect(screen.queryByRole('alert')).toBeNull();
     expect(localStorage.getItem('sipnam-retention-dismissed')).toBe('2026-12-15');
   });
