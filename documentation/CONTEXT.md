@@ -32,6 +32,11 @@
 
 ## Lo que ya está hecho (commit por commit)
 
+### ✅ Respaldo anual + trazabilidad de incidentes (ago 2026)
+- **Export global:** queries jurisdiccionales sin límite (`getAll*` en firestore.ts) + util `exportAll.ts` (4 CSV con columna Escuela, incluye motivos de ausencia). Tarjeta "Respaldo de datos" en Panel de Supervisión con rango de fechas, ConfirmDialog y progreso. Las fotos NO se incluyen (base64 pesado; Firebase 12 quitó `select()`).
+- **Banner borrado anual:** `RetentionBanner` en Home del supervisor, activo desde 60 días antes del 31/12 (`constants.ts`), cierre diario vía localStorage, CTA → /supervisor. Se auto-reinicia cada año.
+- **Trazabilidad incidentes:** modelo `IncidentStatusEvent[]` en `historialEstados`; `addIncident` siembra evento inicial; `updateIncidentStatus(id, nuevo, actor, anterior)` usa `arrayUnion`. Componente `IncidentHistory` visible para supervisor Y escuelas (/historial). `incidentStatusLabel` centralizado. `window.confirm` reemplazado por `ConfirmDialog`.
+
 ### ✅ 1.2 — Tests de componentes (`0258180`)
 - 52 tests totales (33 nuevos). Instalado `@testing-library/user-event`.
 
