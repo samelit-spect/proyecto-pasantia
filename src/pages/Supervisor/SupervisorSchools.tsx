@@ -14,6 +14,7 @@ import {
   Newspaper,
   AlertTriangle,
   ArrowLeft,
+  Download,
 } from 'lucide-react';
 import Button from '@/components/common/Button/Button';
 import { useToast } from '@/context/ToastContext';
@@ -31,6 +32,8 @@ import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
+import DatePicker from '@/components/common/DatePicker/DatePicker';
+import { exportAllData } from '@/utils/exportAll';
 import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
 import './SupervisorSchools.css';
 
@@ -57,6 +60,12 @@ const SupervisorSchools = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<SchoolType | null>(null);
+
+  const [backupDateFrom, setBackupDateFrom] = useState('');
+  const [backupDateTo, setBackupDateTo] = useState('');
+  const [confirmExport, setConfirmExport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgressLabel, setExportProgressLabel] = useState('');
 
   const {
     register,
@@ -141,6 +150,26 @@ const SupervisorSchools = () => {
     }
   };
 
+  const handleExportAllConfirm = async () => {
+    setConfirmExport(false);
+    setIsExporting(true);
+
+    try {
+      await exportAllData({
+        dateFrom: backupDateFrom || undefined,
+        dateTo: backupDateTo || undefined,
+        onProgress: ({ label, current, total }) =>
+          setExportProgressLabel(`Exportando ${label.toLowerCase()} (${current}/${total})...`),
+      });
+      addToast('success', 'Respaldo generado: se descargaron los archivos CSV.');
+    } catch {
+      addToast('error', 'No se pudo completar la exportación. Intentá de nuevo.');
+    } finally {
+      setIsExporting(false);
+      setExportProgressLabel('');
+    }
+  };
+
   const countBySchool = (items: { escuelaId: string }[]) => {
     const map: Record<string, number> = {};
     items.forEach((item) => {
@@ -183,6 +212,27 @@ const SupervisorSchools = () => {
           <Settings size={16} strokeWidth={1.5} />
           Usuarios
         </Link>
+      </div>
+
+      <div className="supervisor-schools__backup">
+        <div className="supervisor-schools__backup-header">
+          <div className="supervisor-schools__backup-icon">
+            <Download size={18} strokeWidth={1.5} />
+          </div>
+          <div className="supervisor-schools__backup-info">
+            <h3 className="supervisor-schools__backup-title">Respaldo de datos</h3>
+            <p className="supervisor-schools__backup-desc">
+              Descargá todos los registros de la jurisdicción en archivos CSV.
+            </p>
+          </div>
+        </div>
+        <div className="supervisor-schools__backup-controls">
+          <DatePicker label="Desde" value={backupDateFrom} onChange={setBackupDateFrom} />
+          <DatePicker label="Hasta" value={backupDateTo} onChange={setBackupDateTo} />
+          <Button onClick={() => setConfirmExport(true)} loading={isExporting}>
+            {exportProgressLabel || 'Exportar todo'}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
@@ -398,6 +448,16 @@ const SupervisorSchools = () => {
         confirmLabel="Eliminar"
         onConfirm={handleDeleteConfirm}
         onCancel={() => setConfirmDelete(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmExport}
+        title="Exportar todos los datos"
+        message="Se descargarán 4 archivos CSV con los registros de todas las escuelas (asistencias, docentes, novedades e incidentes). Las fotos no se incluyen en el respaldo."
+        confirmLabel="Descargar"
+        variant="warning"
+        onConfirm={handleExportAllConfirm}
+        onCancel={() => setConfirmExport(false)}
       />
     </>
   );

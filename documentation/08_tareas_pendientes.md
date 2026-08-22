@@ -79,6 +79,15 @@
 
 ---
 
+## Completado — Respaldo anual (21/08/2026)
+
+### Export global (Parte 1)
+- ✅ Queries jurisdiccionales sin límite: `getAllAttendances`, `getAllDocenteAttendances`, `getAllNews`, `getAllIncidents` (`firestore.ts`)
+- ✅ Util `exportAll.ts`: descarga 4 CSV (gestión, docentes, novedades, incidentes) con columna Escuela + detalle de motivos
+- ✅ Tarjeta "Respaldo de datos" en Panel de Supervisión con rango de fechas opcional, ConfirmDialog y progreso
+
+---
+
 ## Pendiente
 
 ### Firebase Console
@@ -89,6 +98,11 @@
 - [ ] Tests de AuthContext
 - [ ] Tests de Firestore services (CRUD schools, docentes, attendance)
 - [ ] Tests de formularios de novedades/incidentes
+- [ ] Fix test pre-existente roto: Login "muestra texto de carga en el botón durante el envío"
+- [ ] Evaluar errores eslint react-compiler pre-existentes (setState síncrono en effects, 11 errores)
+
+### Respaldo anual
+- [ ] Las fotos (base64) no se incluyen en el export CSV — evaluar ZIP de fotos o backup manual documentado
 
 ### Mejoras futuras
 - [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
