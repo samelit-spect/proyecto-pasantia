@@ -89,6 +89,7 @@
 /* Variants */
 .btn--primary {
   background-color: var(--primary-color);
+  background-image: var(--gradient-accent);
   color: white;
 }
 

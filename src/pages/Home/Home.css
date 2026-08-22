@@ -23,6 +23,14 @@
   margin: 0;
 }
 
+.home__greeting-name {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 .home__subtitle {
   font-size: 0.875rem;
   color: var(--text-secondary);

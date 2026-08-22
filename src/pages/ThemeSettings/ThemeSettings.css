@@ -130,6 +130,7 @@
   font-family: inherit;
   color: white;
   background-color: var(--primary-color);
+  background-image: var(--gradient-accent);
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;

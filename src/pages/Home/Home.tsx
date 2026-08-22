@@ -266,7 +266,9 @@ const Home = () => {
       <div className="home__header">
         <div className="home__header-text">
           <Breadcrumb items={[{ label: 'Inicio' }]} />
-          <h2 className="home__greeting">Hola, {profile?.nombre}</h2>
+          <h2 className="home__greeting">
+            Hola, <span className="home__greeting-name">{profile?.nombre}</span>
+          </h2>
           <p className="home__subtitle">
             {hasRole('supervisor') ? 'Resumen del sistema educativo.' : '¿Qué deseas hacer hoy?'}
           </p>

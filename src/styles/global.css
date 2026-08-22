@@ -42,6 +42,12 @@
   --accent-yellow-bg: #fffbeb;
   --accent-yellow-surface: #fde68a;
   --accent-yellow-text: #b45309;
+
+  /* Tonos derivados del color principal: siguen automáticamente al tema
+     elegido en /tema (y funcionan en claro y oscuro al mezclar con transparencia). */
+  --primary-tint: color-mix(in oklch, var(--primary-color), transparent 93%);
+  --primary-tint-strong: color-mix(in oklch, var(--primary-color), transparent 86%);
+  --gradient-accent: linear-gradient(135deg, var(--primary-color), var(--primary-light));
 }
 
 body {
@@ -51,6 +57,29 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   overscroll-behavior: none;
+}
+
+/* Aurora ambiental: dos halos suaves derivados del color del tema que
+   derivan lentamente. Capa fija detrás de todo el contenido. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 40rem at 20% 15%, var(--primary-tint), transparent 65%),
+    radial-gradient(36rem 36rem at 82% 82%, var(--primary-tint-strong), transparent 62%);
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from {
+    transform: translate3d(-1.5%, -1.5%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, 2%, 0) scale(1.05);
+  }
 }
 
 @media (max-width: 767px) {
@@ -129,6 +158,10 @@ a:focus-visible {
   .animate-fade-in-up,
   .animate-fade-in,
   .animate-scale-in {
+    animation: none;
+  }
+
+  body::before {
     animation: none;
   }
 }
