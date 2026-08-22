@@ -76,16 +76,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [loadUserProfile]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    const profile = await loadUserProfile(result.user);
-    setState({
-      user: result.user,
-      profile,
-      isLoading: false,
-      isAuthenticated: true,
-    });
-  }, [loadUserProfile]);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const profile = await loadUserProfile(result.user);
+      setState({
+        user: result.user,
+        profile,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+    },
+    [loadUserProfile]
+  );
 
   const logout = useCallback(async () => {
     await signOut(auth);

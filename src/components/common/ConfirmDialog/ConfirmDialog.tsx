@@ -48,10 +48,17 @@ const ConfirmDialog = ({
         <h3 className="confirm-dialog__title">{title}</h3>
         <p className="confirm-dialog__message">{message}</p>
         <div className="confirm-dialog__actions">
-          <button ref={cancelRef} className="confirm-dialog__btn confirm-dialog__btn--cancel" onClick={onCancel}>
+          <button
+            ref={cancelRef}
+            className="confirm-dialog__btn confirm-dialog__btn--cancel"
+            onClick={onCancel}
+          >
             {cancelLabel}
           </button>
-          <button className={`confirm-dialog__btn confirm-dialog__btn--${variant}`} onClick={onConfirm}>
+          <button
+            className={`confirm-dialog__btn confirm-dialog__btn--${variant}`}
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </button>
         </div>

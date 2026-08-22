@@ -21,15 +21,10 @@ const FilterBar = ({ activeFilters, onRemoveFilter, onClearAll, children }: Filt
 
   return (
     <div className="filter-bar">
-      <button
-        className="filter-bar__toggle"
-        onClick={() => setExpanded(!expanded)}
-      >
+      <button className="filter-bar__toggle" onClick={() => setExpanded(!expanded)}>
         <span className="filter-bar__toggle-label">
           Filtros
-          {hasActive && (
-            <span className="filter-bar__badge">{activeFilters.length}</span>
-          )}
+          {hasActive && <span className="filter-bar__badge">{activeFilters.length}</span>}
         </span>
         <ChevronDown
           size={16}

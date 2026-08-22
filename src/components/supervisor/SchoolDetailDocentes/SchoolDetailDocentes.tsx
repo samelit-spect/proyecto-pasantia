@@ -72,11 +72,7 @@ const SchoolDetailDocentes = ({
           onChange={(e) => onMateriaChange(e.target.value)}
         />
       </label>
-      <button
-        type="submit"
-        className="supervisor-detail__docente-submit"
-        disabled={formSubmitting}
-      >
+      <button type="submit" className="supervisor-detail__docente-submit" disabled={formSubmitting}>
         {formSubmitting ? 'Guardando...' : isEditing ? 'Actualizar' : 'Agregar Docente'}
       </button>
     </form>

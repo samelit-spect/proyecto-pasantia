@@ -19,7 +19,11 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [allData, setAllData] = useState<{ schools: SchoolType[]; users: UserProfile[]; docentes: Docente[] } | null>(null);
+  const [allData, setAllData] = useState<{
+    schools: SchoolType[];
+    users: UserProfile[];
+    docentes: Docente[];
+  } | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -54,18 +58,36 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
     const matched: SearchResult[] = [];
 
     allData.schools.forEach((s) => {
-      if (s.nombre.toLowerCase().includes(q) || (s.direccion && s.direccion.toLowerCase().includes(q))) {
-        matched.push({ type: 'escuela', label: s.nombre, sublabel: `${s.turno}${s.direccion ? ' · ' + s.direccion : ''}`, to: `/supervisor/escuela/${s.id}` });
+      if (
+        s.nombre.toLowerCase().includes(q) ||
+        (s.direccion && s.direccion.toLowerCase().includes(q))
+      ) {
+        matched.push({
+          type: 'escuela',
+          label: s.nombre,
+          sublabel: `${s.turno}${s.direccion ? ' · ' + s.direccion : ''}`,
+          to: `/supervisor/escuela/${s.id}`,
+        });
       }
     });
     allData.users.forEach((u) => {
       if (u.nombre.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) {
-        matched.push({ type: 'usuario', label: u.nombre, sublabel: `${u.email} · ${u.rol}`, to: '/supervisor/usuarios' });
+        matched.push({
+          type: 'usuario',
+          label: u.nombre,
+          sublabel: `${u.email} · ${u.rol}`,
+          to: '/supervisor/usuarios',
+        });
       }
     });
     allData.docentes.forEach((d) => {
       if (d.nombre.toLowerCase().includes(q)) {
-        matched.push({ type: 'docente', label: d.nombre, sublabel: d.activo ? 'Activo' : 'Inactivo', to: '/supervisor' });
+        matched.push({
+          type: 'docente',
+          label: d.nombre,
+          sublabel: d.activo ? 'Activo' : 'Inactivo',
+          to: '/supervisor',
+        });
       }
     });
 
@@ -73,10 +95,13 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
     setSelectedIndex(0);
   }, [query, allData]);
 
-  const handleSelect = useCallback((result: SearchResult) => {
-    navigate(result.to);
-    onClose();
-  }, [navigate, onClose]);
+  const handleSelect = useCallback(
+    (result: SearchResult) => {
+      navigate(result.to);
+      onClose();
+    },
+    [navigate, onClose]
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -131,25 +156,32 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
           {!loading && query.trim() && results.length === 0 && (
             <p className="global-search__hint">Sin resultados para "{query}"</p>
           )}
-          {!loading && results.map((result, i) => (
-            <button
-              key={`${result.type}-${result.label}-${i}`}
-              className={`global-search__result ${i === selectedIndex ? 'global-search__result--selected' : ''}`}
-              onClick={() => handleSelect(result)}
-              onMouseEnter={() => setSelectedIndex(i)}
-            >
-              <span className={`global-search__result-icon global-search__result-icon--${result.type}`}>
-                {typeIcons[result.type]}
-              </span>
-              <div className="global-search__result-text">
-                <span className="global-search__result-label">{result.label}</span>
-                <span className="global-search__result-sublabel">{typeLabels[result.type]} · {result.sublabel}</span>
-              </div>
-              <ArrowRight size={14} className="global-search__result-arrow" />
-            </button>
-          ))}
+          {!loading &&
+            results.map((result, i) => (
+              <button
+                key={`${result.type}-${result.label}-${i}`}
+                className={`global-search__result ${i === selectedIndex ? 'global-search__result--selected' : ''}`}
+                onClick={() => handleSelect(result)}
+                onMouseEnter={() => setSelectedIndex(i)}
+              >
+                <span
+                  className={`global-search__result-icon global-search__result-icon--${result.type}`}
+                >
+                  {typeIcons[result.type]}
+                </span>
+                <div className="global-search__result-text">
+                  <span className="global-search__result-label">{result.label}</span>
+                  <span className="global-search__result-sublabel">
+                    {typeLabels[result.type]} · {result.sublabel}
+                  </span>
+                </div>
+                <ArrowRight size={14} className="global-search__result-arrow" />
+              </button>
+            ))}
           {!loading && !query.trim() && (
-            <p className="global-search__hint">Escribí para buscar entre escuelas, usuarios y docentes.</p>
+            <p className="global-search__hint">
+              Escribí para buscar entre escuelas, usuarios y docentes.
+            </p>
           )}
         </div>
       </div>

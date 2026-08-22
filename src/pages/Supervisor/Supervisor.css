@@ -23,7 +23,9 @@
   font-weight: 500;
   cursor: pointer;
   min-height: 44px;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .supervisor__back:hover {
@@ -43,7 +45,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   flex-shrink: 0;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .supervisor__header-back:hover {

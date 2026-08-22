@@ -91,7 +91,12 @@ const Home = () => {
           getRecentIncidents(20),
         ]);
         if (unmounted) return;
-        setStats((prev) => ({ ...prev, asistencias: attendances.length, novedades: news.length, incidentes: incidents.length }));
+        setStats((prev) => ({
+          ...prev,
+          asistencias: attendances.length,
+          novedades: news.length,
+          incidentes: incidents.length,
+        }));
         setRecentAttendances(attendances.slice(0, 5));
         setRecentNews(news.slice(0, 5));
         setRecentIncidents(incidents.slice(0, 5));
@@ -282,7 +287,9 @@ const Home = () => {
       {statsError && (
         <div className="home__error" role="alert">
           <span>{statsError}</span>
-          <button className="home__error-close" onClick={() => setStatsError(null)}>×</button>
+          <button className="home__error-close" onClick={() => setStatsError(null)}>
+            ×
+          </button>
         </div>
       )}
 
@@ -323,7 +330,11 @@ const Home = () => {
       {!isLoading && !hasRole('supervisor') && (
         <div className="home__section">
           <h3 className="home__section-title">
-            <Clock size={14} strokeWidth={2} style={{ marginRight: '0.375rem', verticalAlign: 'middle' }} />
+            <Clock
+              size={14}
+              strokeWidth={2}
+              style={{ marginRight: '0.375rem', verticalAlign: 'middle' }}
+            />
             Actividad de hoy
           </h3>
           {myAttendances.length === 0 && myNews.length === 0 && myIncidents.length === 0 ? (

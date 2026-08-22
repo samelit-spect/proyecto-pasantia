@@ -139,7 +139,11 @@ const Navbar = () => {
         )}
         <div className="navbar__desktop-spacer" />
         <NotificationBell />
-        <button onClick={() => setIsSearchOpen(true)} className="navbar__desktop-search" title="Buscar (Ctrl+K)">
+        <button
+          onClick={() => setIsSearchOpen(true)}
+          className="navbar__desktop-search"
+          title="Buscar (Ctrl+K)"
+        >
           <Search size={14} strokeWidth={2} />
           <kbd>⌘K</kbd>
         </button>

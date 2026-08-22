@@ -47,7 +47,10 @@ export const exportHistorialPDF = (data: {
   dateTo?: string;
 }) => {
   const doc = new jsPDF();
-  const filters = [data.dateFrom ? `Desde: ${data.dateFrom}` : '', data.dateTo ? `Hasta: ${data.dateTo}` : '']
+  const filters = [
+    data.dateFrom ? `Desde: ${data.dateFrom}` : '',
+    data.dateTo ? `Hasta: ${data.dateTo}` : '',
+  ]
     .filter(Boolean)
     .join(' · ');
 
@@ -77,7 +80,10 @@ export const exportHistorialPDF = (data: {
   }
 
   if (data.docenteAttendances.length > 0) {
-    if (y > 250) { doc.addPage(); y = 20; }
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text(`Asistencia de Docentes (${data.docenteAttendances.length})`, 14, y);
@@ -98,7 +104,10 @@ export const exportHistorialPDF = (data: {
   }
 
   if (data.news.length > 0) {
-    if (y > 250) { doc.addPage(); y = 20; }
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text(`Novedades (${data.news.length})`, 14, y);
@@ -122,7 +131,10 @@ export const exportHistorialPDF = (data: {
   }
 
   if (data.incidents.length > 0) {
-    if (y > 250) { doc.addPage(); y = 20; }
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text(`Incidentes (${data.incidents.length})`, 14, y);

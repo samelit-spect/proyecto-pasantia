@@ -74,7 +74,9 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .fotos__file-label:hover {

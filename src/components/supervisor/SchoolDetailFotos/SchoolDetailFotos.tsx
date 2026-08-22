@@ -12,7 +12,13 @@ interface SchoolDetailFotosProps {
   onDelete?: (fotoId: string) => void;
 }
 
-const SchoolDetailFotos = ({ fotos, expandedSection, onToggle, onLightbox, onDelete }: SchoolDetailFotosProps) => (
+const SchoolDetailFotos = ({
+  fotos,
+  expandedSection,
+  onToggle,
+  onLightbox,
+  onDelete,
+}: SchoolDetailFotosProps) => (
   <AccordionSection
     title="Fotos de Planillas"
     count={`${fotos.length} fotos`}

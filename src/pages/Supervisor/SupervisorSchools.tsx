@@ -3,7 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { School, Settings, Plus, X, Pencil, Trash2, ClipboardCheck, Newspaper, AlertTriangle, ArrowLeft } from 'lucide-react';
+import {
+  School,
+  Settings,
+  Plus,
+  X,
+  Pencil,
+  Trash2,
+  ClipboardCheck,
+  Newspaper,
+  AlertTriangle,
+  ArrowLeft,
+} from 'lucide-react';
 import Button from '@/components/common/Button/Button';
 import { useToast } from '@/context/ToastContext';
 import {
@@ -109,7 +120,11 @@ const SupervisorSchools = () => {
 
   const handleEdit = (school: SchoolType) => {
     setEditingSchool(school);
-    reset({ nombre: school.nombre, turno: school.turno, direccion: school.direccion || '' });
+    reset({
+      nombre: school.nombre,
+      turno: school.turno as SchoolFormData['turno'],
+      direccion: school.direccion || '',
+    });
     setShowForm(true);
   };
 
@@ -351,14 +366,20 @@ const SupervisorSchools = () => {
                     <button
                       className="supervisor-schools__card-btn"
                       title="Editar"
-                      onClick={(e) => { e.preventDefault(); handleEdit(school); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleEdit(school);
+                      }}
                     >
                       <Pencil size={14} strokeWidth={1.5} />
                     </button>
                     <button
                       className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
                       title="Eliminar"
-                      onClick={(e) => { e.preventDefault(); setConfirmDelete(school); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setConfirmDelete(school);
+                      }}
                     >
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>

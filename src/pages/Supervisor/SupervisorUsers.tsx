@@ -3,14 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  ArrowLeft,
-  UserPlus,
-  X,
-  Power,
-  Pencil,
-  RotateCcw,
-} from 'lucide-react';
+import { ArrowLeft, UserPlus, X, Power, Pencil, RotateCcw } from 'lucide-react';
 import {
   getSchools,
   getAllUsers,
@@ -65,7 +58,10 @@ const SupervisorUsers = () => {
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
-  const [confirmAction, setConfirmAction] = useState<{ type: 'toggle' | 'reset'; user: UserProfile } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: 'toggle' | 'reset';
+    user: UserProfile;
+  } | null>(null);
 
   const createForm = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
@@ -326,7 +322,11 @@ const SupervisorUsers = () => {
             )}
           />
 
-          <Button type="submit" loading={createForm.formState.isSubmitting} className="supervisor-users__submit">
+          <Button
+            type="submit"
+            loading={createForm.formState.isSubmitting}
+            className="supervisor-users__submit"
+          >
             Crear usuario
           </Button>
         </form>
@@ -334,9 +334,7 @@ const SupervisorUsers = () => {
 
       {editingUser && (
         <form className="supervisor-users__form" onSubmit={editForm.handleSubmit(handleEdit)}>
-          <h3 className="supervisor-users__form-title">
-            Editar usuario — {editingUser.nombre}
-          </h3>
+          <h3 className="supervisor-users__form-title">Editar usuario — {editingUser.nombre}</h3>
 
           <div className="supervisor-users__form-row">
             <label className="supervisor-users__label">
@@ -404,7 +402,11 @@ const SupervisorUsers = () => {
           </p>
 
           <div className="supervisor-users__form-actions">
-            <Button type="submit" loading={editForm.formState.isSubmitting} className="supervisor-users__submit">
+            <Button
+              type="submit"
+              loading={editForm.formState.isSubmitting}
+              className="supervisor-users__submit"
+            >
               Guardar cambios
             </Button>
             <button
@@ -475,7 +477,11 @@ const SupervisorUsers = () => {
                         </button>
                         <button
                           className="supervisor-users__toggle"
-                          data-tooltip={isActive ? 'Desactivar acceso del usuario' : 'Activar acceso del usuario'}
+                          data-tooltip={
+                            isActive
+                              ? 'Desactivar acceso del usuario'
+                              : 'Activar acceso del usuario'
+                          }
                           onClick={() => setConfirmAction({ type: 'toggle', user })}
                           disabled={togglingId === user.uid}
                         >
@@ -496,12 +502,16 @@ const SupervisorUsers = () => {
 
       <ConfirmDialog
         open={!!confirmAction}
-        title={confirmAction?.type === 'toggle'
-          ? `${confirmAction?.user.activo === false ? 'Activar' : 'Desactivar'} usuario`
-          : 'Restablecer contraseña'}
-        message={confirmAction?.type === 'toggle'
-          ? `¿Seguro que querés ${confirmAction?.user.activo === false ? 'activar' : 'desactivar'} a ${confirmAction?.user.nombre}?`
-          : `¿Enviar email de restablecimiento a ${confirmAction?.user.email}?`}
+        title={
+          confirmAction?.type === 'toggle'
+            ? `${confirmAction?.user.activo === false ? 'Activar' : 'Desactivar'} usuario`
+            : 'Restablecer contraseña'
+        }
+        message={
+          confirmAction?.type === 'toggle'
+            ? `¿Seguro que querés ${confirmAction?.user.activo === false ? 'activar' : 'desactivar'} a ${confirmAction?.user.nombre}?`
+            : `¿Enviar email de restablecimiento a ${confirmAction?.user.email}?`
+        }
         confirmLabel={confirmAction?.type === 'toggle' ? 'Sí, continuar' : 'Enviar email'}
         variant={confirmAction?.type === 'toggle' ? 'warning' : 'warning'}
         onConfirm={handleConfirmAction}

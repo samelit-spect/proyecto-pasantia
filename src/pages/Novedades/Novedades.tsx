@@ -140,7 +140,9 @@ const Novedades = () => {
         {feedback && (
           <div className={`novedades__feedback novedades__feedback--${feedback.type}`} role="alert">
             <span>{feedback.message}</span>
-            <button className="novedades__feedback-close" onClick={() => setFeedback(null)}>×</button>
+            <button className="novedades__feedback-close" onClick={() => setFeedback(null)}>
+              ×
+            </button>
           </div>
         )}
 

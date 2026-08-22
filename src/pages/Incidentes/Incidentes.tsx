@@ -207,7 +207,9 @@ const Incidentes = () => {
             role="alert"
           >
             <span>{feedback.message}</span>
-            <button className="incidentes__feedback-close" onClick={() => setFeedback(null)}>×</button>
+            <button className="incidentes__feedback-close" onClick={() => setFeedback(null)}>
+              ×
+            </button>
           </div>
         )}
 

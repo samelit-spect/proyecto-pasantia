@@ -10,7 +10,10 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color 0.15s, opacity 0.15s, transform 0.1s;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s,
+    transform 0.1s;
   overflow: hidden;
 }
 
@@ -50,7 +53,9 @@
 }
 
 @keyframes btn-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Success check */

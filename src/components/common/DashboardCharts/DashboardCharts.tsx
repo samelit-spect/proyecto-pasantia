@@ -1,4 +1,16 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 import type { Attendance, News, Incident } from '@/types';
 import './DashboardCharts.css';
 
@@ -116,7 +128,9 @@ const DashboardCharts = ({ attendances, news, incidents }: DashboardChartsProps)
               />
               <Legend
                 formatter={(value) => (
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{value}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                    {value}
+                  </span>
                 )}
               />
             </PieChart>
@@ -128,10 +142,23 @@ const DashboardCharts = ({ attendances, news, incidents }: DashboardChartsProps)
         <div className="dashboard-charts__card">
           <h4 className="dashboard-charts__title">Incidentes por categoría</h4>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={categoriaData} layout="vertical" margin={{ top: 5, right: 10, left: 60, bottom: 5 }}>
+            <BarChart
+              data={categoriaData}
+              layout="vertical"
+              margin={{ top: 5, right: 10, left: 60, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} width={80} />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+              />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tick={{ fontSize: 11, fill: 'var(--text-secondary)' }}
+                width={80}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: 'var(--surface-color)',

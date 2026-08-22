@@ -21,8 +21,7 @@ interface Notification {
 const formatTime = (ts: { toDate: () => Date }) =>
   ts.toDate().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
-const formatDate = (ts: { toDate: () => Date }) =>
-  ts.toDate().toLocaleDateString('es-AR');
+const formatDate = (ts: { toDate: () => Date }) => ts.toDate().toLocaleDateString('es-AR');
 
 const mapAttendances = (atts: Attendance[]): Notification[] =>
   atts.slice(0, 5).map((a) => ({
@@ -138,9 +137,7 @@ const NotificationBell = () => {
       >
         <Bell size={18} strokeWidth={1.5} />
         {unreadCount > 0 && (
-          <span className="notification-bell__badge">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
+          <span className="notification-bell__badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
         )}
       </button>
 
@@ -159,7 +156,9 @@ const NotificationBell = () => {
                   className="notification-bell__item"
                   onClick={() => handleNotificationClick(n)}
                 >
-                  <span className={`notification-bell__item-icon notification-bell__item-icon--${n.type}`}>
+                  <span
+                    className={`notification-bell__item-icon notification-bell__item-icon--${n.type}`}
+                  >
                     {typeIcons[n.type]}
                   </span>
                   <div className="notification-bell__item-text">

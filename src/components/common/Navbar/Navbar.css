@@ -58,7 +58,9 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: color 0.2s, background-color 0.2s;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
 }
 
 .navbar__hamburger:hover {
@@ -131,7 +133,9 @@
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
 }
 
 .navbar__drawer-close:hover {
@@ -260,7 +264,7 @@
     gap: 0.125rem;
     margin-left: auto;
   }
-  
+
   .navbar__desktop-link {
     display: flex;
     align-items: center;
@@ -272,14 +276,16 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.75);
     white-space: nowrap;
-    transition: color 0.15s, background-color 0.15s;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
   }
-  
+
   .navbar__desktop-link:hover {
     color: white;
     background-color: rgba(255, 255, 255, 0.1);
   }
-  
+
   .navbar__desktop-spacer {
     width: 1px;
     height: 20px;
@@ -300,7 +306,9 @@
     color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s;
+    transition:
+      background-color 0.15s,
+      color 0.15s;
   }
 
   .navbar__desktop-search:hover {
@@ -316,7 +324,7 @@
     border-radius: 0.1875rem;
     font-family: inherit;
   }
-  
+
   .navbar__desktop-logout {
     display: flex;
     align-items: center;
@@ -330,9 +338,11 @@
     color: rgba(255, 255, 255, 0.75);
     cursor: pointer;
     white-space: nowrap;
-    transition: color 0.15s, background-color 0.15s;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
   }
-  
+
   .navbar__desktop-logout:hover {
     color: var(--accent-red-surface);
     background-color: rgba(255, 255, 255, 0.1);

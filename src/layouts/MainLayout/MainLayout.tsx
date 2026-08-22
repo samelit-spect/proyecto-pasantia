@@ -41,9 +41,7 @@ const MainLayout = () => {
     <>
       <Navbar />
       <ConnectionBanner />
-      <main
-        className="main-layout__content"
-      >
+      <main className="main-layout__content">
         <Outlet key={location.pathname} />
       </main>
     </>

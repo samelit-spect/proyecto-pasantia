@@ -11,7 +11,13 @@ interface SchoolDetailNewsProps {
   exporting?: boolean;
 }
 
-const SchoolDetailNews = ({ news, expandedSection, onToggle, onExport, exporting }: SchoolDetailNewsProps) => (
+const SchoolDetailNews = ({
+  news,
+  expandedSection,
+  onToggle,
+  onExport,
+  exporting,
+}: SchoolDetailNewsProps) => (
   <AccordionSection
     title="Novedades"
     count={`${news.length} registros`}
@@ -36,9 +42,7 @@ const SchoolDetailNews = ({ news, expandedSection, onToggle, onExport, exporting
           </div>
           <p className="supervisor-detail__desc">{n.descripcion}</p>
           <div className="supervisor-detail__meta">
-            <span className="supervisor-sub__record-author">
-              Cargado por: {n.cargadoPorNombre}
-            </span>
+            <span className="supervisor-sub__record-author">Cargado por: {n.cargadoPorNombre}</span>
           </div>
         </div>
       ))

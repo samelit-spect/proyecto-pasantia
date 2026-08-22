@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, History, ClipboardCheck, Users, Newspaper, AlertTriangle } from 'lucide-react';
+import {
+  ArrowLeft,
+  CalendarDays,
+  History,
+  ClipboardCheck,
+  Users,
+  Newspaper,
+  AlertTriangle,
+} from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -20,6 +28,7 @@ import {
   setAttendanceVerified,
   setDocenteAttendanceVerified,
   getAttendancesBySchool,
+  getDocenteAttendancesBySchool,
   getNewsBySchool,
   getIncidentsBySchool as getIncidentsBySchoolRange,
 } from '@/services/api/firestore';
@@ -48,11 +57,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorDetailSkeleton } from './SupervisorSkeleton';
 import { downloadCsv } from '@/utils/exportCsv';
 import { dateKey } from '@/utils/dateKey';
-import {
-  novedadTipoLabel,
-  incidentCategoriaLabel,
-  incidentUrgenciaLabel,
-} from '@/utils/constants';
+import { novedadTipoLabel, incidentCategoriaLabel, incidentUrgenciaLabel } from '@/utils/constants';
 import './SupervisorSchoolDetail.css';
 
 const DEFAULT_RANGE_START = new Date(2000, 0, 1);
@@ -100,13 +105,12 @@ const SupervisorSchoolDetail = () => {
 
     const loadStatic = async () => {
       try {
-        const [schoolData, usersData, docentesData, fotosData] =
-          await Promise.all([
-            getSchoolById(schoolId),
-            getUsersBySchool(schoolId),
-            getDocentesBySchool(schoolId),
-            getFotosBySchool(schoolId),
-          ]);
+        const [schoolData, usersData, docentesData, fotosData] = await Promise.all([
+          getSchoolById(schoolId),
+          getUsersBySchool(schoolId),
+          getDocentesBySchool(schoolId),
+          getFotosBySchool(schoolId),
+        ]);
 
         if (unmounted) return;
         setSchool(schoolData);
@@ -212,7 +216,12 @@ const SupervisorSchoolDetail = () => {
       setDocenteFormMateria('');
       setEditingDocente(null);
     } catch {
-      docenteOp.end({ type: 'error', message: editingDocente ? 'No se pudo actualizar el docente.' : 'No se pudo agregar el docente.' });
+      docenteOp.end({
+        type: 'error',
+        message: editingDocente
+          ? 'No se pudo actualizar el docente.'
+          : 'No se pudo agregar el docente.',
+      });
     } finally {
       setDocenteFormSubmitting(false);
     }
@@ -251,30 +260,32 @@ const SupervisorSchoolDetail = () => {
     }
   };
 
-  const makeVerifyHandler = <T extends { id: string }>(
-    apiCall: (id: string, v: boolean, p: { uid: string; nombre: string }) => Promise<void>,
-    setState: React.Dispatch<React.SetStateAction<T[]>>,
-    updater: (att: T, verified: boolean) => T,
-  ) => async (attendanceId: string, verified: boolean) => {
-    if (!profile) return;
-    verifyOp.start(attendanceId);
+  const makeVerifyHandler =
+    <T extends { id: string }>(
+      apiCall: (id: string, v: boolean, p: { uid: string; nombre: string }) => Promise<void>,
+      setState: React.Dispatch<React.SetStateAction<T[]>>,
+      updater: (att: T, verified: boolean) => T
+    ) =>
+    async (attendanceId: string, verified: boolean) => {
+      if (!profile) return;
+      verifyOp.start(attendanceId);
 
-    try {
-      await apiCall(attendanceId, verified, {
-        uid: profile.uid,
-        nombre: profile.nombre,
-      });
-      setState((prev: T[]) =>
-        prev.map((att) => (att.id === attendanceId ? updater(att, verified) : att))
-      );
-      verifyOp.end({
-        type: 'success',
-        message: verified ? 'Asistencia verificada.' : 'Verificación removida.',
-      });
-    } catch {
-      verifyOp.end({ type: 'error', message: 'No se pudo actualizar la verificación.' });
-    }
-  };
+      try {
+        await apiCall(attendanceId, verified, {
+          uid: profile.uid,
+          nombre: profile.nombre,
+        });
+        setState((prev: T[]) =>
+          prev.map((att) => (att.id === attendanceId ? updater(att, verified) : att))
+        );
+        verifyOp.end({
+          type: 'success',
+          message: verified ? 'Asistencia verificada.' : 'Verificación removida.',
+        });
+      } catch {
+        verifyOp.end({ type: 'error', message: 'No se pudo actualizar la verificación.' });
+      }
+    };
 
   const verifyAttendanceUpdater = (att: Attendance, verified: boolean): Attendance => ({
     ...att,
@@ -292,8 +303,16 @@ const SupervisorSchoolDetail = () => {
     verificadoEn: verified ? Timestamp.now() : undefined,
   });
 
-  const handleVerifyAttendance = makeVerifyHandler(setAttendanceVerified, setAttendances, verifyAttendanceUpdater);
-  const handleVerifyDocenteAttendance = makeVerifyHandler(setDocenteAttendanceVerified, setDocenteAttendances, verifyDocenteUpdater);
+  const handleVerifyAttendance = makeVerifyHandler(
+    setAttendanceVerified,
+    setAttendances,
+    verifyAttendanceUpdater
+  );
+  const handleVerifyDocenteAttendance = makeVerifyHandler(
+    setDocenteAttendanceVerified,
+    setDocenteAttendances,
+    verifyDocenteUpdater
+  );
 
   const handleExport = async (type: ExportType) => {
     if (!schoolId || !school) return;
@@ -328,11 +347,11 @@ const SupervisorSchoolDetail = () => {
           `asistencia-docentes-${schoolSlug}-${rangeLabel}.csv`,
           ['Fecha', 'Cargado por', 'Foto', 'Verificada'],
           rows.map((a) => [
-              dateToLabel(a.fecha.toDate()),
-              a.cargadoPorNombre,
-              a.fotoDataUrl ? 'Sí' : 'No',
-              a.verificada ? 'Sí' : 'No',
-            ])
+            dateToLabel(a.fecha.toDate()),
+            a.cargadoPorNombre,
+            a.fotoDataUrl ? 'Sí' : 'No',
+            a.verificada ? 'Sí' : 'No',
+          ])
         );
       } else if (type === 'novedades') {
         const rows = await getNewsBySchool(schoolId, from, to);
@@ -387,7 +406,13 @@ const SupervisorSchoolDetail = () => {
 
   return (
     <>
-      <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Escuelas', to: '/supervisor' }, { label: school.nombre }]} />
+      <Breadcrumb
+        items={[
+          { label: 'Inicio', to: '/' },
+          { label: 'Escuelas', to: '/supervisor' },
+          { label: school.nombre },
+        ]}
+      />
       <div className="supervisor__header">
         <button className="supervisor__header-back" onClick={() => navigate('/supervisor')}>
           <ArrowLeft size={18} strokeWidth={1.5} />
@@ -436,7 +461,12 @@ const SupervisorSchoolDetail = () => {
       {viewMode === 'hoy' && (
         <div className="supervisor-detail__today">
           <p className="supervisor-detail__today-date">
-            {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {new Date().toLocaleDateString('es-AR', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </p>
 
           <div className="supervisor-detail__today-grid">
@@ -445,7 +475,9 @@ const SupervisorSchoolDetail = () => {
                 <ClipboardCheck size={20} strokeWidth={1.5} />
               </div>
               <div className="supervisor-detail__today-card-header">
-                <span className="supervisor-detail__today-card-count">{todayAttendances.length}</span>
+                <span className="supervisor-detail__today-card-count">
+                  {todayAttendances.length}
+                </span>
                 <span className="supervisor-detail__today-card-label">Asistencia de gestión</span>
               </div>
               {todayAttendances.length === 0 ? (
@@ -456,7 +488,8 @@ const SupervisorSchoolDetail = () => {
                     <div key={a.id} className="supervisor-detail__today-item">
                       <span>{a.cargadoPorNombre}</span>
                       <span className="supervisor-detail__today-item-detail">
-                        {a.registros.filter((r) => r.presente).length}/{a.registros.length} presentes
+                        {a.registros.filter((r) => r.presente).length}/{a.registros.length}{' '}
+                        presentes
                       </span>
                     </div>
                   ))}
@@ -469,8 +502,12 @@ const SupervisorSchoolDetail = () => {
                 <Users size={20} strokeWidth={1.5} />
               </div>
               <div className="supervisor-detail__today-card-header">
-                <span className="supervisor-detail__today-card-count">{todayDocenteAttendances.length}</span>
-                <span className="supervisor-detail__today-card-label">Asistencia del profesorado</span>
+                <span className="supervisor-detail__today-card-count">
+                  {todayDocenteAttendances.length}
+                </span>
+                <span className="supervisor-detail__today-card-label">
+                  Asistencia del profesorado
+                </span>
               </div>
               {todayDocenteAttendances.length === 0 ? (
                 <span className="supervisor-detail__today-empty">Sin registros hoy</span>
@@ -504,7 +541,8 @@ const SupervisorSchoolDetail = () => {
                     <div key={n.id} className="supervisor-detail__today-item">
                       <span className="supervisor-detail__today-item-desc">{n.descripcion}</span>
                       <span className="supervisor-detail__today-item-detail">
-                        {novedadTipoLabel(n.tipo)}{n.hora ? ` · ${n.hora}` : ''}
+                        {novedadTipoLabel(n.tipo)}
+                        {n.hora ? ` · ${n.hora}` : ''}
                       </span>
                     </div>
                   ))}

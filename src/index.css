@@ -34,5 +34,7 @@ body {
   cursor: pointer;
   margin-bottom: 1rem;
   min-height: 44px;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }

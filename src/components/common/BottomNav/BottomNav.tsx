@@ -1,12 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import {
-  Home,
-  ClipboardCheck,
-  History,
-  Eye,
-  Menu,
-} from 'lucide-react';
+import { Home, ClipboardCheck, History, Eye, Menu } from 'lucide-react';
 import './BottomNav.css';
 
 interface BottomNavProps {

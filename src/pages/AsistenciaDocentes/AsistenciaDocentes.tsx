@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import {
-  addDocenteAttendance,
-  getDocenteAttendanceByUserAndDate,
-} from '@/services/api/firestore';
+import { addDocenteAttendance, getDocenteAttendanceByUserAndDate } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { todayISO } from '@/utils/validation';
@@ -61,7 +58,11 @@ const AsistenciaDocentes = () => {
 
     setIsSubmitting(true);
     try {
-      const existing = await getDocenteAttendanceByUserAndDate(escuelaId, new Date(fecha), user.uid);
+      const existing = await getDocenteAttendanceByUserAndDate(
+        escuelaId,
+        new Date(fecha),
+        user.uid
+      );
       if (existing.length > 0) {
         setFeedback({
           type: 'error',
@@ -144,7 +145,9 @@ const AsistenciaDocentes = () => {
             role="alert"
           >
             <span>{feedback.message}</span>
-            <button className="asist-docentes__feedback-close" onClick={() => setFeedback(null)}>×</button>
+            <button className="asist-docentes__feedback-close" onClick={() => setFeedback(null)}>
+              ×
+            </button>
           </div>
         )}
 

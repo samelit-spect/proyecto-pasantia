@@ -24,26 +24,26 @@ const Asistencia = () => {
         Volver
       </button>
       <AttendanceForm
-      title="Registrar Asistencia"
-      subtitle="Marcá si cada integrante de la gestión está presente o ausente. Si está ausente, el motivo es obligatorio."
-      submitLabel="Enviar Asistencia"
-      mode="sections"
-      sections={GESTION_SECTIONS}
-      checkDuplicate={async (escuelaId, fecha) => {
-        if (!user) return false;
-        const existing = await getAttendanceByUserAndDate(escuelaId, fecha, user.uid);
-        return existing.length > 0;
-      }}
-      onSubmit={async ({ escuelaId, fecha, registros }) => {
-        if (!user || !profile) return;
-        await addAttendance({
-          escuelaId,
-          fecha,
-          cargadoPor: user.uid,
-          cargadoPorNombre: profile.nombre,
-          registros,
-        });
-      }}
+        title="Registrar Asistencia"
+        subtitle="Marcá si cada integrante de la gestión está presente o ausente. Si está ausente, el motivo es obligatorio."
+        submitLabel="Enviar Asistencia"
+        mode="sections"
+        sections={GESTION_SECTIONS}
+        checkDuplicate={async (escuelaId, fecha) => {
+          if (!user) return false;
+          const existing = await getAttendanceByUserAndDate(escuelaId, fecha, user.uid);
+          return existing.length > 0;
+        }}
+        onSubmit={async ({ escuelaId, fecha, registros }) => {
+          if (!user || !profile) return;
+          await addAttendance({
+            escuelaId,
+            fecha,
+            cargadoPor: user.uid,
+            cargadoPorNombre: profile.nombre,
+            registros,
+          });
+        }}
       />
     </>
   );

@@ -30,7 +30,9 @@ const loadTheme = (): ThemeState => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return JSON.parse(saved);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { primary: '#1e40af', primaryLight: '#3b82f6', mode: 'light' };
 };
 
@@ -123,7 +125,9 @@ const ThemeSettings = () => {
                 key={c.value}
                 className={`theme-settings__color ${theme.primary === c.value ? 'theme-settings__color--active' : ''}`}
                 style={{ backgroundColor: c.value }}
-                onClick={() => setTheme((prev) => ({ ...prev, primary: c.value, primaryLight: c.light }))}
+                onClick={() =>
+                  setTheme((prev) => ({ ...prev, primary: c.value, primaryLight: c.light }))
+                }
                 title={c.name}
               >
                 {theme.primary === c.value && <Check size={14} strokeWidth={2.5} />}
@@ -158,9 +162,7 @@ const ThemeSettings = () => {
             <div className="theme-settings__preview-btn" style={{ backgroundColor: theme.primary }}>
               Botón primario
             </div>
-            <div className="theme-settings__preview-surface">
-              Superficie de tarjeta
-            </div>
+            <div className="theme-settings__preview-surface">Superficie de tarjeta</div>
           </div>
         </div>
 

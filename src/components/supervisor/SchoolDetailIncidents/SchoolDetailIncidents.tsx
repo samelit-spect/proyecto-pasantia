@@ -2,7 +2,11 @@ import { memo } from 'react';
 import type { Incident, IncidentStatus } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
-import { incidentCategoriaLabel, incidentUrgenciaLabel, canTransitionIncidentStatus } from '@/utils/constants';
+import {
+  incidentCategoriaLabel,
+  incidentUrgenciaLabel,
+  canTransitionIncidentStatus,
+} from '@/utils/constants';
 import AccordionSection from '../AccordionSection/AccordionSection';
 
 interface SchoolDetailIncidentsProps {
@@ -89,16 +93,28 @@ const SchoolDetailIncidents = ({
                   onStatusChange(inc.id, newStatus);
                 }}
               >
-                <option value="pendiente" disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}>
+                <option
+                  value="pendiente"
+                  disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}
+                >
                   Pendiente
                 </option>
-                <option value="en_analisis" disabled={!canTransitionIncidentStatus(inc.estado, 'en_analisis')}>
+                <option
+                  value="en_analisis"
+                  disabled={!canTransitionIncidentStatus(inc.estado, 'en_analisis')}
+                >
                   En análisis
                 </option>
-                <option value="en_gestion" disabled={!canTransitionIncidentStatus(inc.estado, 'en_gestion')}>
+                <option
+                  value="en_gestion"
+                  disabled={!canTransitionIncidentStatus(inc.estado, 'en_gestion')}
+                >
                   En gestión
                 </option>
-                <option value="resuelto" disabled={!canTransitionIncidentStatus(inc.estado, 'resuelto')}>
+                <option
+                  value="resuelto"
+                  disabled={!canTransitionIncidentStatus(inc.estado, 'resuelto')}
+                >
                   Resuelto
                 </option>
               </select>

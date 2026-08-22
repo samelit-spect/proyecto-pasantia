@@ -29,7 +29,9 @@
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
 }
 
 .supervisor-detail__tab:hover {
@@ -65,10 +67,18 @@
   animation: fadeInUp 0.3s ease-out both;
 }
 
-.supervisor-detail__today-card:nth-child(1) { animation-delay: 0.05s; }
-.supervisor-detail__today-card:nth-child(2) { animation-delay: 0.1s; }
-.supervisor-detail__today-card:nth-child(3) { animation-delay: 0.15s; }
-.supervisor-detail__today-card:nth-child(4) { animation-delay: 0.2s; }
+.supervisor-detail__today-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.supervisor-detail__today-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.supervisor-detail__today-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.supervisor-detail__today-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
 
 .supervisor-detail__today-card--asistencia {
   border-top-color: var(--accent-green-text);
@@ -241,7 +251,9 @@
   border: 1px solid var(--primary-color);
   border-radius: 0.375rem;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
   flex-shrink: 0;
 }
 
@@ -439,7 +451,9 @@
   border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .supervisor-detail__filters-clear:hover {
@@ -697,7 +711,9 @@
   border-radius: 0.375rem;
   cursor: pointer;
   flex-shrink: 0;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .supervisor-detail__docente-actions {
@@ -720,7 +736,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   flex-shrink: 0;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .supervisor-detail__docente-edit:hover {
@@ -767,7 +785,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s, border-color 0.2s;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
   align-self: flex-end;
 }
 

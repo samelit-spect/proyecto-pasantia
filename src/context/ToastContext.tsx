@@ -50,11 +50,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
       <div className="toast-container" role="status" aria-live="polite">
         {toasts.map((toast) => (
-          <ToastItem
-            key={toast.id}
-            toast={toast}
-            onClose={() => removeToast(toast.id)}
-          />
+          <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
         ))}
       </div>
     </ToastContext.Provider>

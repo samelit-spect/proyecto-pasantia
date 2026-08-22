@@ -18,7 +18,9 @@ const applySavedTheme = () => {
       root.style.setProperty('--text-secondary', '#94a3b8');
       root.style.setProperty('--border-color', '#334155');
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 };
 
 const App = ({ children }: { children: React.ReactNode }) => {

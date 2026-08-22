@@ -27,7 +27,9 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
                   <Link to={item.to || '#'} className="breadcrumb__link">
                     {item.label}
                   </Link>
-                  <span className="breadcrumb__separator" aria-hidden="true">/</span>
+                  <span className="breadcrumb__separator" aria-hidden="true">
+                    /
+                  </span>
                 </>
               )}
             </li>

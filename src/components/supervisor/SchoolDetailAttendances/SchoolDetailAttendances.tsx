@@ -85,7 +85,13 @@ const SchoolDetailAttendances = ({
               src={(att as DocenteAttendance).fotoDataUrl}
               alt="Planilla de asistencia"
               className="supervisor-sub__photo"
-              style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain', borderRadius: '0.375rem', marginTop: '0.5rem' }}
+              style={{
+                maxWidth: '100%',
+                maxHeight: 300,
+                objectFit: 'contain',
+                borderRadius: '0.375rem',
+                marginTop: '0.5rem',
+              }}
             />
           ) : null}
         </div>

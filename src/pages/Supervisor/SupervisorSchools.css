@@ -35,7 +35,9 @@
   text-decoration: none;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .supervisor-schools__users-link:hover {
@@ -155,9 +157,15 @@
   animation: fadeInUp 0.3s ease-out both;
 }
 
-.supervisor-schools__summary-card:nth-child(1) { animation-delay: 0.05s; }
-.supervisor-schools__summary-card:nth-child(2) { animation-delay: 0.1s; }
-.supervisor-schools__summary-card:nth-child(3) { animation-delay: 0.15s; }
+.supervisor-schools__summary-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.supervisor-schools__summary-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.supervisor-schools__summary-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
 
 .supervisor-schools__summary-header {
   display: flex;
@@ -268,17 +276,31 @@
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   overflow: hidden;
   animation: fadeInUp 0.35s ease-out both;
 }
 
-.supervisor-schools__card:nth-child(1) { animation-delay: 0.05s; }
-.supervisor-schools__card:nth-child(2) { animation-delay: 0.1s; }
-.supervisor-schools__card:nth-child(3) { animation-delay: 0.15s; }
-.supervisor-schools__card:nth-child(4) { animation-delay: 0.2s; }
-.supervisor-schools__card:nth-child(5) { animation-delay: 0.25s; }
-.supervisor-schools__card:nth-child(6) { animation-delay: 0.3s; }
+.supervisor-schools__card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.supervisor-schools__card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.supervisor-schools__card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.supervisor-schools__card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.supervisor-schools__card:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.supervisor-schools__card:nth-child(6) {
+  animation-delay: 0.3s;
+}
 
 .supervisor-schools__card:hover {
   border-color: var(--primary-light);
@@ -313,7 +335,9 @@
   font-size: 0.75rem;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .supervisor-schools__card-btn:hover {
