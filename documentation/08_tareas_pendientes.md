@@ -233,6 +233,26 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ---
 
+## Completado — Mejoras del benchmark competitivo (24/08/2026)
+
+**Manifest shortcuts (`vite.config.ts`):**
+- Mantener presionado el ícono de la app instalada → "Cargar asistencia" (/asistencia), "Ver historial" (/historial), "Centro de ayuda" (/ayuda)
+- Solo Android/Chrome (iOS no soporta shortcuts); los roles sin acceso a una ruta son redirigidos por MainLayout
+
+**Feriados argentinos (`utils/holidays.ts` + tests):**
+- Feriados nacionales CALCULADOS para cualquier año: fijos + Carnaval/Viernes Santo vía algoritmo de Pascua + traslado al lunes de Güemes/San Martín/Cultural/Soberanía según Ley 27.399 (mar/mié→lunes anterior; jue/vie→lunes siguiente)
+- Verificado contra calendario oficial 2026 (Güemes→15/6, Soberanía→23/11) y reglas 2027; 19 tests unitarios nuevos
+- NO incluye puentes turísticos ni feriados provinciales (se decretan año a año) — documentado en el JSDoc
+- `HolidayNotice` (aviso ámbar no bloqueante, compatible ambos temas vía rgba): integrado en AttendanceForm (gestión y docentes) y Fotos cuando la fecha elegida es feriado
+
+**Recordatorio "falta cargar asistencia" (Home):**
+- Banner ámbar con CTA "Cargar" → /asistencia, visible para director/vice/preceptor con escuela asignada cuando pasaron las 10hs, hoy no es fin de semana NI feriado, y myAttendances.length === 0
+- Cierre por día: localStorage `sipnam-attendance-reminder-dismissed` guarda el ISO del día; reaparece mañana si sigue sin cargarse
+
+⚠️ Lint pre-existente descubierto: `react-hooks/set-state-in-effect` en AttendanceForm.tsx:92 (efecto de reset con setErrors({}), código original sin tocar)
+
+---
+
 ## Pendiente
 
 ### Firebase Console

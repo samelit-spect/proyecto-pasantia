@@ -37,6 +37,29 @@ export default defineConfig({
             purpose: 'any maskable',
           },
         ],
+        shortcuts: [
+          {
+            name: 'Cargar asistencia',
+            short_name: 'Asistencia',
+            description: 'Registrar la asistencia del día',
+            url: '/asistencia?source=shortcut',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Ver historial',
+            short_name: 'Historial',
+            description: 'Consultar registros cargados',
+            url: '/historial?source=shortcut',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Centro de ayuda',
+            short_name: 'Ayuda',
+            description: 'Guías, preguntas frecuentes y glosario',
+            url: '/ayuda?source=shortcut',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+          },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],

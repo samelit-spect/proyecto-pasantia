@@ -4,6 +4,7 @@ import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/fir
 import { fileToCompressedDataUrl } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
+import HolidayNotice from '@/components/common/HolidayNotice/HolidayNotice';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import { todayISO } from '@/utils/validation';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -146,6 +147,8 @@ const Fotos = () => {
           </div>
           <DatePicker value={fecha} onChange={setFecha} />
         </div>
+
+        <HolidayNotice fecha={fecha} />
 
         <div className="fotos__file">
           <label htmlFor="foto-file" className="fotos__file-label">

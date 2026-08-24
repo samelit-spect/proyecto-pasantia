@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import HolidayNotice from '@/components/common/HolidayNotice/HolidayNotice';
 import AttendanceRow from '@/components/common/AttendanceRow/AttendanceRow';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { todayISO } from '@/utils/validation';
@@ -261,6 +262,8 @@ const AttendanceForm = ({
           </div>
           <DatePicker value={fecha} onChange={setFecha} />
         </div>
+
+        <HolidayNotice fecha={fecha} />
 
         {escuelaId && (
           <>

@@ -13,6 +13,8 @@ import {
   Palette,
   MapPin,
   Clock,
+  CalendarClock,
+  X,
 } from 'lucide-react';
 import {
   getSchools,
@@ -35,6 +37,8 @@ import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts
 import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useAmbientMotion } from '@/hooks/useAmbientMotion';
+import { todayISO } from '@/utils/validation';
+import { getHoliday } from '@/utils/holidays';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
 
@@ -61,6 +65,9 @@ const LiveStatValue = ({ value }: { value: number }) => {
   return <>{useCountUp(value, 600, ambient)}</>;
 };
 
+const REMINDER_KEY = 'sipnam-attendance-reminder-dismissed';
+const REMINDER_HOUR = 10;
+
 const Home = () => {
   const { profile, hasRole } = useAuth();
   const ambientLive = useAmbientMotion();
@@ -79,6 +86,13 @@ const Home = () => {
   const [myAttendances, setMyAttendances] = useState<Attendance[]>([]);
   const [myNews, setMyNews] = useState<News[]>([]);
   const [myIncidents, setMyIncidents] = useState<Incident[]>([]);
+  const [reminderDismissedDate, setReminderDismissedDate] = useState<string>(() => {
+    try {
+      return localStorage.getItem(REMINDER_KEY) ?? '';
+    } catch {
+      return REMINDER_KEY;
+    }
+  });
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -270,6 +284,31 @@ const Home = () => {
     </Link>
   );
 
+  const today = todayISO();
+  const now = new Date();
+  const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+
+  const showAttendanceReminder =
+    !hasRole('supervisor') &&
+    hasRole('director', 'vice', 'preceptor') &&
+    Boolean(profile?.escuelaId) &&
+    !isLoading &&
+    !statsError &&
+    !isWeekend &&
+    !getHoliday(today) &&
+    now.getHours() >= REMINDER_HOUR &&
+    myAttendances.length === 0 &&
+    reminderDismissedDate !== today;
+
+  const dismissReminder = () => {
+    setReminderDismissedDate(todayISO());
+    try {
+      localStorage.setItem(REMINDER_KEY, todayISO());
+    } catch {
+      // noop
+    }
+  };
+
   return (
     <section className="home">
       <AnimatedBackground />
@@ -291,6 +330,25 @@ const Home = () => {
           <span>{statsError}</span>
           <button className="home__error-close" onClick={() => setStatsError(null)}>
             ×
+          </button>
+        </div>
+      )}
+
+      {showAttendanceReminder && (
+        <div className="home__reminder animate-fade-in" role="alert">
+          <CalendarClock size={16} strokeWidth={1.5} className="home__reminder-icon" />
+          <p className="home__reminder-text">
+            Todavía no se registró la asistencia de hoy en tu escuela.
+          </p>
+          <Link viewTransition to="/asistencia" className="home__reminder-action">
+            Cargar
+          </Link>
+          <button
+            className="home__reminder-close"
+            onClick={dismissReminder}
+            aria-label="Cerrar recordatorio"
+          >
+            <X size={14} strokeWidth={1.5} />
           </button>
         </div>
       )}
