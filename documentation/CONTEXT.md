@@ -1,7 +1,7 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 22/08/2026
-> Commits totales: 98
+> Última actualización: 24/08/2026
+> Commits totales: 105
 
 ---
 
@@ -31,6 +31,41 @@
 ---
 
 ## Lo que ya está hecho (commit por commit)
+
+### ✅ Permisos, auditoría y UX (sesión 24/08/2026)
+
+**Fix permission-denied para no-supervisores (`f26d6e5`):**
+- `NotificationBell` se suscribía a las colecciones COMPLETAS de asistencias/novedades sin filtro de escuela → Firestore rechaza queries que pueden traer documentos prohibidos
+- Fix: usa `subscribeTodayAttendancesBySchool(profile.escuelaId)` y `subscribeTodayNewsBySchool()`; supervisor mantiene su suscripción global
+- **Lección:** toda query de colección necesita el filtro `escuelaId ==` explícito para roles no-supervisor (las reglas se evalúan contra la query, no contra los resultados)
+
+**AuthContext simplificado (`017f44e`):**
+- `login()` ya NO carga el perfil: solo hace `signInWithEmailAndPassword` y resuelve
+- El perfil lo carga el listener `onAuthStateChanged` → menos código, una sola fuente de verdad
+- Warnings por consola si el usuario autenticado no tiene documento de perfil
+
+**Auditoría de gestión usuarios/docentes (`3469262`):**
+- Campos nuevos en `UserProfile` y `Docente`: `creadoPor`, `creadoPorNombre`, `editadoPor`, `editadoPorNombre`, `editadoEn`
+- Servicios (`addUserProfile`, `updateUserProfile`, `setUserActive`, `addDocente`, `updateDocente`, `setDocenteActive`) aceptan actor opcional `{ uid, nombre }`
+- SupervisorUsers y SchoolDetailDocentes pasan su perfil como actor y muestran "Creado por X" / "Editado por X · fecha" en las listas
+- Registros ANTERIORES a este cambio no tienen campos de auditoría (son opcionales)
+
+**Reglas blindadas + desplegadas (`21364d9`):**
+- Nueva función `hasProfile()` con `exists(...)` en firestore.rules — todas las funciones que leen `userProfile()` la evalúan primero (Firestore corta-circuito en `&&`)
+- Cierra el bug prioritario "permission-denied al iniciar sesión" cuando el perfil aún no existe
+- Desplegadas: `firebase deploy --only firestore:rules --project sipnam-proyecto`
+
+**UX menor (`0d0c25f`):**
+- Fotos de incidentes con `object-fit: contain` (form preview + detalle supervisor)
+- `DatePicker` acepta props `min`/`max` (retrocompatible); Historial valida rango Desde/Hasta — si queda invertido limpia el filtro contradictorio con toast info
+- Drawer del Navbar marca la página activa (`navbar__drawer-link--active`, patrón `useLocation` igual que BottomNav)
+- Login con password visibility toggle (Eye/EyeOff)
+
+**Sync offline con feedback (`e762880`):**
+- Firestore ya sincroniza solo (persistent cache); lo nuevo es la trazabilidad visual
+- `utils/offlineQueue.ts`: marcador localStorage `sipnam-offline-writes` cuando hay escrituras hechas sin conexión
+- Incidentes offline muestra "guardado en el dispositivo, se sincronizará automáticamente"
+- ConnectionBanner: al volver la conexión + `waitForPendingWrites(db)` confirmado → banner verde 4s "Registros pendientes sincronizados"; cubre también app cerrada offline y reabierta online
 
 ### ✅ Respaldo anual + trazabilidad de incidentes (ago 2026)
 - **Export global:** queries jurisdiccionales sin límite (`getAll*` en firestore.ts) + util `exportAll.ts` (4 CSV con columna Escuela, incluye motivos de ausencia). Tarjeta "Respaldo de datos" en Panel de Supervisión con rango de fechas, ConfirmDialog y progreso. Las fotos NO se incluyen (base64 pesado; Firebase 12 quitó `select()`).
@@ -348,6 +383,7 @@ Plan de 12 mejoras documentado ítem por ítem en `documentation/18_animaciones.
 - `src/utils/dateKey.ts` — Función `dateKey()` UTC-based para normalizar fechas
 - `src/utils/authErrors.ts` — Mensajes de error de Firebase Auth
 - `src/utils/image.ts` — `fileToCompressedDataUrl()` para fotos
+- `src/utils/offlineQueue.ts` — marcador localStorage de escrituras offline (sync feedback)
 - `src/utils/pdfExport.ts` — Exportación PDF con jsPDF + autoTable
 - `src/utils/exportCsv.ts` — Exportación CSV
 
@@ -376,7 +412,8 @@ Plan de 12 mejoras documentado ítem por ítem en `documentation/18_animaciones.
 - `incidentes`: `escuelaId + fecha`
 
 ### Reglas de seguridad
-- No-supervisores solo leen documentos de su `escuelaId`
+- `hasProfile()` con `exists(...)` blanca TODO acceso a `userProfile()` — evita permission-denied cuando el perfil no existe (desplegadas 24/08/2026)
+- No-supervisores solo leen documentos de su `escuelaId`; toda query de colección debe incluir el filtro `escuelaId ==` explícito o Firestore la rechaza
 - `getSchools()` (collection query) FALLA para directores — usar `getSchoolById()` en su lugar
 - Supervisor tiene acceso completo a todas las escuelas
 
@@ -449,9 +486,6 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
 
 ## Tareas pendientes conocidas
 
-### Bugs (prioritario)
-- [ ] **Firestore: permission-denied al iniciar sesión** (`AuthContext.tsx:45` lee `usuarios/{uid}`). Diagnóstico: en `firestore.rules` la regla `usuarios.read` evalúa `isSupervisor()` (que hace `get()`) ANTES del check `userId == request.auth.uid`; si el perfil aún no existe o el get falla, la condición entera deniega. Fix propuesto: reordenar la regla poniendo `request.auth.uid == userId` primero, blindar `userProfile()` con `exists(...)`, y desplegar con `firebase deploy --only firestore:rules`.
-
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`
 - [ ] Crear usuarios iniciales (1 director por escuela)
@@ -464,18 +498,14 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
 ### Mejoras futuras
 - [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
 - [ ] Evaluar índices compuestos adicionales
-- [ ] Offline: sync automático de incidentes creados sin conexión
+- [ ] Extender marcador offline-sync a novedades y asistencias (hoy solo incidentes)
 
 ### UX media (audit completado, priorizado)
-- [ ] Incidentes: `object-fit: contain` en vez de `cover` para fotos
 - [ ] Incidentes: validación de tamaño de archivo
 - [ ] Novedades/Incidentes: feedback cuando user context falta
-- [ ] Historial: validación dateFrom > dateTo
-- [ ] Navbar: active page indicator en drawer
 - [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
 - [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado)
 - [ ] SupervisorUsers: sort controls en lista
-- [ ] Login: password visibility toggle
 - [ ] Login: focus management después de error
 - [ ] Home: empty state para supervisor cuando no hay actividad
 
