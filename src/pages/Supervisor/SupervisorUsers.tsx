@@ -454,6 +454,7 @@ const SupervisorUsers = () => {
               icon="users"
               title="No hay usuarios"
               description="Creá el primer usuario para asignarlo a una escuela."
+              action={{ label: 'Crear usuario', onClick: () => setShowForm(true) }}
             />
           ) : (
             <div className="supervisor-users__list">

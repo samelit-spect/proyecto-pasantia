@@ -368,6 +368,7 @@ const SupervisorSchools = () => {
             icon="school"
             title="No hay escuelas registradas"
             description="Creá la primera escuela para comenzar a cargar datos."
+            action={{ label: 'Crear la primera escuela', onClick: () => setShowForm(true) }}
           />
         </div>
       )}

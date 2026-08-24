@@ -334,6 +334,7 @@ const Home = () => {
               icon="clipboard"
               title="Sin actividad hoy"
               description="Cuando se carguen asistencias o novedades, aparecerán aquí."
+              action={{ label: 'Registrar asistencia', to: '/asistencia' }}
             />
           ) : (
             <Timeline

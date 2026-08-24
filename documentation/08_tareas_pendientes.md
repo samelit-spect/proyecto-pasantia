@@ -209,6 +209,19 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Extras de ayuda 5/5: empty states con acción (24/08/2026)
+
+- ✅ `EmptyState` ahora acepta prop opcional `action` ({ label, to?, onClick? }) que renderiza Link o botón
+- ✅ Home "Sin actividad hoy" → botón "Registrar asistencia"
+- ✅ Supervisor escuelas vacío → botón "Crear la primera escuela" (abre el formulario)
+- ✅ Supervisor usuarios vacío → botón "Crear usuario" (abre el formulario)
+
+## Lote completo: extras de ayuda/onboarding (24/08/2026)
+
+Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA inteligente con fallback iOS, tour de bienvenida por rol, hints contextuales y empty states con acción. Ver commits 6db98d3, cb4337c, 17a9d40, a3eb3f4 y el actual.
+
+---
+
 ## Pendiente
 
 ### Firebase Console

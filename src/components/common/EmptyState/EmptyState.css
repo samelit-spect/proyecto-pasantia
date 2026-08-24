@@ -26,3 +26,24 @@
   opacity: 0.7;
   max-width: 280px;
 }
+
+.empty-state__action {
+  margin-top: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  background: var(--gradient-accent, var(--primary-color));
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.empty-state__action:hover {
+  filter: brightness(1.08);
+}

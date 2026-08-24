@@ -1,9 +1,17 @@
+import { Link } from 'react-router-dom';
 import './EmptyState.css';
+
+interface EmptyStateAction {
+  label: string;
+  to?: string;
+  onClick?: () => void;
+}
 
 interface EmptyStateProps {
   icon?: 'clipboard' | 'news' | 'alert' | 'folder' | 'users' | 'camera' | 'school';
   title: string;
   description?: string;
+  action?: EmptyStateAction;
 }
 
 const icons = {
@@ -205,11 +213,21 @@ const icons = {
   ),
 };
 
-const EmptyState = ({ icon = 'folder', title, description }: EmptyStateProps) => (
+const EmptyState = ({ icon = 'folder', title, description, action }: EmptyStateProps) => (
   <div className="empty-state">
     <div className="empty-state__icon">{icons[icon]}</div>
     <p className="empty-state__title">{title}</p>
     {description && <p className="empty-state__desc">{description}</p>}
+    {action &&
+      (action.to ? (
+        <Link viewTransition to={action.to} className="empty-state__action">
+          {action.label}
+        </Link>
+      ) : (
+        <button type="button" className="empty-state__action" onClick={action.onClick}>
+          {action.label}
+        </button>
+      ))}
   </div>
 );
 
