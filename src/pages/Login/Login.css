@@ -8,6 +8,8 @@
 }
 
 .login__card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 400px;
   background-color: var(--surface-color);

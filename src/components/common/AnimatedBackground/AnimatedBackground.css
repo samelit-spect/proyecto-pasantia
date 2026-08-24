@@ -1,0 +1,86 @@
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.animated-bg__orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.animated-bg__orb--1 {
+  width: 34rem;
+  height: 34rem;
+  top: -12rem;
+  left: -8rem;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--primary-light), transparent 78%),
+    transparent 68%
+  );
+  animation: animated-bg-float-1 22s ease-in-out infinite alternate;
+}
+
+.animated-bg__orb--2 {
+  width: 26rem;
+  height: 26rem;
+  top: 30%;
+  right: -10rem;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--primary-color), transparent 80%),
+    transparent 66%
+  );
+  animation: animated-bg-float-2 28s ease-in-out infinite alternate;
+}
+
+.animated-bg__orb--3 {
+  width: 20rem;
+  height: 20rem;
+  bottom: -8rem;
+  left: 24%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--primary-light), transparent 84%),
+    transparent 64%
+  );
+  animation: animated-bg-float-3 19s ease-in-out infinite alternate;
+}
+
+@keyframes animated-bg-float-1 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(4rem, 5rem) scale(1.12);
+  }
+}
+
+@keyframes animated-bg-float-2 {
+  from {
+    transform: translate(0, 0) scale(1.05);
+  }
+  to {
+    transform: translate(-5rem, -4rem) scale(0.92);
+  }
+}
+
+@keyframes animated-bg-float-3 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(3rem, -6rem) scale(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-bg__orb {
+    animation-play-state: paused;
+  }
+}

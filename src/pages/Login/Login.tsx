@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { getAuthErrorMessage } from '@/utils/authErrors';
 import Button from '@/components/common/Button/Button';
+import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import './Login.css';
 
 const Login = () => {
@@ -32,6 +33,7 @@ const Login = () => {
 
   return (
     <div className="login">
+      <AnimatedBackground />
       <div className="login__card">
         <h1 className="login__title">SIPNAM</h1>
         <p className="login__subtitle">

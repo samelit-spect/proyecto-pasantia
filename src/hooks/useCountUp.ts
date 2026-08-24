@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function useCountUp(target: number, duration = 600) {
+export function useCountUp(target: number, duration = 600, enabled = true) {
   const [value, setValue] = useState(0);
   const prevTarget = useRef(0);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const from = prevTarget.current;
+    const from = enabled ? prevTarget.current : target;
     const to = target;
     prevTarget.current = target;
 
-    if (from === to) return;
+    if (from === to) {
+      setValue(to);
+      return;
+    }
 
     const startTime = performance.now();
 
@@ -30,7 +33,7 @@ export function useCountUp(target: number, duration = 600) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [target, duration]);
+  }, [target, duration, enabled]);
 
   return value;
 }

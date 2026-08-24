@@ -222,6 +222,17 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ---
 
+## Completado — Animaciones en tiempo real con gate de red (24/08/2026)
+
+- ✅ Hook `useAmbientMotion`: devuelve si pueden correr animaciones continuas. Respeta `prefers-reduced-motion`, exige online, y usa Network Information API: WiFi/Ethernet → sí; cellular/none/saveData/effectiveType ≤3g → no. Sin API (iOS Safari/Firefox) → activo por defecto (decisión del usuario). Reactivo: escucha `online`/`offline` y el evento `change` de la conexión
+- ✅ `AnimatedBackground` (Login + Home): 3 orbes con radial-gradient (sin filter:blur, más barato en GPU), solo transform/scale, keyframes 19–28s alternados; si el gate está apagado no se renderiza nada (costo cero); pausa también con reduced-motion
+- ✅ Count-up "gateado": `useCountUp(target, duration, enabled)` — si está deshabilitado salta directo al valor sin animar
+- ✅ Badge pulsante "En vivo" en "Resumen del día" del supervisor (solo cuando el gate lo permite)
+- ✅ Stats "Mi escuela" (no-supervisor) ahora también cuentan animado, respetando el mismo gate
+- ⚠️ Limitación documentada: Safari/iOS no expone Network Information API → ahí las animaciones quedan siempre activas
+
+---
+
 ## Pendiente
 
 ### Firebase Console

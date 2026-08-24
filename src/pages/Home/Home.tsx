@@ -32,7 +32,9 @@ import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import RetentionBanner from '@/components/common/RetentionBanner/RetentionBanner';
 import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timeline';
 import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
+import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import { useCountUp } from '@/hooks/useCountUp';
+import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
 
@@ -44,7 +46,8 @@ interface CardItem {
 }
 
 const AnimatedStat = ({ value, label }: { value: number; label: string }) => {
-  const animated = useCountUp(value);
+  const ambient = useAmbientMotion();
+  const animated = useCountUp(value, 600, ambient);
   return (
     <div className="home__stat">
       <span className="home__stat-value">{animated}</span>
@@ -53,8 +56,14 @@ const AnimatedStat = ({ value, label }: { value: number; label: string }) => {
   );
 };
 
+const LiveStatValue = ({ value }: { value: number }) => {
+  const ambient = useAmbientMotion();
+  return <>{useCountUp(value, 600, ambient)}</>;
+};
+
 const Home = () => {
   const { profile, hasRole } = useAuth();
+  const ambientLive = useAmbientMotion();
 
   const [activityRef] = useAutoAnimate();
   const [alertsRef] = useAutoAnimate();
@@ -263,6 +272,7 @@ const Home = () => {
 
   return (
     <section className="home">
+      <AnimatedBackground />
       <div className="home__header">
         <div className="home__header-text">
           <Breadcrumb items={[{ label: 'Inicio' }]} />
@@ -303,15 +313,21 @@ const Home = () => {
             )}
             <div className="home__school-card-stats">
               <div className="home__school-stat home__school-stat--asistencia">
-                <span className="home__school-stat-value">{myAttendances.length}</span>
+                <span className="home__school-stat-value">
+                  <LiveStatValue value={myAttendances.length} />
+                </span>
                 <span className="home__school-stat-label">Asistencias</span>
               </div>
               <div className="home__school-stat home__school-stat--novedades">
-                <span className="home__school-stat-value">{myNews.length}</span>
+                <span className="home__school-stat-value">
+                  <LiveStatValue value={myNews.length} />
+                </span>
                 <span className="home__school-stat-label">Novedades</span>
               </div>
               <div className="home__school-stat home__school-stat--incidentes">
-                <span className="home__school-stat-value">{myIncidents.length}</span>
+                <span className="home__school-stat-value">
+                  <LiveStatValue value={myIncidents.length} />
+                </span>
                 <span className="home__school-stat-label">Incidentes</span>
               </div>
             </div>
@@ -378,7 +394,15 @@ const Home = () => {
         <div className="animate-fade-in">
           <RetentionBanner />
           <div className="home__section">
-            <h3 className="home__section-title">Resumen del día</h3>
+            <h3 className="home__section-title">
+              Resumen del día
+              {ambientLive && (
+                <span className="home__live-badge">
+                  <span className="home__live-dot" />
+                  En vivo
+                </span>
+              )}
+            </h3>
             <div className="home__stats">
               <AnimatedStat value={stats.escuelas} label="Escuelas" />
               <AnimatedStat value={stats.asistencias} label="Asistencias" />
