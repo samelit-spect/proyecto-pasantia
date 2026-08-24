@@ -4,6 +4,7 @@ import Navbar from '@/components/common/Navbar/Navbar';
 import ConnectionBanner from '@/components/common/ConnectionBanner/ConnectionBanner';
 import InstallPrompt from '@/components/common/InstallPrompt/InstallPrompt';
 import WelcomeTour from '@/components/common/WelcomeTour/WelcomeTour';
+import SupervisorLiveAlerts from '@/components/common/SupervisorLiveAlerts/SupervisorLiveAlerts';
 import './MainLayout.css';
 
 const PROTECTED_ROUTES = [
@@ -45,6 +46,7 @@ const MainLayout = () => {
       <ConnectionBanner />
       <InstallPrompt />
       <WelcomeTour />
+      <SupervisorLiveAlerts />
       <main className="main-layout__content">
         <Outlet key={location.pathname} />
       </main>

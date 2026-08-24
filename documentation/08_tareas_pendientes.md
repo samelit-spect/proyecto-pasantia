@@ -253,6 +253,17 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ---
 
+## Completado — Avisos en tiempo real para el supervisor (24/08/2026) [Opción A]
+
+- ✅ Componente `SupervisorLiveAlerts` montado en MainLayout (solo activo si el perfil es supervisor)
+- ✅ Reutiliza las suscripciones globales `subscribeToday{Attendances,News,Incidents}` con diff por IDs vistos: el primer snapshot NO notifica (evita lluvia al entrar); snapshots siguientes detectan documentos nuevos
+- ✅ Toast apilable (máx 3, auto-cierra en FEEDBACK_AUTO_CLEAR_MS×2) con color por tipo: asistencia verde, novedad azul, incidente rojo
+- ✅ Notificación nativa vía Service Worker `showNotification` SOLO cuando la pestaña está oculta (`visibilityState !== 'visible'`), fallback `new Notification`
+- ✅ Banner de opt-in de permisos: solo aparece si `Notification.permission === 'default'`, se pide tras clic ("Activar avisos"), cierre persistente en localStorage `sipnam-notif-perm-dismissed`. Nunca se pide permiso al cargar la página
+- 📝 Fase B (push con app cerrada vía FCM + Cloud Functions, requiere plan Blaze) queda fuera del alcance de la pasantía por ahora
+
+---
+
 ## Pendiente
 
 ### Firebase Console
