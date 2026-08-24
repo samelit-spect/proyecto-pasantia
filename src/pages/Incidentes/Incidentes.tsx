@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addIncident } from '@/services/api/firestore';
-import { fileToCompressedDataUrl } from '@/utils/image';
+import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import { markOfflineWrite } from '@/utils/offlineQueue';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
@@ -47,6 +47,16 @@ const Incidentes = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+
+    if (file) {
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        setFeedback({ type: 'error', message: validationError });
+        e.target.value = '';
+        return;
+      }
+    }
+
     setFoto(file);
     if (preview) URL.revokeObjectURL(preview);
     setPreview(file ? URL.createObjectURL(file) : null);
@@ -61,6 +71,14 @@ const Incidentes = () => {
       let fotoDataUrl: string | undefined;
       if (foto) {
         fotoDataUrl = await fileToCompressedDataUrl(foto);
+        if (!isSafeDataUrl(fotoDataUrl)) {
+          setFeedback({
+            type: 'error',
+            message:
+              'La foto es demasiado pesada incluso comprimida. Intentá con otra imagen de menor resolución.',
+          });
+          return;
+        }
       }
 
       await addIncident({

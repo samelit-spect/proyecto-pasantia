@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { addDocenteAttendance, getDocenteAttendanceByUserAndDate } from '@/services/api/firestore';
-import { fileToCompressedDataUrl } from '@/utils/image';
+import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { todayISO } from '@/utils/validation';
 import { markOfflineWrite } from '@/utils/offlineQueue';
@@ -52,8 +52,9 @@ const AsistenciaDocentes = () => {
       return;
     }
 
-    if (!foto.type.startsWith('image/')) {
-      setFeedback({ type: 'error', message: 'El archivo debe ser una imagen.' });
+    const validationError = validateImageFile(foto);
+    if (validationError) {
+      setFeedback({ type: 'error', message: validationError });
       return;
     }
 
@@ -74,6 +75,14 @@ const AsistenciaDocentes = () => {
       }
 
       const fotoDataUrl = await fileToCompressedDataUrl(foto);
+      if (!isSafeDataUrl(fotoDataUrl)) {
+        setFeedback({
+          type: 'error',
+          message:
+            'La foto es demasiado pesada incluso comprimida. Intentá con otra imagen de menor resolución.',
+        });
+        return;
+      }
       await addDocenteAttendance({
         escuelaId,
         fecha: new Date(fecha),

@@ -530,7 +530,10 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
   global ya las cubría)
 
 ### UX media (audit completado, priorizado)
-- [ ] Incidentes: validación de tamaño de archivo
+- [x] Incidentes: validación de tamaño de archivo (hecho 24/08/2026 — helpers
+  compartidos `validateImageFile` / `isSafeDataUrl` en utils/image.ts, aplicados
+  en Incidentes, Fotos y AsistenciaDocentes: rechazo de no-imágenes y >20MB al
+  seleccionar + guarda post-compresión contra el límite de 1MB/doc Firestore)
 - [ ] Novedades/Incidentes: feedback cuando user context falta
 - [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
 - [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado)

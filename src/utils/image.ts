@@ -1,3 +1,33 @@
+// Límite de entrada: los celulares actuales rara vez generan fotos de más de
+// 15 MB; 20 MB cubre todo caso legítimo y evita que el usuario espere una
+// compresión destinada a fallar.
+export const MAX_IMAGE_INPUT_BYTES = 20 * 1024 * 1024;
+
+// Firestore admite documentos de hasta 1 MB. Con margen para el resto de los
+// campos, un data URL comprimido debe quedar por debajo de este umbral.
+export const MAX_SAFE_DATA_URL_LENGTH = 900_000;
+
+/**
+ * Valida tipo y tamaño de un archivo de imagen seleccionado.
+ * Devuelve el mensaje de error para mostrar al usuario, o null si es válido.
+ */
+export function validateImageFile(file: File): string | null {
+  if (!file.type.startsWith('image/')) {
+    return 'El archivo debe ser una imagen.';
+  }
+  if (file.size > MAX_IMAGE_INPUT_BYTES) {
+    return 'La imagen supera los 20 MB. Seleccioná una más liviana o de menor resolución.';
+  }
+  return null;
+}
+
+/**
+ * Verifica que un data URL comprimido entre seguro en un documento Firestore.
+ */
+export function isSafeDataUrl(dataUrl: string): boolean {
+  return dataUrl.length <= MAX_SAFE_DATA_URL_LENGTH;
+}
+
 export function fileToCompressedDataUrl(
   file: File,
   maxSize = 1024,

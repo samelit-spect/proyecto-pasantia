@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/firestore';
-import { fileToCompressedDataUrl } from '@/utils/image';
+import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
 import HolidayNotice from '@/components/common/HolidayNotice/HolidayNotice';
@@ -81,14 +81,23 @@ const Fotos = () => {
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      setFeedback({ type: 'error', message: 'El archivo debe ser una imagen.' });
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setFeedback({ type: 'error', message: validationError });
       return;
     }
 
     setIsUploading(true);
     try {
       const dataUrl = await fileToCompressedDataUrl(file);
+      if (!isSafeDataUrl(dataUrl)) {
+        setFeedback({
+          type: 'error',
+          message:
+            'La foto es demasiado pesada incluso comprimida. Intentá con otra imagen de menor resolución.',
+        });
+        return;
+      }
       await addFoto({
         escuelaId,
         fecha,

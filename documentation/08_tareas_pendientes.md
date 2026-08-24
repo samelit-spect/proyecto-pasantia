@@ -311,7 +311,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 - [x] Extender marcador offline-sync a novedades y asistencias (hecho 24/08/2026, ver abajo)
 
 ### UX media (priorizado por impacto)
-- [ ] Incidentes: validación de tamaño de archivo (acepta 50MB+)
+- [x] Incidentes: validación de tamaño de archivo (hecho 24/08/2026, ver abajo)
 - [ ] Novedades/Incidentes: feedback cuando user context falta (silencioso `return`)
 - [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
 - [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado para 3 cosas)
@@ -377,3 +377,20 @@ servicios: `waitForPendingWrites(db)` es global y ya cubre todas las colecciones
 
 **Test nuevo:** Novedades sin conexión → mensaje offline + localStorage
 `sipnam-offline-writes` marcado (116/116 en verde).
+
+## Completado — Validación de tamaño de archivos con foto (24/08/2026)
+
+**Problema:** los formularios aceptaban imágenes de cualquier tamaño (50MB+)
+pero Firestore tiene límite de 1MB por documento → error críptico en producción.
+
+**Solución — helpers compartidos en `src/utils/image.ts`:**
+- `validateImageFile(file)`: rechaza no-imágenes y archivos >20MB al momento
+  de seleccionar (feedback inmediato, limpia el input).
+- `isSafeDataUrl(dataUrl)`: guarda post-compresión — si el JPEG resultante
+  superara los 900KB (margen sobre el límite del doc), se rechaza con mensaje
+  claro en vez de fallar en Firebase.
+
+**Aplicado en los 3 formularios con foto:** Incidentes, Foto Diaria y
+Asistencia de Docentes (reemplazó sus chequeos inline de tipo).
+
+**Tests:** 5 unitarios nuevos para los helpers (121/121 en verde).
