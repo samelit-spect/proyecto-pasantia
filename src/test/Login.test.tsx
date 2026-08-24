@@ -65,7 +65,7 @@ describe('Login', () => {
     });
   });
 
-  it('muestra texto de carga en el botón durante el envío', async () => {
+  it('muestra spinner de carga en el botón durante el envío', async () => {
     mockLogin.mockImplementation(() => new Promise(() => {}));
     const user = userEvent.setup();
     renderLogin();
@@ -75,7 +75,9 @@ describe('Login', () => {
     await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Ingresando...' })).toBeDefined();
+      const submitButton = screen.getByRole('button', { name: 'Iniciar Sesión' });
+      expect(submitButton.querySelector('.btn__spinner')).not.toBeNull();
+      expect(submitButton.className).toContain('btn--loading');
     });
   });
 

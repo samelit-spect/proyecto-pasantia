@@ -296,7 +296,10 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 - [ ] Tests de AuthContext
 - [ ] Tests de Firestore services (CRUD schools, docentes, attendance)
 - [ ] Tests de formularios de novedades/incidentes
-- [ ] Fix test pre-existente roto: Login "muestra texto de carga en el botón durante el envío"
+- [x] ~~Fix test pre-existente roto: Login "muestra texto de carga en el botón durante el envío"~~
+  → Resuelto 24/08/2026: el test esperaba el texto "Ingresando..." de un diseño
+  viejo del botón; actualizado para verificar el spinner (`.btn__spinner`) y la
+  clase `btn--loading` del diseño actual. Suite completa: **115/115 en verde**.
 - [ ] Evaluar errores eslint react-compiler pre-existentes (setState síncrono en effects, 11 errores)
 
 ### Respaldo anual
@@ -352,5 +355,5 @@ Verifica que TODAS las páginas y los componentes comunes rendericen sin errores
   `renderPage`), NO `MemoryRouter`.
 - WelcomeTour abre tras `setTimeout(600)` → usar fake timers y `advanceTimersByTime`.
 
-**Resultado:** suite total 115 tests (114 pasan; la única falla es la
-pre-existente de Login, ver nota arriba). Sin regresiones.
+**Resultado:** suite total 115 tests, **todos en verde** (el test de Login que
+fallaba se corrigió el mismo día — ver sección Testing). Sin regresiones.
