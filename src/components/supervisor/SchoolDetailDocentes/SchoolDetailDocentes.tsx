@@ -89,6 +89,15 @@ const SchoolDetailDocentes = ({
             <div className="supervisor-detail__docente-info">
               <span className="supervisor-detail__docente-name">{d.nombre}</span>
               <span className="supervisor-detail__docente-materia">{d.materia || 'Docente'}</span>
+              {(d.editadoPorNombre || d.creadoPorNombre) && (
+                <span className="supervisor-detail__docente-audit">
+                  {d.editadoPorNombre && d.editadoEn
+                    ? `Editado por ${d.editadoPorNombre} · ${d.editadoEn.toDate().toLocaleDateString('es-AR')}`
+                    : d.creadoPorNombre
+                      ? `Creado por ${d.creadoPorNombre}`
+                      : null}
+                </span>
+              )}
             </div>
             <div className="supervisor-detail__docente-actions">
               {onEditDocente && (

@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export type UserRole = 'director' | 'vice' | 'preceptor' | 'secretario' | 'conserje' | 'supervisor';
 
 export interface UserProfile {
@@ -9,6 +11,11 @@ export interface UserProfile {
   cargo: string;
   activo: boolean;
   fechaCreacion: Date;
+  creadoPor?: string;
+  creadoPorNombre?: string;
+  editadoPor?: string;
+  editadoPorNombre?: string;
+  editadoEn?: Timestamp;
 }
 
 export interface UserCreateDTO {

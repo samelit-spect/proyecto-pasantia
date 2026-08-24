@@ -118,14 +118,17 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   return snapshot.docs.map((d) => ({ uid: d.id, ...d.data() }) as UserProfile);
 }
 
-export async function addUserProfile(data: {
-  uid: string;
-  nombre: string;
-  email: string;
-  rol: UserProfile['rol'];
-  escuelaId: string;
-  cargo: string;
-}): Promise<void> {
+export async function addUserProfile(
+  data: {
+    uid: string;
+    nombre: string;
+    email: string;
+    rol: UserProfile['rol'];
+    escuelaId: string;
+    cargo: string;
+  },
+  actor?: { uid: string; nombre: string }
+): Promise<void> {
   await setDoc(doc(db, COLLECTIONS.users, data.uid), {
     nombre: data.nombre,
     email: data.email,
@@ -134,22 +137,36 @@ export async function addUserProfile(data: {
     cargo: data.cargo,
     activo: true,
     createdAt: Timestamp.now(),
+    ...(actor ? { creadoPor: actor.uid, creadoPorNombre: actor.nombre } : {}),
   });
 }
 
-export async function setUserActive(uid: string, activo: boolean): Promise<void> {
-  await updateDoc(doc(db, COLLECTIONS.users, uid), { activo });
+export async function setUserActive(
+  uid: string,
+  activo: boolean,
+  actor?: { uid: string; nombre: string }
+): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.users, uid), {
+    activo,
+    ...(actor
+      ? { editadoPor: actor.uid, editadoPorNombre: actor.nombre, editadoEn: Timestamp.now() }
+      : {}),
+  });
 }
 
 export async function updateUserProfile(
   uid: string,
-  data: { nombre: string; email: string; rol: string; escuelaId: string }
+  data: { nombre: string; email: string; rol: string; escuelaId: string },
+  actor?: { uid: string; nombre: string }
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTIONS.users, uid), {
     nombre: data.nombre,
     email: data.email,
     rol: data.rol,
     escuelaId: data.escuelaId,
+    ...(actor
+      ? { editadoPor: actor.uid, editadoPorNombre: actor.nombre, editadoEn: Timestamp.now() }
+      : {}),
   });
 }
 
@@ -432,28 +449,45 @@ export async function getAllDocentes(): Promise<Docente[]> {
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Docente);
 }
 
-export async function addDocente(data: AddDocenteDTO): Promise<string> {
+export async function addDocente(
+  data: AddDocenteDTO,
+  actor?: { uid: string; nombre: string }
+): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS.docentes), {
     nombre: data.nombre,
     materia: data.materia || '',
     escuelaId: data.escuelaId,
     activo: true,
     createdAt: Timestamp.now(),
+    ...(actor ? { creadoPor: actor.uid, creadoPorNombre: actor.nombre } : {}),
   });
   return docRef.id;
 }
 
-export async function setDocenteActive(docenteId: string, activo: boolean): Promise<void> {
-  await updateDoc(doc(db, COLLECTIONS.docentes, docenteId), { activo });
+export async function setDocenteActive(
+  docenteId: string,
+  activo: boolean,
+  actor?: { uid: string; nombre: string }
+): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.docentes, docenteId), {
+    activo,
+    ...(actor
+      ? { editadoPor: actor.uid, editadoPorNombre: actor.nombre, editadoEn: Timestamp.now() }
+      : {}),
+  });
 }
 
 export async function updateDocente(
   docenteId: string,
-  data: { nombre: string; materia?: string }
+  data: { nombre: string; materia?: string },
+  actor?: { uid: string; nombre: string }
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTIONS.docentes, docenteId), {
     nombre: data.nombre,
     materia: data.materia || '',
+    ...(actor
+      ? { editadoPor: actor.uid, editadoPorNombre: actor.nombre, editadoEn: Timestamp.now() }
+      : {}),
   });
 }
 

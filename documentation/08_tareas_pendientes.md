@@ -144,6 +144,14 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Auditoría de gestión (24/08/2026)
+
+- ✅ Campos de auditoría en usuarios y docentes: `creadoPor`, `creadoPorNombre`, `editadoPor`, `editadoPorNombre`, `editadoEn` (types + services con parámetro opcional `actor`)
+- ✅ SupervisorUsers: pasa su perfil como actor al crear, editar y activar/desactivar usuarios; lista muestra "Creado por X" y "Editado por X · fecha"
+- ✅ SupervisorSchoolDetail / SchoolDetailDocentes: actor al crear, editar y activar/desactivar docentes; línea de auditoría bajo cada docente
+
+---
+
 ## Pendiente
 
 ### Bugs (prioritario)

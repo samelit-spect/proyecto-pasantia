@@ -7,6 +7,11 @@ export interface Docente {
   escuelaId: string;
   activo: boolean;
   createdAt: Timestamp;
+  creadoPor?: string;
+  creadoPorNombre?: string;
+  editadoPor?: string;
+  editadoPorNombre?: string;
+  editadoEn?: Timestamp;
 }
 
 export interface AddDocenteDTO {

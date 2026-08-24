@@ -13,6 +13,7 @@ import {
 } from '@/services/api/firestore';
 import { createUserAccount, sendPasswordReset } from '@/services/api/auth';
 import { getAuthErrorMessage } from '@/utils/authErrors';
+import { useAuth } from '@/context/AuthContext';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import Button from '@/components/common/Button/Button';
@@ -47,6 +48,9 @@ type EditUserFormData = z.infer<typeof editUserSchema>;
 const SupervisorUsers = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { profile } = useAuth();
+
+  const actor = () => (profile ? { uid: profile.uid, nombre: profile.nombre } : undefined);
 
   const [schools, setSchools] = useState<School[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -97,14 +101,17 @@ const SupervisorUsers = () => {
   const handleCreate = async (data: CreateUserFormData) => {
     try {
       const uid = await createUserAccount(data.email, data.password);
-      await addUserProfile({
-        uid,
-        nombre: data.nombre,
-        email: data.email,
-        rol: data.rol,
-        escuelaId: data.escuelaId,
-        cargo: data.rol,
-      });
+      await addUserProfile(
+        {
+          uid,
+          nombre: data.nombre,
+          email: data.email,
+          rol: data.rol,
+          escuelaId: data.escuelaId,
+          cargo: data.rol,
+        },
+        actor()
+      );
       addToast('success', 'Usuario creado correctamente.');
       createForm.reset();
       setShowForm(false);
@@ -117,12 +124,16 @@ const SupervisorUsers = () => {
   const handleEdit = async (data: EditUserFormData) => {
     if (!editingUser) return;
     try {
-      await updateUserProfile(editingUser.uid, {
-        nombre: data.nombre,
-        email: data.email,
-        rol: data.rol,
-        escuelaId: data.escuelaId,
-      });
+      await updateUserProfile(
+        editingUser.uid,
+        {
+          nombre: data.nombre,
+          email: data.email,
+          rol: data.rol,
+          escuelaId: data.escuelaId,
+        },
+        actor()
+      );
       addToast('success', 'Usuario actualizado correctamente.');
       setEditingUser(null);
       await loadUsers();
@@ -146,9 +157,18 @@ const SupervisorUsers = () => {
     if (togglingId) return;
     setTogglingId(user.uid);
     try {
-      await setUserActive(user.uid, !(user.activo ?? true));
+      await setUserActive(user.uid, !(user.activo ?? true), actor());
       setUsers((prev) =>
-        prev.map((u) => (u.uid === user.uid ? { ...u, activo: !(u.activo ?? true) } : u))
+        prev.map((u) =>
+          u.uid === user.uid
+            ? {
+                ...u,
+                activo: !(u.activo ?? true),
+                editadoPor: profile?.uid,
+                editadoPorNombre: profile?.nombre,
+              }
+            : u
+        )
       );
     } catch {
       addToast('error', 'No se pudo actualizar el usuario. Intentá de nuevo.');
@@ -456,6 +476,21 @@ const SupervisorUsers = () => {
                         <span>{user.email}</span>
                         <span>·</span>
                         <span>{schoolNameById(user.escuelaId)}</span>
+                        {user.creadoPorNombre && (
+                          <>
+                            <span>·</span>
+                            <span>Creado por {user.creadoPorNombre}</span>
+                          </>
+                        )}
+                        {user.editadoPorNombre && user.editadoEn && (
+                          <>
+                            <span>·</span>
+                            <span>
+                              Editado por {user.editadoPorNombre} ·{' '}
+                              {user.editadoEn.toDate().toLocaleDateString('es-AR')}
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
 

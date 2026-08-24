@@ -204,17 +204,24 @@ const SupervisorSchoolDetail = () => {
     setDocenteFormSubmitting(true);
     try {
       if (editingDocente) {
-        await updateDocente(editingDocente.id, {
-          nombre: docenteFormNombre.trim(),
-          materia: docenteFormMateria.trim(),
-        });
+        await updateDocente(
+          editingDocente.id,
+          {
+            nombre: docenteFormNombre.trim(),
+            materia: docenteFormMateria.trim(),
+          },
+          profile ? { uid: profile.uid, nombre: profile.nombre } : undefined
+        );
         docenteOp.end({ type: 'success', message: 'Docente actualizado correctamente.' });
       } else {
-        await addDocente({
-          nombre: docenteFormNombre.trim(),
-          materia: docenteFormMateria.trim() || undefined,
-          escuelaId: schoolId,
-        });
+        await addDocente(
+          {
+            nombre: docenteFormNombre.trim(),
+            materia: docenteFormMateria.trim() || undefined,
+            escuelaId: schoolId,
+          },
+          profile ? { uid: profile.uid, nombre: profile.nombre } : undefined
+        );
         docenteOp.end({ type: 'success', message: 'Docente agregado correctamente.' });
       }
       const updated = await getDocentesBySchool(schoolId);
@@ -245,7 +252,11 @@ const SupervisorSchoolDetail = () => {
     docenteOp.start(docenteId);
 
     try {
-      await setDocenteActive(docenteId, activo);
+      await setDocenteActive(
+        docenteId,
+        activo,
+        profile ? { uid: profile.uid, nombre: profile.nombre } : undefined
+      );
       setDocentes((prev) => prev.map((d) => (d.id === docenteId ? { ...d, activo } : d)));
       docenteOp.end(null);
     } catch {
