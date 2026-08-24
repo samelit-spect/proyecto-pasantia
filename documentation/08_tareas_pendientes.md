@@ -202,6 +202,13 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Extras de ayuda 4/5: hints contextuales (24/08/2026)
+
+- ✅ Componente reutilizable `ContextHint` (banner info con botón "no volver a mostrar", persistencia por id en localStorage, estado inicial con initializer perezoso para evitar setState en effect)
+- ✅ Hints agregados: Asistencia de gestión (una vez por día), Foto diaria (respaldo + se puede borrar/repetir), Novedades (cuándo usar vs incidente), Incidentes (supervisor lo recibe al instante, foto acelera solución)
+
+---
+
 ## Pendiente
 
 ### Firebase Console

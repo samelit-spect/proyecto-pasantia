@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addNews } from '@/services/api/firestore';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import ContextHint from '@/components/common/ContextHint/ContextHint';
 import { novedadSchema } from '@/utils/validation';
 import { NOVEDAD_TIPOS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { NovedadTipo } from '@/types';
@@ -71,6 +72,10 @@ const Novedades = () => {
       <p className="novedades__subtitle">
         Completá los datos para registrar una novedad institucional.
       </p>
+      <ContextHint id="novedades-form">
+        Las novedades son informes del día a día (visitas, reuniones, actividades). Si es un
+        problema urgente o edilicio, usá "Registrar Incidente".
+      </ContextHint>
 
       <form className="novedades__form" onSubmit={handleSubmit(onSubmit)}>
         <div className="novedades__row">

@@ -9,6 +9,7 @@ import { addIncident } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
 import { markOfflineWrite } from '@/utils/offlineQueue';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import ContextHint from '@/components/common/ContextHint/ContextHint';
 import { incidenteSchema } from '@/utils/validation';
 import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { IncidentCategoria, IncidentUrgencia } from '@/types';
@@ -102,6 +103,10 @@ const Incidentes = () => {
       <p className="incidentes__subtitle">
         Completá los datos para registrar un incidente institucional.
       </p>
+      <ContextHint id="incidentes-form">
+        El supervisor recibe el incidente al instante y podés seguir su avance en Historial. Si
+        podés, adjuntá una foto: acelera la solución.
+      </ContextHint>
 
       <form className="incidentes__form" onSubmit={handleSubmit(onSubmit)}>
         <div className="incidentes__row">

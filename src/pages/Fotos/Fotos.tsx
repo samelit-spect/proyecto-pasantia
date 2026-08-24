@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import ContextHint from '@/components/common/ContextHint/ContextHint';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import { todayISO } from '@/utils/validation';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -130,6 +131,10 @@ const Fotos = () => {
       <p className="fotos__subtitle">
         Subí la foto de la planilla firmada de asistencia para el día seleccionado.
       </p>
+      <ContextHint id="fotos-diaria">
+        La foto es el respaldo visual de la planilla firmada. Si te equivocás, podés borrarla y
+        subir otra el mismo día.
+      </ContextHint>
 
       <form className="fotos__form" onSubmit={handleUpload}>
         <div className="fotos__row">
