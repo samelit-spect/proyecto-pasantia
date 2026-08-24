@@ -319,3 +319,38 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 - [ ] Crear composite indexes para queries adicionales
 - [ ] Ampliar cobertura de tests
 - [ ] Evaluar migración a Firebase v12.x si hay nuevas features
+
+## Completado — Smoke test global de componentes (24/08/2026)
+
+**Archivo:** `src/test/all-components.smoke.test.tsx` (39 tests)
+
+Verifica que TODAS las páginas y los componentes comunes rendericen sin errores:
+
+- **18 páginas**: Login, NotFound, Home (director + supervisor), Asistencia,
+  AsistenciaDocentes, Historial, Fotos, Novedades, Incidentes, Ayuda, Tema,
+  Supervisor ×3 y SupervisorSchoolDetail (con route param).
+- **Componentes comunes/supervisor**: Button, DatePicker, FilterBar, StatusBadge,
+  Skeleton, LoadingScreen, Breadcrumb, BottomNav, ConnectionBanner, ErrorBoundary,
+  EmptyState (con acción interna y de navegación), ContextHint, HolidayNotice
+  (día común + feriado), AnimatedBackground, Timeline, FotoThumb, ConfirmDialog,
+  GlobalSearch, Navbar, InstallPrompt, WelcomeTour (avanza timer de 600ms),
+  SupervisorLiveAlerts, Lightbox, AccordionSection.
+
+**Mocks clave (reutilizables como patrón):**
+- `@/services/api/firestore`: las 49 funciones exportadas responden datos seguros
+  (`subscribe*` invocan el callback con `[]` y devuelven unsubscribe; getters
+  resuelven `[]`; `getSchoolById` resuelve un objeto; mutaciones resuelven `'mock-id'`).
+- `@/context/AuthContext`: perfil mutable por test (`setProfile`) con valor
+  **memoizado** — si `useAuth()` devuelve identidad nueva en cada llamada, los
+  efectos con `[hasRole]` se re-ejecutan en bucle infinito y el test cuelga.
+- `@/context/ToastContext`: `addToast` noop.
+- Stubs jsdom: `window.matchMedia`, `ResizeObserver`.
+
+**Gotchas documentados:**
+- Las páginas usan `<Link viewTransition>` / `useViewTransitionState` → exigen
+  data router: usar `createMemoryRouter` + `RouterProvider` (helper local
+  `renderPage`), NO `MemoryRouter`.
+- WelcomeTour abre tras `setTimeout(600)` → usar fake timers y `advanceTimersByTime`.
+
+**Resultado:** suite total 115 tests (114 pasan; la única falla es la
+pre-existente de Login, ver nota arriba). Sin regresiones.
