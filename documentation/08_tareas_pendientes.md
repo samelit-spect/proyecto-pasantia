@@ -152,10 +152,14 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
-## Pendiente
+## Completado — Reglas blindadas (24/08/2026)
 
-### Bugs (prioritario)
-- [ ] **Firestore: permission-denied al iniciar sesión** (`AuthContext.tsx:45`). La regla `usuarios.read` en `firestore.rules` evalúa `isSupervisor()` (con `get()`) antes del check de uid propio; si el perfil no existe aún, deniega. Fix: reordenar regla (uid propio primero), blindar `userProfile()` con `exists()`, y `firebase deploy --only firestore:rules`.
+- ✅ Fix bug prioritario "permission-denied al iniciar sesión": nueva función `hasProfile()` con `exists()` en `firestore.rules`; todas las funciones que leen `userProfile()` (`isSupervisor`, `userHasAnyRole`, `userBelongsToSchool`, `canSeeSchoolData`, reglas de `usuarios` y delete de `fotos`) la evalúan primero, evitando el error de `get()` cuando el perfil no existe
+- ✅ Reglas desplegadas a Firebase (`firebase deploy --only firestore:rules --project sipnam-proyecto`)
+
+---
+
+## Pendiente
 
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`

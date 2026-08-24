@@ -6,28 +6,32 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isSupervisor() {
-      return isSignedIn() && userProfile().rol == 'supervisor';
+    function hasProfile() {
+      return isSignedIn() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
     }
 
     function userProfile() {
       return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
     }
 
+    function isSupervisor() {
+      return hasProfile() && userProfile().rol == 'supervisor';
+    }
+
     function userHasAnyRole(roles) {
-      return isSignedIn() && userProfile().rol in roles;
+      return hasProfile() && userProfile().rol in roles;
     }
 
     function userBelongsToSchool(schoolId) {
-      return isSignedIn() && userProfile().escuelaId == schoolId;
+      return hasProfile() && userProfile().escuelaId == schoolId;
     }
 
     function canSeeSchool(schoolId) {
-      return isSignedIn() && (isSupervisor() || userBelongsToSchool(schoolId));
+      return isSupervisor() || userBelongsToSchool(schoolId);
     }
 
     function canSeeSchoolData() {
-      return isSignedIn() && (isSupervisor() || resource.data.escuelaId == userProfile().escuelaId);
+      return isSupervisor() || (hasProfile() && resource.data.escuelaId == userProfile().escuelaId);
     }
 
     function onlyChangedFields(allowedFields) {
@@ -41,7 +45,7 @@ service cloud.firestore {
     }
 
     match /usuarios/{userId} {
-      allow read: if isSignedIn() && (userId == request.auth.uid || isSupervisor() || resource.data.escuelaId == userProfile().escuelaId);
+      allow read: if hasProfile() && (userId == request.auth.uid || isSupervisor() || resource.data.escuelaId == userProfile().escuelaId);
       allow create: if isSupervisor();
       allow update: if isSignedIn() && ((request.auth.uid == userId && onlyChangedFields(['nombre', 'email'])) || isSupervisor());
       allow delete: if isSupervisor();
@@ -77,7 +81,7 @@ service cloud.firestore {
         && request.resource.data.subidoPor == request.auth.uid
         && userBelongsToSchool(request.resource.data.escuelaId);
       allow update: if false;
-      allow delete: if isSupervisor() || (request.auth.uid == resource.data.subidoPor && resource.data.escuelaId == userProfile().escuelaId);
+      allow delete: if isSupervisor() || (userBelongsToSchool(resource.data.escuelaId) && request.auth.uid == resource.data.subidoPor);
     }
 
     match /novedades/{newsId} {
