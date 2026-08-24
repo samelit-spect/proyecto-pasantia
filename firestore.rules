@@ -41,9 +41,9 @@ service cloud.firestore {
     }
 
     match /usuarios/{userId} {
-      allow read: if isSignedIn() && (isSupervisor() || userId == request.auth.uid || resource.data.escuelaId == userProfile().escuelaId);
+      allow read: if isSignedIn() && (userId == request.auth.uid || isSupervisor() || resource.data.escuelaId == userProfile().escuelaId);
       allow create: if isSupervisor();
-      allow update: if isSupervisor() || (request.auth.uid == userId && onlyChangedFields(['nombre', 'email']));
+      allow update: if isSignedIn() && ((request.auth.uid == userId && onlyChangedFields(['nombre', 'email'])) || isSupervisor());
       allow delete: if isSupervisor();
     }
 

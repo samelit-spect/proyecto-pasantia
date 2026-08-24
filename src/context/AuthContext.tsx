@@ -47,8 +47,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (userSnap.exists()) {
         return { uid: user.uid, ...userSnap.data() } as UserProfile;
       }
+      console.warn(
+        `[AuthContext] No existe documento usuarios/${user.uid}. El usuario autenticado no tiene perfil en Firestore.`
+      );
       return null;
-    } catch {
+    } catch (error) {
+      console.error('[AuthContext] Error al cargar el perfil desde Firestore:', error);
       return null;
     }
   }, []);
@@ -76,19 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [loadUserProfile]);
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      const profile = await loadUserProfile(result.user);
-      setState({
-        user: result.user,
-        profile,
-        isLoading: false,
-        isAuthenticated: true,
-      });
-    },
-    [loadUserProfile]
-  );
+  const login = useCallback(async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  }, []);
 
   const logout = useCallback(async () => {
     await signOut(auth);
