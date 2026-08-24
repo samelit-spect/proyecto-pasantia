@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, AlertTriangle, ClipboardCheck, Newspaper } from 'lucide-react';
 import {
   subscribeRecentIncidents,
-  subscribeTodayAttendances,
-  subscribeTodayNews,
+  subscribeTodayAttendancesBySchool,
+  subscribeTodayNewsBySchool,
 } from '@/services/api/firestore';
 import { useAuth } from '@/context/AuthContext';
 import type { Attendance, News } from '@/types';
@@ -68,8 +68,8 @@ const NotificationBell = () => {
         setUnreadCount(pending.length);
       });
       unsubs.push(unsub);
-    } else {
-      const unsubAtt = subscribeTodayAttendances((atts) => {
+    } else if (profile.escuelaId) {
+      const unsubAtt = subscribeTodayAttendancesBySchool(profile.escuelaId, (atts) => {
         const attNotifs = mapAttendances(atts);
         setNotifications((prev) => {
           const others = prev.filter((n) => !n.id.startsWith('att-'));
@@ -78,7 +78,7 @@ const NotificationBell = () => {
       });
       unsubs.push(unsubAtt);
 
-      const unsubNews = subscribeTodayNews((newsItems) => {
+      const unsubNews = subscribeTodayNewsBySchool(profile.escuelaId, (newsItems) => {
         const newsNotifs = mapNews(newsItems);
         setNotifications((prev) => {
           const others = prev.filter((n) => !n.id.startsWith('news-'));
