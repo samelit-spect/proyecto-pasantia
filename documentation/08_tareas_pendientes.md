@@ -168,6 +168,14 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Sync offline de incidentes (24/08/2026)
+
+- ✅ Sync automático con feedback UX: Firestore ya sincroniza solo (persistent cache); se agregó `utils/offlineQueue.ts` (marcador en localStorage de escrituras hechas sin conexión)
+- ✅ Incidentes: al guardar sin conexión muestra feedback específico ("guardado en el dispositivo, se sincronizará automáticamente")
+- ✅ ConnectionBanner: al volver la conexión y confirmar `waitForPendingWrites(db)`, muestra banner verde "Registros pendientes sincronizados correctamente" por 4s; también cubre el caso de app cerrada offline y reabierta online
+
+---
+
 ## Pendiente
 
 ### Firebase Console
@@ -187,7 +195,7 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 ### Mejoras futuras
 - [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
 - [ ] Evaluar índices compuestos adicionales
-- [ ] Offline: sync automático de incidentes creados sin conexión
+- [ ] Extender marcador offline-sync a novedades y asistencias (hoy solo incidentes)
 
 ### UX media (priorizado por impacto)
 - [ ] Incidentes: validación de tamaño de archivo (acepta 50MB+)

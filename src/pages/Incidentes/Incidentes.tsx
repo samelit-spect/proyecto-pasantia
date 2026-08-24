@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { addIncident } from '@/services/api/firestore';
 import { fileToCompressedDataUrl } from '@/utils/image';
+import { markOfflineWrite } from '@/utils/offlineQueue';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { incidenteSchema } from '@/utils/validation';
 import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -53,6 +54,8 @@ const Incidentes = () => {
   const onSubmit = async (data: IncidentFormData) => {
     if (!user || !profile || !profile.escuelaId) return;
 
+    const savedOffline = !navigator.onLine;
+
     try {
       let fotoDataUrl: string | undefined;
       if (foto) {
@@ -71,7 +74,14 @@ const Incidentes = () => {
         cargadoPorNombre: profile.nombre,
       });
 
-      setFeedback({ type: 'success', message: 'Incidente registrado correctamente.' });
+      if (savedOffline) markOfflineWrite();
+
+      setFeedback({
+        type: 'success',
+        message: savedOffline
+          ? 'Sin conexión: incidente guardado en el dispositivo. Se sincronizará automáticamente al volver internet.'
+          : 'Incidente registrado correctamente.',
+      });
       reset();
       setFoto(null);
       if (preview) URL.revokeObjectURL(preview);
