@@ -212,6 +212,12 @@
   background-color: var(--background-color);
 }
 
+.navbar__drawer-link--active,
+.navbar__drawer-link--active:hover {
+  background-color: var(--accent-blue-bg);
+  color: var(--accent-blue-text);
+}
+
 .navbar__drawer-footer {
   padding: 0.75rem;
   border-top: 1px solid var(--border-color);

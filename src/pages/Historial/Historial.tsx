@@ -154,6 +154,22 @@ const Historial = () => {
     setUrgenciaFilter('');
   };
 
+  const handleDateFromChange = (value: string) => {
+    setDateFrom(value);
+    if (value && dateTo && value > dateTo) {
+      setDateTo('');
+      addToast('info', "Se limpió el filtro 'Hasta' porque es anterior a 'Desde'.");
+    }
+  };
+
+  const handleDateToChange = (value: string) => {
+    setDateTo(value);
+    if (value && dateFrom && value < dateFrom) {
+      setDateFrom('');
+      addToast('info', "Se limpió el filtro 'Desde' porque es posterior a 'Hasta'.");
+    }
+  };
+
   const toggleSection = (section: SectionKey) => {
     setExpanded(expanded === section ? null : section);
   };
@@ -207,8 +223,18 @@ const Historial = () => {
         onClearAll={clearAllFilters}
       >
         <div className="historial__filters">
-          <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
-          <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
+          <DatePicker
+            label="Desde"
+            value={dateFrom}
+            onChange={handleDateFromChange}
+            max={dateTo || undefined}
+          />
+          <DatePicker
+            label="Hasta"
+            value={dateTo}
+            onChange={handleDateToChange}
+            min={dateFrom || undefined}
+          />
 
           <label className="historial__filter-label">
             Tipo novedad

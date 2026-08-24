@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
   Home,
@@ -26,9 +26,16 @@ import './Navbar.css';
 const Navbar = () => {
   const { profile, logout, hasRole } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const isActive = (to: string) =>
+    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+
+  const drawerLinkClass = (to: string) =>
+    `navbar__drawer-link ${isActive(to) ? 'navbar__drawer-link--active' : ''}`;
 
   const handleLogout = async () => {
     await logout();
@@ -181,7 +188,7 @@ const Navbar = () => {
           <Link
             viewTransition
             to="/"
-            className="navbar__drawer-link"
+            className={drawerLinkClass('/')}
             onClick={() => setIsMenuOpen(false)}
           >
             <Home size={18} strokeWidth={1.5} />
@@ -193,7 +200,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/asistencia"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/asistencia')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ClipboardCheck size={18} strokeWidth={1.5} />
@@ -202,7 +209,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/asistencia-docentes"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/asistencia-docentes')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Users size={18} strokeWidth={1.5} />
@@ -211,7 +218,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/historial"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/historial')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <History size={18} strokeWidth={1.5} />
@@ -224,7 +231,7 @@ const Navbar = () => {
             <Link
               viewTransition
               to="/fotos"
-              className="navbar__drawer-link"
+              className={drawerLinkClass('/fotos')}
               onClick={() => setIsMenuOpen(false)}
             >
               <Camera size={18} strokeWidth={1.5} />
@@ -237,7 +244,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/novedades"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/novedades')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Newspaper size={18} strokeWidth={1.5} />
@@ -246,7 +253,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/incidentes"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/incidentes')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <AlertTriangle size={18} strokeWidth={1.5} />
@@ -260,7 +267,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/supervisor"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/supervisor')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Eye size={18} strokeWidth={1.5} />
@@ -269,7 +276,7 @@ const Navbar = () => {
               <Link
                 viewTransition
                 to="/supervisor/usuarios"
-                className="navbar__drawer-link"
+                className={drawerLinkClass('/supervisor/usuarios')}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Settings size={18} strokeWidth={1.5} />

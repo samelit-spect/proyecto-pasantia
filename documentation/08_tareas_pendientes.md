@@ -159,6 +159,15 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — UX menor (24/08/2026)
+
+- ✅ Incidentes: `object-fit: contain` en foto del formulario y del detalle supervisor (ya no recorta)
+- ✅ Historial: validación de rango — DatePicker acepta `min`/`max`, 'Desde' limita 'Hasta' y viceversa; si el rango queda invertido se limpia el filtro contradictorio con toast informativo
+- ✅ Navbar: indicador de página activa en drawer (resaltado azul según ruta actual)
+- ✅ Login: password visibility toggle (mostrar/ocultar contraseña)
+
+---
+
 ## Pendiente
 
 ### Firebase Console
@@ -181,15 +190,11 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 - [ ] Offline: sync automático de incidentes creados sin conexión
 
 ### UX media (priorizado por impacto)
-- [ ] Incidentes: `object-fit: contain` en fotos (actualmente `cover` recorta)
 - [ ] Incidentes: validación de tamaño de archivo (acepta 50MB+)
 - [ ] Novedades/Incidentes: feedback cuando user context falta (silencioso `return`)
-- [ ] Historial: validación dateFrom > dateTo
-- [ ] Navbar: active page indicator en drawer
 - [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
 - [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado para 3 cosas)
 - [ ] SupervisorUsers: sort controls en lista
-- [ ] Login: password visibility toggle
 - [ ] Login: focus management después de error
 
 ### Tareas futuras (post-MVP)

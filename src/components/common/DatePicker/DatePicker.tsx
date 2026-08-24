@@ -6,9 +6,18 @@ interface DatePickerProps {
   onChange: (date: string) => void;
   disabled?: boolean;
   label?: string;
+  min?: string;
+  max?: string;
 }
 
-const DatePicker = ({ value, onChange, disabled = false, label = 'Fecha' }: DatePickerProps) => {
+const DatePicker = ({
+  value,
+  onChange,
+  disabled = false,
+  label = 'Fecha',
+  min,
+  max,
+}: DatePickerProps) => {
   return (
     <div className="date-picker">
       <label htmlFor="date-picker" className="date-picker__label">
@@ -21,7 +30,8 @@ const DatePicker = ({ value, onChange, disabled = false, label = 'Fecha' }: Date
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        max={todayISO()}
+        min={min}
+        max={max ?? todayISO()}
         required
       />
     </div>
