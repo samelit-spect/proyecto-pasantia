@@ -193,6 +193,15 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Extras de ayuda 3/5: tour de bienvenida (24/08/2026)
+
+- ✅ Componente `WelcomeTour` en MainLayout: modal multi-paso con AnimatePresence/motion (respeta reduced motion), dots de progreso, Escape/Saltar/Empezar
+- ✅ Pasos según rol: director/vice → Asistencia + Novedades/incidentes + Seguimiento + Ayuda; preceptor → Asistencia + Foto diaria + Ayuda; supervisor → Panel + Verificación + Administración + Ayuda
+- ✅ Se muestra una sola vez por usuario (localStorage `sipnam-welcome-seen-v1-{uid}`, delay 600ms tras cargar); saludo personalizado con el nombre
+- ✅ Bloquea scroll del body mientras está abierto; link "Saltar" lleva a /ayuda y cierra
+
+---
+
 ## Pendiente
 
 ### Firebase Console
