@@ -32,6 +32,32 @@
 
 ## Lo que ya está hecho (commit por commit)
 
+### ✅ Ayuda y onboarding (sesión 24/08/2026, lote completo)
+
+**Centro de ayuda `/ayuda` (`6db98d3`):**
+- Página para todos los roles con acordeón propio (NO reutilizar `AccordionSection`, está acoplado al CSS de supervisor)
+- 4 secciones: FAQ filtrada por rol (`<details>` nativos), uso sin conexión, instalación manual Android/iOS, glosario
+- Links en drawer móvil + navbar desktop
+
+**Prompt de instalación PWA (`cb4337c`):**
+- `InstallPrompt` captura `beforeinstallprompt` a NIVEL MÓDULO (el evento puede dispararse antes de que React monte; si se escucha dentro de useEffect se pierde)
+- Fallback iOS: detecta iPhone/iPad incl. iPadOS disfrazado de Mac (`Macintosh` + `ontouchend`) → muestra instrucciones manuales + link a /ayuda
+- No aparece si ya está instalada (`display-mode: standalone` / `navigator.standalone`); cierre persistente localStorage; delay 2,5s; escucha `appinstalled`
+
+**Tour de bienvenida por rol (`17a9d40`):**
+- Modal multi-paso con AnimatePresence/motion (reduced motion respetado), dots de progreso, Escape/Saltar cierran
+- Pasos según rol (director/vice ≠ preceptor ≠ supervisor); saludo con nombre del perfil
+- Una sola vez por usuario: localStorage `sipnam-welcome-seen-v1-{uid}`; bloquea scroll del body
+
+**Hints contextuales (`a3eb3f4`):**
+- Componente reutilizable `ContextHint` (id → persistencia individual en localStorage)
+- Estado inicial con initializer perezoso `useState(() => ...)` — NO setState en effect (regla `react-hooks/set-state-in-effect`)
+- En Asistencia (1 vez/día), Fotos (respaldo), Novedades (vs incidente), Incidentes (foto acelera solución)
+
+**Empty states con acción (`5d6f8f1`):**
+- `EmptyState` acepta prop opcional `action { label, to?, onClick? }` (Link o botón)
+- Home "Sin actividad hoy" → Registrar asistencia; supervisor escuelas/usuarios vacíos → abren su formulario de creación
+
 ### ✅ Permisos, auditoría y UX (sesión 24/08/2026)
 
 **Fix permission-denied para no-supervisores (`f26d6e5`):**
