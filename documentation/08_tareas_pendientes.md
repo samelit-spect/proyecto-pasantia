@@ -264,6 +264,28 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ---
 
+## Completado — SEO y búsqueda con foco Tinogasta, Catamarca (24/08/2026)
+
+**SEO (`index.html` + `public/robots.txt`):**
+- `lang="es-AR"`, title y description con Tinogasta/Catamarca, keywords, meta geo (AR-K), Open Graph (locale es_AR) + Twitter card
+- JSON-LD `WebApplication` con `areaServed`: Tinogasta → Catamarca → Argentina; `<noscript>` descriptivo para crawlers sin JS (SPA)
+- robots.txt: permite `/`, bloquea rutas privadas (/supervisor, /asistencia, etc.)
+- Manifest description actualizada con el alcance geográfico
+- Limitación: SPA renderiza client-side; las metas son la palanca principal (sin prerender por alcance de pasantía)
+
+**Búsqueda global (Ctrl+K / GlobalSearch):**
+- Búsqueda SIN ACENTOS: "martin" encuentra "Martín", "peña"/"pena" equivalentes (NFD + strip diacríticos, longitud estable para resaltar)
+- Ranking por relevancia: empieza-con > palabra-empieza-con > contiene; escuelas→usuarios→docentes ordenados por puntaje
+- Docentes: ahora busca también por MATERIA y el resultado lleva a la escuela correspondiente (`escuelaId`) en vez del panel genérico
+- Usuarios: busca también por ROL ("director", "preceptor")
+- Escuelas: busca por nombre, dirección Y turno
+- Resaltado de la coincidencia en el label (`<mark>` con tinte primario)
+- Hint vacío menciona el alcance local
+
+⚠️ Lint pre-existente: 2 errores `react-hooks/set-state-in-effect` en GlobalSearch.tsx (patrones idénticos al archivo original en HEAD: setLoading/setResults en effects; no se refactorizó para evitar regresiones)
+
+---
+
 ## Pendiente
 
 ### Firebase Console

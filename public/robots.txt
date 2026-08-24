@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /supervisor
+Disallow: /asistencia
+Disallow: /asistencia-docentes
+Disallow: /historial
+Disallow: /fotos
+Disallow: /novedades
+Disallow: /incidentes
+Disallow: /tema

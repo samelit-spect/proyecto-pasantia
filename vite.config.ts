@@ -12,7 +12,8 @@ export default defineConfig({
       manifest: {
         name: 'SIPNAM - Sistema Integrado de Partes de Novedades y Asistencias Móvil',
         short_name: 'SIPNAM',
-        description: 'Sistema Integrado de Partes de Novedades y Asistencias Móvil',
+        description:
+          'Gestión de asistencias, novedades e incidentes edilicios para las escuelas de Tinogasta, Catamarca',
         theme_color: '#1e40af',
         background_color: '#f8fafc',
         display: 'standalone',

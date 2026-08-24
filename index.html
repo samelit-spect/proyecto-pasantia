@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -8,12 +8,79 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SIPNAM" />
-    <meta name="description" content="Sistema Integrado de Partes de Novedades y Asistencias Móvil" />
+
+    <title>SIPNAM · Asistencias y Novedades Escolares — Tinogasta, Catamarca</title>
+    <meta
+      name="description"
+      content="SIPNAM es el sistema integrado de partes de novedades y asistencias móvil de las escuelas de Tinogasta, Catamarca: carga diaria de asistencia del personal y docentes, foto de respaldo, novedades institucionales y seguimiento de incidentes edilicios en tiempo real."
+    />
+    <meta
+      name="keywords"
+      content="asistencias escolares, asistencia docente, Tinogasta, Catamarca, Argentina, gestión escolar, novedades institucionales, incidentes edilicios, escuelas, PWA educativa"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="geo.region" content="AR-K" />
+    <meta name="geo.placename" content="Tinogasta, Catamarca" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SIPNAM" />
+    <meta property="og:title" content="SIPNAM · Asistencias y Novedades Escolares — Tinogasta, Catamarca" />
+    <meta
+      property="og:description"
+      content="Sistema integrado de asistencias, novedades e incidentes edilicios para las escuelas de Tinogasta, Catamarca."
+    />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:image" content="/pwa-512x512.png" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="SIPNAM · Asistencias Escolares Tinogasta, Catamarca" />
+    <meta
+      name="twitter:description"
+      content="Carga diaria de asistencias, novedades e incidentes edilicios en tiempo real para las escuelas de Tinogasta, Catamarca."
+    />
+
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
-    <title>SIPNAM</title>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SIPNAM",
+        "alternateName": "Sistema Integrado de Partes de Novedades y Asistencias Móvil",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web, Android, iOS",
+        "description": "Sistema de gestión diaria de asistencias del personal y docentes, novedades institucionales e incidentes edilicios con seguimiento en tiempo real.",
+        "inLanguage": "es-AR",
+        "areaServed": [
+          {
+            "@type": "City",
+            "name": "Tinogasta",
+            "containedInPlace": {
+              "@type": "AdministrativeArea",
+              "name": "Catamarca",
+              "addressCountry": "AR"
+            }
+          },
+          {
+            "@type": "Country",
+            "name": "Argentina"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>SIPNAM — Sistema Integrado de Partes de Novedades y Asistencias Móvil</h1>
+      <p>
+        Aplicación web de gestión escolar para las escuelas de Tinogasta, Catamarca, Argentina.
+        Permite registrar la asistencia diaria del personal de gestión y del cuerpo docente,
+        adjuntar la foto de la planilla firmada, cargar novedades institucionales e informar
+        incidentes edilicios con seguimiento en tiempo real por parte de la supervisión.
+        Necesitás JavaScript habilitado para usarla.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

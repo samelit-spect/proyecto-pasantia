@@ -157,6 +157,14 @@
   white-space: nowrap;
 }
 
+.global-search__mark {
+  background-color: var(--primary-tint-strong);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-weight: 700;
+}
+
 .global-search__result-sublabel {
   font-size: 0.6875rem;
   color: var(--text-secondary);
