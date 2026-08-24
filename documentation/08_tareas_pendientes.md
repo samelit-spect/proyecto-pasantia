@@ -184,6 +184,15 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Extras de ayuda 2/5: prompt de instalación (24/08/2026)
+
+- ✅ Componente `InstallPrompt` en MainLayout: captura `beforeinstallprompt` a nivel módulo (evita race con el montaje de React), botón "Instalar" nativo
+- ✅ Fallback iOS: detecta iPhone/iPad (incluye iPadOS que se hace pasar por Mac con touch) y muestra instrucciones Compartir → Agregar a inicio + link a /ayuda
+- ✅ No molesta: no aparece si ya está instalada (`display-mode: standalone` / `navigator.standalone`), cierre persistente en localStorage, escucha `appinstalled`, delay 2.5s tras cargar
+- ✅ Posición: card flotante sobre el BottomNav en móvil (safe-area aware), esquina inferior derecha en desktop
+
+---
+
 ## Pendiente
 
 ### Firebase Console

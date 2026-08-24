@@ -2,6 +2,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/common/Navbar/Navbar';
 import ConnectionBanner from '@/components/common/ConnectionBanner/ConnectionBanner';
+import InstallPrompt from '@/components/common/InstallPrompt/InstallPrompt';
 import './MainLayout.css';
 
 const PROTECTED_ROUTES = [
@@ -41,6 +42,7 @@ const MainLayout = () => {
     <>
       <Navbar />
       <ConnectionBanner />
+      <InstallPrompt />
       <main className="main-layout__content">
         <Outlet key={location.pathname} />
       </main>
