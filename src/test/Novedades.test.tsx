@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import Novedades from '@/pages/Novedades/Novedades';
 
@@ -36,8 +37,18 @@ function renderNovedades() {
 }
 
 describe('Novedades', () => {
+  const originalOnLine = navigator.onLine;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.removeItem('sipnam-offline-writes');
+  });
+
+  afterEach(() => {
+    Object.defineProperty(navigator, 'onLine', {
+      value: originalOnLine,
+      configurable: true,
+    });
   });
 
   it('renderiza el formulario correctamente', () => {
@@ -67,5 +78,24 @@ describe('Novedades', () => {
   it('tiene botón de guardar', () => {
     renderNovedades();
     expect(screen.getByRole('button', { name: 'Guardar Novedad' })).toBeDefined();
+  });
+
+  it('sin conexión guarda localmente y marca la sincronización pendiente', async () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+
+    const user = userEvent.setup();
+    renderNovedades();
+
+    await user.selectOptions(screen.getByLabelText('Tipo de novedad'), 'otro');
+    await user.type(
+      screen.getByPlaceholderText(/Describí la novedad/),
+      'Cortó la luz en el edificio'
+    );
+    await user.click(screen.getByRole('button', { name: 'Guardar Novedad' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Sin conexión: novedad guardada en el dispositivo/)).toBeDefined();
+      expect(localStorage.getItem('sipnam-offline-writes')).not.toBeNull();
+    });
   });
 });

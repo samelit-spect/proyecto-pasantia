@@ -9,6 +9,7 @@ import { addNews } from '@/services/api/firestore';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
 import { novedadSchema } from '@/utils/validation';
+import { markOfflineWrite } from '@/utils/offlineQueue';
 import { NOVEDAD_TIPOS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { NovedadTipo } from '@/types';
 import './Novedades.css';
@@ -43,6 +44,8 @@ const Novedades = () => {
   const onSubmit = async (data: NewsFormData) => {
     if (!user || !profile || !profile.escuelaId) return;
 
+    const savedOffline = !navigator.onLine;
+
     try {
       await addNews({
         escuelaId: profile.escuelaId,
@@ -54,7 +57,14 @@ const Novedades = () => {
         cargadoPorNombre: profile.nombre,
       });
 
-      setFeedback({ type: 'success', message: 'Novedad registrada correctamente.' });
+      if (savedOffline) markOfflineWrite();
+
+      setFeedback({
+        type: 'success',
+        message: savedOffline
+          ? 'Sin conexión: novedad guardada en el dispositivo. Se sincronizará automáticamente al volver internet.'
+          : 'Novedad registrada correctamente.',
+      });
       reset();
       setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch {

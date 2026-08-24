@@ -524,7 +524,10 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
 ### Mejoras futuras
 - [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
 - [ ] Evaluar índices compuestos adicionales
-- [ ] Extender marcador offline-sync a novedades y asistencias (hoy solo incidentes)
+- [x] Extender marcador offline-sync a novedades y asistencias (hecho 24/08/2026:
+  mismo patrón que incidentes — `savedOffline` + `markOfflineWrite()` + mensaje
+  específico en AttendanceForm, AsistenciaDocentes y Novedades; ConnectionBanner
+  global ya las cubría)
 
 ### UX media (audit completado, priorizado)
 - [ ] Incidentes: validación de tamaño de archivo

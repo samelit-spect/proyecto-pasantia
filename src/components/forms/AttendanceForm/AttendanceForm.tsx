@@ -5,6 +5,7 @@ import HolidayNotice from '@/components/common/HolidayNotice/HolidayNotice';
 import AttendanceRow from '@/components/common/AttendanceRow/AttendanceRow';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { todayISO } from '@/utils/validation';
+import { markOfflineWrite } from '@/utils/offlineQueue';
 import './AttendanceForm.css';
 
 export interface AttendanceFormEntry {
@@ -194,6 +195,8 @@ const AttendanceForm = ({
 
     if (!validate() || !user || !profile) return;
 
+    const savedOffline = !navigator.onLine;
+
     setIsSubmitting(true);
     try {
       let existing = false;
@@ -232,7 +235,14 @@ const AttendanceForm = ({
         }),
       });
 
-      setResult({ type: 'success', message: 'Asistencia enviada correctamente.' });
+      if (savedOffline) markOfflineWrite();
+
+      setResult({
+        type: 'success',
+        message: savedOffline
+          ? 'Sin conexión: asistencia guardada en el dispositivo. Se sincronizará automáticamente al volver internet.'
+          : 'Asistencia enviada correctamente.',
+      });
     } catch (err) {
       console.error('Error al enviar asistencia:', err);
       setResult({

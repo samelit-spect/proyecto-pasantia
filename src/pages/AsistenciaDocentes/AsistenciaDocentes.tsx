@@ -6,6 +6,7 @@ import { addDocenteAttendance, getDocenteAttendanceByUserAndDate } from '@/servi
 import { fileToCompressedDataUrl } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import { todayISO } from '@/utils/validation';
+import { markOfflineWrite } from '@/utils/offlineQueue';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import './AsistenciaDocentes.css';
 
@@ -57,6 +58,7 @@ const AsistenciaDocentes = () => {
     }
 
     setIsSubmitting(true);
+    const savedOffline = !navigator.onLine;
     try {
       const existing = await getDocenteAttendanceByUserAndDate(
         escuelaId,
@@ -80,7 +82,14 @@ const AsistenciaDocentes = () => {
         fotoDataUrl,
       });
 
-      setFeedback({ type: 'success', message: 'Asistencia de docentes enviada correctamente.' });
+      if (savedOffline) markOfflineWrite();
+
+      setFeedback({
+        type: 'success',
+        message: savedOffline
+          ? 'Sin conexión: asistencia de docentes guardada en el dispositivo. Se sincronizará automáticamente al volver internet.'
+          : 'Asistencia de docentes enviada correctamente.',
+      });
       setFoto(null);
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);

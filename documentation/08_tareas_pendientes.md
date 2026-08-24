@@ -308,7 +308,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 ### Mejoras futuras
 - [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
 - [ ] Evaluar índices compuestos adicionales
-- [ ] Extender marcador offline-sync a novedades y asistencias (hoy solo incidentes)
+- [x] Extender marcador offline-sync a novedades y asistencias (hecho 24/08/2026, ver abajo)
 
 ### UX media (priorizado por impacto)
 - [ ] Incidentes: validación de tamaño de archivo (acepta 50MB+)
@@ -357,3 +357,23 @@ Verifica que TODAS las páginas y los componentes comunes rendericen sin errores
 
 **Resultado:** suite total 115 tests, **todos en verde** (el test de Login que
 fallaba se corrigió el mismo día — ver sección Testing). Sin regresiones.
+
+## Completado — Escrituras offline en asistencias y novedades (24/08/2026)
+
+**Contexto:** el SDK de Firestore (`persistentLocalCache`) ya bufferiza y
+sincroniza TODAS las escrituras offline automáticamente. Lo que faltaba era el
+marcador UX (`markOfflineWrite()`) que dispara el banner verde "Sincronizado
+correctamente" de ConnectionBanner al volver la conexión.
+
+**Cambios (mismo patrón que Incidentes):**
+- `AttendanceForm.tsx` (asistencia de gestión, cubre /asistencia): captura
+  `savedOffline = !navigator.onLine` antes del primer await, marca tras el
+  submit exitoso y muestra mensaje específico offline.
+- `AsistenciaDocentes.tsx`: ídem.
+- `Novedades.tsx`: ídem.
+
+Sin cambios en `offlineQueue.ts`, `ConnectionBanner.tsx`, `firebase.ts` ni
+servicios: `waitForPendingWrites(db)` es global y ya cubre todas las colecciones.
+
+**Test nuevo:** Novedades sin conexión → mensaje offline + localStorage
+`sipnam-offline-writes` marcado (116/116 en verde).
