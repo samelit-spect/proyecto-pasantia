@@ -50,6 +50,10 @@ const router = createBrowserRouter([
         lazy: () => load(() => import('@/pages/ThemeSettings/ThemeSettings')),
       },
       {
+        path: 'ayuda',
+        lazy: () => load(() => import('@/pages/Ayuda/Ayuda')),
+      },
+      {
         path: 'supervisor',
         lazy: () => load(() => import('@/pages/Supervisor/Supervisor')),
         children: [

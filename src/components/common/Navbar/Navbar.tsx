@@ -17,6 +17,7 @@ import {
   Camera,
   History,
   Search,
+  HelpCircle,
 } from 'lucide-react';
 import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
 import NotificationBell from '@/components/common/NotificationBell/NotificationBell';
@@ -145,6 +146,10 @@ const Navbar = () => {
           </>
         )}
         <div className="navbar__desktop-spacer" />
+        <Link viewTransition to="/ayuda" className="navbar__desktop-link">
+          <HelpCircle size={16} strokeWidth={1.5} />
+          Ayuda
+        </Link>
         <NotificationBell />
         <button
           onClick={() => setIsSearchOpen(true)}
@@ -284,6 +289,15 @@ const Navbar = () => {
               </Link>
             </>
           )}
+          <Link
+            viewTransition
+            to="/ayuda"
+            className={drawerLinkClass('/ayuda')}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <HelpCircle size={18} strokeWidth={1.5} />
+            Ayuda
+          </Link>
         </div>
 
         <div className="navbar__drawer-footer">

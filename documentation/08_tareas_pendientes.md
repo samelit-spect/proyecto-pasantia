@@ -176,6 +176,14 @@ Dependencias nuevas justificadas: `@formkit/auto-animate` (~3kb), `motion` (~35k
 
 ---
 
+## Completado — Extras de ayuda 1/5: página /ayuda (24/08/2026)
+
+- ✅ Nueva página `/ayuda` (todos los roles) con acordeón propio y 4 secciones: FAQ filtrada por rol (`details` nativos), uso sin conexión, guía de instalación manual (Android/iOS) y glosario de términos escolares
+- ✅ Links de navegación: drawer (con estado activo) + navbar desktop
+- Restante del plan elegido: prompt de instalación inteligente, tour de bienvenida, hints contextuales, empty states con acción
+
+---
+
 ## Pendiente
 
 ### Firebase Console
