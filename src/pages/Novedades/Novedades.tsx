@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useFormDraft } from '@/hooks/useFormDraft';
+import SuccessAnimation from '@/components/common/SuccessAnimation/SuccessAnimation';
 import { addNews } from '@/services/api/firestore';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
@@ -26,6 +27,7 @@ const Novedades = () => {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const defaults = {
     fecha: new Date().toISOString().split('T')[0],
@@ -81,6 +83,7 @@ const Novedades = () => {
       if (savedOffline) markOfflineWrite();
 
       haptic.success();
+      setShowSuccess(true);
       setFeedback({
         type: 'success',
         message: savedOffline
@@ -98,6 +101,7 @@ const Novedades = () => {
 
   return (
     <section className="novedades">
+      <SuccessAnimation show={showSuccess} />
       <button className="supervisor__back" onClick={() => navigate('/', { viewTransition: true })}>
         <ArrowLeft size={18} strokeWidth={1.5} />
         Volver
