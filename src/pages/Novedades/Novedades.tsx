@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useHaptic } from '@/hooks/useHaptic';
+import { useFormDraft } from '@/hooks/useFormDraft';
 import { addNews } from '@/services/api/firestore';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
@@ -26,21 +27,38 @@ const Novedades = () => {
     null
   );
 
+  const defaults = {
+    fecha: new Date().toISOString().split('T')[0],
+    tipo: '',
+    hora: '',
+    descripcion: '',
+  };
+
+  const draft = useFormDraft<NewsFormData>(defaults, { key: 'novedades' });
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     control,
     formState: { errors, isSubmitting },
   } = useForm<NewsFormData>({
     resolver: zodResolver(novedadSchema),
-    defaultValues: {
-      fecha: new Date().toISOString().split('T')[0],
-      tipo: '',
-      hora: '',
-      descripcion: '',
-    },
+    defaultValues: defaults,
   });
+
+  useEffect(() => {
+    reset(draft.values);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const sub = watch((data) => {
+      draft.update(data as NewsFormData);
+    });
+    return () => sub.unsubscribe();
+  }, [watch, draft.update]);
 
   const descripcion = useWatch({ control, name: 'descripcion' }) || '';
 
@@ -70,6 +88,7 @@ const Novedades = () => {
           : 'Novedad registrada correctamente.',
       });
       reset();
+      draft.clear();
       setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
     } catch (err) {
       console.error('Error al registrar la novedad:', err);

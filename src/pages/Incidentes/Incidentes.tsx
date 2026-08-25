@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
 import { useHaptic } from '@/hooks/useHaptic';
+import { useFormDraft } from '@/hooks/useFormDraft';
 import { addIncident } from '@/services/api/firestore';
 import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import { markOfflineWrite } from '@/utils/offlineQueue';
@@ -29,22 +30,39 @@ const Incidentes = () => {
   const [foto, setFoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
+  const defaults = {
+    fecha: new Date().toISOString().split('T')[0],
+    categoria: '',
+    urgencia: '',
+    ubicacion: '',
+    descripcion: '',
+  };
+
+  const draft = useFormDraft<IncidentFormData>(defaults, { key: 'incidentes' });
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     control,
     formState: { errors, isSubmitting },
   } = useForm<IncidentFormData>({
     resolver: zodResolver(incidenteSchema),
-    defaultValues: {
-      fecha: new Date().toISOString().split('T')[0],
-      categoria: '',
-      urgencia: '',
-      ubicacion: '',
-      descripcion: '',
-    },
+    defaultValues: defaults,
   });
+
+  useEffect(() => {
+    reset(draft.values);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const sub = watch((data) => {
+      draft.update(data as IncidentFormData);
+    });
+    return () => sub.unsubscribe();
+  }, [watch, draft.update]);
 
   const descripcion = useWatch({ control, name: 'descripcion' }) || '';
 
@@ -106,6 +124,7 @@ const Incidentes = () => {
           : 'Incidente registrado correctamente.',
       });
       reset();
+      draft.clear();
       setFoto(null);
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
