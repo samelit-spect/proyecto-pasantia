@@ -827,3 +827,77 @@ export function subscribeFotosBySchool(
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Foto));
   });
 }
+
+export interface DailyCounts {
+  dates: string[];
+  asistencias: number[];
+  novedades: number[];
+  incidentes: number[];
+}
+
+export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void): Unsubscribe {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const dates: string[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+
+  const buildCounts = (
+    attendances: Attendance[],
+    newsList: News[],
+    incidentsList: Incident[]
+  ): DailyCounts => {
+    const asistencias = dates.map(() => 0);
+    const novedades = dates.map(() => 0);
+    const incidentes = dates.map(() => 0);
+
+    attendances.forEach((a) => {
+      const key = a.fecha.toDate().toISOString().split('T')[0];
+      const idx = dates.indexOf(key);
+      if (idx >= 0) asistencias[idx]++;
+    });
+    newsList.forEach((n) => {
+      const key = n.fecha.toDate().toISOString().split('T')[0];
+      const idx = dates.indexOf(key);
+      if (idx >= 0) novedades[idx]++;
+    });
+    incidentsList.forEach((i) => {
+      const key = i.fecha.toDate().toISOString().split('T')[0];
+      const idx = dates.indexOf(key);
+      if (idx >= 0) incidentes[idx]++;
+    });
+
+    return { dates, asistencias, novedades, incidentes };
+  };
+
+  let attData: Attendance[] = [];
+  let newsData: News[] = [];
+  let incData: Incident[] = [];
+  const emit = () => callback(buildCounts(attData, newsData, incData));
+
+  const tsStart = Timestamp.fromDate(sevenDaysAgo);
+
+  const unsubAtt = onSnapshot(
+    query(collection(db, COLLECTIONS.attendances), where('fecha', '>=', tsStart), orderBy('fecha', 'asc')),
+    (snap) => { attData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance); emit(); }
+  );
+  const unsubNews = onSnapshot(
+    query(collection(db, COLLECTIONS.news), where('fecha', '>=', tsStart), orderBy('fecha', 'asc')),
+    (snap) => { newsData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News); emit(); }
+  );
+  const unsubInc = onSnapshot(
+    query(collection(db, COLLECTIONS.incidents), where('fecha', '>=', tsStart), orderBy('fecha', 'asc')),
+    (snap) => { incData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident); emit(); }
+  );
+
+  return () => {
+    unsubAtt();
+    unsubNews();
+    unsubInc();
+  };
+}

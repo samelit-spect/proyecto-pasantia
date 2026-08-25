@@ -1,0 +1,11 @@
+.sparkline {
+  display: block;
+}
+
+.sparkline__line {
+  opacity: 0.7;
+}
+
+.sparkline__dot {
+  opacity: 1;
+}

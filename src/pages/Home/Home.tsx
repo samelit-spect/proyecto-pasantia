@@ -24,11 +24,13 @@ import {
   subscribeTodayNews,
   subscribeTodayIncidents,
   subscribeRecentIncidents,
+  subscribeLast7DaysCounts,
   getTodayAttendancesBySchool,
   getTodayNewsBySchool,
   getTodayIncidentsBySchool,
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident, School } from '@/types';
+import type { DailyCounts } from '@/services/api/firestore';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
@@ -37,6 +39,7 @@ import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timel
 import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
 import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import PullToRefresh from '@/components/common/PullToRefresh/PullToRefresh';
+import Sparkline from '@/components/common/Sparkline/Sparkline';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import { todayISO } from '@/utils/validation';
@@ -51,12 +54,15 @@ interface CardItem {
   description: string;
 }
 
-const AnimatedStat = ({ value, label }: { value: number; label: string }) => {
+const AnimatedStat = ({ value, label, sparkline, sparklineColor }: { value: number; label: string; sparkline?: number[]; sparklineColor?: string }) => {
   const ambient = useAmbientMotion();
   const animated = useCountUp(value, 600, ambient);
   return (
     <div className="home__stat">
       <span className="home__stat-value">{animated}</span>
+      {sparkline && sparkline.length >= 2 && (
+        <Sparkline data={sparkline} color={sparklineColor} />
+      )}
       <span className="home__stat-label">{label}</span>
     </div>
   );
@@ -83,6 +89,7 @@ const Home = () => {
   const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
   const [openIncidents, setOpenIncidents] = useState<Incident[]>([]);
   const [statsError, setStatsError] = useState<string | null>(null);
+  const [weeklyCounts, setWeeklyCounts] = useState<DailyCounts | null>(null);
 
   const [mySchool, setMySchool] = useState<School | null>(null);
   const [myAttendances, setMyAttendances] = useState<Attendance[]>([]);
@@ -158,9 +165,14 @@ const Home = () => {
       }),
     ];
 
+    const unsubWeekly = subscribeLast7DaysCounts((data) => {
+      if (!unmounted) setWeeklyCounts(data);
+    });
+
     return () => {
       unmounted = true;
       unsubs.forEach((unsub) => unsub());
+      unsubWeekly();
     };
   }, [hasRole]);
 
@@ -503,9 +515,9 @@ const Home = () => {
             </h3>
             <div className="home__stats">
               <AnimatedStat value={stats.escuelas} label="Escuelas" />
-              <AnimatedStat value={stats.asistencias} label="Asistencias" />
-              <AnimatedStat value={stats.novedades} label="Novedades" />
-              <AnimatedStat value={stats.incidentes} label="Incidentes" />
+              <AnimatedStat value={stats.asistencias} label="Asistencias" sparkline={weeklyCounts?.asistencias} sparklineColor="#166534" />
+              <AnimatedStat value={stats.novedades} label="Novedades" sparkline={weeklyCounts?.novedades} sparklineColor="#1e40af" />
+              <AnimatedStat value={stats.incidentes} label="Incidentes" sparkline={weeklyCounts?.incidentes} sparklineColor="#dc2626" />
             </div>
           </div>
 
