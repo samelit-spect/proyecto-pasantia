@@ -228,6 +228,29 @@
 .navbar__drawer-footer {
   padding: 0.75rem;
   border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navbar__drawer-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.navbar__drawer-theme-toggle:hover {
+  background-color: var(--primary-tint);
 }
 
 .navbar__drawer-logout {

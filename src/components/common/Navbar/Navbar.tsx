@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/hooks/useTheme';
 import {
   Home,
   LogOut,
@@ -18,6 +19,8 @@ import {
   History,
   Search,
   HelpCircle,
+  Moon,
+  Sun,
   CircleUser,
 } from 'lucide-react';
 import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
@@ -27,6 +30,7 @@ import './Navbar.css';
 
 const Navbar = () => {
   const { profile, logout, hasRole } = useAuth();
+  const { isDark, toggleMode } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -311,6 +315,14 @@ const Navbar = () => {
         </div>
 
         <div className="navbar__drawer-footer">
+          <button
+            className="navbar__drawer-theme-toggle"
+            onClick={toggleMode}
+            aria-label={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+          >
+            {isDark ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+            {isDark ? 'Tema claro' : 'Tema oscuro'}
+          </button>
           <button
             onClick={() => {
               setIsMenuOpen(false);
