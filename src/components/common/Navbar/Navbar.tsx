@@ -18,6 +18,7 @@ import {
   History,
   Search,
   HelpCircle,
+  CircleUser,
 } from 'lucide-react';
 import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
 import NotificationBell from '@/components/common/NotificationBell/NotificationBell';
@@ -159,6 +160,10 @@ const Navbar = () => {
           <Search size={14} strokeWidth={2} />
           <kbd>⌘K</kbd>
         </button>
+        <Link viewTransition to="/perfil" className="navbar__desktop-link">
+          <CircleUser size={16} strokeWidth={1.5} />
+          Mi Perfil
+        </Link>
         <button onClick={handleLogout} className="navbar__desktop-logout">
           <LogOut size={16} strokeWidth={1.5} />
           Salir
@@ -179,7 +184,12 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className="navbar__drawer-user">
+        <Link
+          viewTransition
+          to="/perfil"
+          className="navbar__drawer-user"
+          onClick={() => setIsMenuOpen(false)}
+        >
           <div className="navbar__drawer-avatar">
             <User size={20} strokeWidth={1.5} />
           </div>
@@ -187,7 +197,7 @@ const Navbar = () => {
             <span className="navbar__drawer-name">{profile.nombre}</span>
             <span className="navbar__drawer-role">{profile.rol}</span>
           </div>
-        </div>
+        </Link>
 
         <div className="navbar__drawer-body">
           <Link

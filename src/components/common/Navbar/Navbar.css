@@ -150,6 +150,13 @@
   padding: 1.25rem;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--background-color);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.navbar__drawer-user:hover {
+  background-color: var(--primary-tint, rgb(30 64 175 / 0.05));
 }
 
 .navbar__drawer-avatar {
