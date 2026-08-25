@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import {
   Home,
   LogOut,
@@ -36,6 +37,14 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useKeyboardShortcuts({
+    'mod+k': () => setIsSearchOpen(true),
+    'escape': () => {
+      if (isSearchOpen) setIsSearchOpen(false);
+      else if (isMenuOpen) setIsMenuOpen(false);
+    },
+  }, [isSearchOpen, isMenuOpen]);
 
   const isActive = (to: string) =>
     to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
