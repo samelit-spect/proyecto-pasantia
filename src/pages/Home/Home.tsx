@@ -15,6 +15,7 @@ import {
   Clock,
   CalendarClock,
   X,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   getSchools,
@@ -365,6 +366,30 @@ const Home = () => {
           >
             <X size={14} strokeWidth={1.5} />
           </button>
+        </div>
+      )}
+
+      {!isLoading && !hasRole('supervisor') && (myAttendances.length > 0 || myNews.length > 0 || myIncidents.length > 0) && (
+        <div className="home__status-banner animate-fade-in">
+          <CheckCircle2 size={14} strokeWidth={2} className="home__status-icon" />
+          <span className="home__status-text">
+            Hoy:
+            {myAttendances.length > 0 && ` ${myAttendances.length} asistencia${myAttendances.length !== 1 ? 's' : ''}`}
+            {myNews.length > 0 && ` · ${myNews.length} novedad${myNews.length !== 1 ? 'es' : ''}`}
+            {myIncidents.length > 0 && ` · ${myIncidents.length} incidente${myIncidents.length !== 1 ? 's' : ''}`}
+          </span>
+        </div>
+      )}
+
+      {!isLoading && hasRole('supervisor') && (stats.asistencias > 0 || stats.novedades > 0 || stats.incidentes > 0) && (
+        <div className="home__status-banner home__status-banner--supervisor animate-fade-in">
+          <CheckCircle2 size={14} strokeWidth={2} className="home__status-icon" />
+          <span className="home__status-text">
+            Hoy en el sistema:
+            {stats.asistencias > 0 && ` ${stats.asistencias} asistencia${stats.asistencias !== 1 ? 's' : ''}`}
+            {stats.novedades > 0 && ` · ${stats.novedades} novedad${stats.novedades !== 1 ? 'es' : ''}`}
+            {stats.incidentes > 0 && ` · ${stats.incidentes} incidente${stats.incidentes !== 1 ? 's' : ''}`}
+          </span>
         </div>
       )}
 
