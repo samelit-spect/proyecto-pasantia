@@ -47,7 +47,7 @@ const MainLayout = () => {
       <InstallPrompt />
       <WelcomeTour />
       <SupervisorLiveAlerts />
-      <main className="main-layout__content">
+      <main className="main-layout__content" style={{ viewTransitionName: 'page-content' }}>
         <Outlet key={location.pathname} />
       </main>
     </>
