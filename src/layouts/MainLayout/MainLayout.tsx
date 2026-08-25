@@ -5,6 +5,7 @@ import ConnectionBanner from '@/components/common/ConnectionBanner/ConnectionBan
 import InstallPrompt from '@/components/common/InstallPrompt/InstallPrompt';
 import WelcomeTour from '@/components/common/WelcomeTour/WelcomeTour';
 import SupervisorLiveAlerts from '@/components/common/SupervisorLiveAlerts/SupervisorLiveAlerts';
+import RealtimeNotifications from '@/components/common/RealtimeNotifications/RealtimeNotifications';
 import './MainLayout.css';
 
 const PROTECTED_ROUTES = [
@@ -47,6 +48,7 @@ const MainLayout = () => {
       <InstallPrompt />
       <WelcomeTour />
       <SupervisorLiveAlerts />
+      <RealtimeNotifications />
       <main className="main-layout__content" style={{ viewTransitionName: 'page-content' }}>
         <Outlet key={location.pathname} />
       </main>
