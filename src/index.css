@@ -86,3 +86,108 @@ body {
     transform: translateX(12px);
   }
 }
+
+/* ── Print-friendly styles ─────────────────────────────── */
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  /* Hide non-essential UI */
+  .navbar,
+  .bottom-nav,
+  .navbar__drawer,
+  .navbar__overlay,
+  .main-layout__content > .connection-banner,
+  .install-prompt,
+  .welcome-tour,
+  .supervisor-live-alerts,
+  .home__reminder,
+  .home__status-banner,
+  .home__error,
+  .pull-to-refresh__indicator,
+  .global-search,
+  .breadcrumb,
+  .supervisor__back,
+  .historial__export-btn,
+  .fotos__submit,
+  .fotos__item-delete,
+  .theme-settings,
+  .retention-banner,
+  .sparkline,
+  .home__live-badge,
+  button,
+  .navbar__drawer-footer,
+  .connection-banner {
+    display: none !important;
+  }
+
+  /* Layout adjustments */
+  .main-layout__content {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .home,
+  .historial,
+  .incidentes,
+  .novedades,
+  .asist-docentes,
+  .fotos,
+  .supervisor,
+  section {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Links: show URL */
+  a[href]::after {
+    content: none;
+  }
+
+  /* Tables & cards: clean borders */
+  .historial__record,
+  .home__school-card,
+  .home__stat,
+  .supervisor-schools__card {
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Sections: page break hints */
+  .home__section,
+  .historial__section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Stat numbers: ensure visible */
+  .home__stat-value {
+    font-size: 1.25rem !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+
+  /* Accordions: expand all for print */
+  .historial__section-body {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* No animations */
+  .animate-fade-in {
+    animation: none !important;
+  }
+}
