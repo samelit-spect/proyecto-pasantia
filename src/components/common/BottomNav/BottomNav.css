@@ -90,4 +90,16 @@
     justify-content: center;
     line-height: 1;
   }
+
+  .bottom-nav__dot {
+    position: absolute;
+    top: 6px;
+    right: 50%;
+    transform: translateX(calc(50% + 12px));
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+    pointer-events: none;
+  }
 }

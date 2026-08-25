@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Home, ClipboardCheck, History, Eye, Menu } from 'lucide-react';
+import { subscribeRecentIncidents } from '@/services/api/firestore';
 import './BottomNav.css';
 
 interface BottomNavProps {
@@ -8,9 +10,31 @@ interface BottomNavProps {
 }
 
 const BottomNav = ({ onOpenDrawer }: BottomNavProps) => {
-  const { hasRole } = useAuth();
+  const { hasRole, profile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [openIncidentCount, setOpenIncidentCount] = useState(0);
+  const [hasTodayAttendance, setHasTodayAttendance] = useState(false);
+
+  useEffect(() => {
+    if (!hasRole('supervisor')) return;
+    const unsub = subscribeRecentIncidents(50, (incidents) => {
+      const open = incidents.filter((i) => i.estado !== 'resuelto').length;
+      setOpenIncidentCount(open);
+    });
+    return unsub;
+  }, [hasRole]);
+
+  useEffect(() => {
+    if (hasRole('supervisor') || !profile?.escuelaId) return;
+    let unmounted = false;
+    import('@/services/api/firestore').then(({ getTodayAttendancesBySchool }) => {
+      getTodayAttendancesBySchool(profile.escuelaId).then((data) => {
+        if (!unmounted) setHasTodayAttendance(data.length > 0);
+      });
+    });
+    return () => { unmounted = true; };
+  }, [hasRole, profile?.escuelaId]);
 
   const items: Array<{
     icon: React.ReactNode;
@@ -19,6 +43,7 @@ const BottomNav = ({ onOpenDrawer }: BottomNavProps) => {
     active?: boolean;
     isMore?: boolean;
     onClick?: () => void;
+    badge?: number;
   }> = [];
 
   items.push({
@@ -49,6 +74,7 @@ const BottomNav = ({ onOpenDrawer }: BottomNavProps) => {
       label: 'Supervisión',
       to: '/supervisor',
       active: location.pathname.startsWith('/supervisor'),
+      badge: openIncidentCount || undefined,
     });
   }
 
@@ -96,6 +122,12 @@ const BottomNav = ({ onOpenDrawer }: BottomNavProps) => {
             aria-label={item.label}
           >
             {item.icon}
+            {item.badge != null && item.badge > 0 && (
+              <span className="bottom-nav__badge">{item.badge > 99 ? '99+' : item.badge}</span>
+            )}
+            {!hasRole('supervisor') && item.to === '/asistencia' && !hasTodayAttendance && (
+              <span className="bottom-nav__dot" />
+            )}
             <span>{item.label}</span>
           </button>
         );
