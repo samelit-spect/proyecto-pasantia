@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { addIncident } from '@/services/api/firestore';
 import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import { markOfflineWrite } from '@/utils/offlineQueue';
+import { friendlyFirestoreError } from '@/utils/firestoreErrors';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
 import { incidenteSchema } from '@/utils/validation';
@@ -106,8 +107,9 @@ const Incidentes = () => {
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
       setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
-    } catch {
-      setFeedback({ type: 'error', message: 'Error al registrar el incidente. Intentá de nuevo.' });
+    } catch (err) {
+      console.error('Error al registrar el incidente:', err);
+      setFeedback({ type: 'error', message: friendlyFirestoreError(err) });
     }
   };
 

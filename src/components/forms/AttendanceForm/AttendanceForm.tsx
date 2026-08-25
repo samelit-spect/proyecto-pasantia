@@ -6,6 +6,7 @@ import AttendanceRow from '@/components/common/AttendanceRow/AttendanceRow';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { todayISO } from '@/utils/validation';
 import { markOfflineWrite } from '@/utils/offlineQueue';
+import { friendlyFirestoreError } from '@/utils/firestoreErrors';
 import './AttendanceForm.css';
 
 export interface AttendanceFormEntry {
@@ -247,7 +248,7 @@ const AttendanceForm = ({
       console.error('Error al enviar asistencia:', err);
       setResult({
         type: 'error',
-        message: 'No se pudo enviar el formulario. Revisá tu conexión e intentá de nuevo.',
+        message: friendlyFirestoreError(err),
       });
     } finally {
       setIsSubmitting(false);

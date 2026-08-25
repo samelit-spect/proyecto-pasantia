@@ -10,6 +10,7 @@ import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
 import { novedadSchema } from '@/utils/validation';
 import { markOfflineWrite } from '@/utils/offlineQueue';
+import { friendlyFirestoreError } from '@/utils/firestoreErrors';
 import { NOVEDAD_TIPOS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { NovedadTipo } from '@/types';
 import './Novedades.css';
@@ -67,8 +68,9 @@ const Novedades = () => {
       });
       reset();
       setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);
-    } catch {
-      setFeedback({ type: 'error', message: 'Error al registrar la novedad. Intentá de nuevo.' });
+    } catch (err) {
+      console.error('Error al registrar la novedad:', err);
+      setFeedback({ type: 'error', message: friendlyFirestoreError(err) });
     }
   };
 
