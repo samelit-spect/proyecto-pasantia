@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -15,6 +15,7 @@ import Pagination from '@/components/common/Pagination/Pagination';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import IncidentHistory from '@/components/common/IncidentHistory/IncidentHistory';
 import FilterBar, { type ActiveFilter } from '@/components/common/FilterBar/FilterBar';
+import PullToRefresh from '@/components/common/PullToRefresh/PullToRefresh';
 import {
   novedadTipoLabel,
   incidentCategoriaLabel,
@@ -199,7 +200,12 @@ const Historial = () => {
     }
   };
 
+  const handleRefresh = useCallback(async () => {
+    await new Promise((r) => setTimeout(r, 400));
+  }, []);
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <section className="historial">
       <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Historial' }]} />
       <button className="supervisor__back" onClick={() => navigate('/', { viewTransition: true })}>
@@ -526,6 +532,7 @@ const Historial = () => {
         </div>
       )}
     </section>
+    </PullToRefresh>
   );
 };
 

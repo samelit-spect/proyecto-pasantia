@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useAuth } from '@/context/AuthContext';
@@ -35,6 +35,7 @@ import RetentionBanner from '@/components/common/RetentionBanner/RetentionBanner
 import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timeline';
 import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
 import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
+import PullToRefresh from '@/components/common/PullToRefresh/PullToRefresh';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import { todayISO } from '@/utils/validation';
@@ -309,7 +310,21 @@ const Home = () => {
     }
   };
 
+  const handleRefresh = useCallback(async () => {
+    if (hasRole('supervisor')) return;
+    if (!profile?.escuelaId) return;
+    const [attendances, news, incidents] = await Promise.all([
+      getTodayAttendancesBySchool(profile.escuelaId),
+      getTodayNewsBySchool(profile.escuelaId),
+      getTodayIncidentsBySchool(profile.escuelaId),
+    ]);
+    setMyAttendances(attendances);
+    setMyNews(news);
+    setMyIncidents(incidents);
+  }, [hasRole, profile?.escuelaId]);
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <section className="home">
       <AnimatedBackground />
       <div className="home__header">
@@ -607,6 +622,7 @@ const Home = () => {
         </div>
       )}
     </section>
+    </PullToRefresh>
   );
 };
 
