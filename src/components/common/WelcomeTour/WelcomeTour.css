@@ -7,6 +7,7 @@
   justify-content: center;
   padding: 1rem;
   background-color: rgb(15 23 42 / 0.6);
+  animation: wt-fade-in 0.15s ease-out both;
 }
 
 .welcome-tour {
@@ -22,6 +23,7 @@
   background-color: var(--surface-color);
   border-radius: var(--radius-lg, 1rem);
   box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.15));
+  animation: wt-slide-in 0.2s ease-out both;
 }
 
 .welcome-tour__icon {
@@ -113,4 +115,14 @@
 
 .welcome-tour__next:hover {
   filter: brightness(1.08);
+}
+
+@keyframes wt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wt-slide-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }

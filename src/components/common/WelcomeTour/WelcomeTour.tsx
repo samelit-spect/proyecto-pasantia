@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
-import {
-  ClipboardCheck,
-  Users,
-  Camera,
-  Newspaper,
-  History,
-  Eye,
-  Settings,
-  HelpCircle,
-} from 'lucide-react';
+import { ClipboardCheck, Users, Camera, Newspaper, History, Eye, Settings, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import './WelcomeTour.css';
 
@@ -34,7 +24,6 @@ const WelcomeTour = () => {
   const { profile, hasRole } = useAuth();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
-  const reduceMotion = useReducedMotion();
 
   const storageKey = profile ? `${WELCOME_KEY_PREFIX}-${profile.uid}` : null;
 
@@ -140,33 +129,15 @@ const WelcomeTour = () => {
   const isLast = step >= steps.length - 1;
 
   return (
-    <AnimatePresence>
+    <>
       {open && steps.length > 0 && (
-        <m.div
+        <div
           className="welcome-tour__overlay"
           role="dialog"
           aria-modal="true"
           aria-label={`Bienvenida, ${profile.nombre}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 0.15 }}
         >
-          <m.div
-            className="welcome-tour"
-            initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, transform: 'translateY(8px) scale(0.98)' }
-            }
-            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, transform: 'none' }}
-            exit={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, transform: 'translateY(6px) scale(0.98)' }
-            }
-            transition={{ duration: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-          >
+          <div className="welcome-tour">
             <div className="welcome-tour__icon">{current.icon}</div>
             <span className="welcome-tour__counter">
               Paso {step + 1} de {steps.length}
@@ -196,10 +167,10 @@ const WelcomeTour = () => {
                 {isLast ? 'Empezar' : 'Siguiente'}
               </button>
             </div>
-          </m.div>
-        </m.div>
+          </div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 };
 
