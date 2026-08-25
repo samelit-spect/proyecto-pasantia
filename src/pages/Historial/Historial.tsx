@@ -10,6 +10,7 @@ import {
 } from '@/services/api/firestore';
 import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import SwipeableRow from '@/components/common/SwipeableRow/SwipeableRow';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import Pagination from '@/components/common/Pagination/Pagination';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
@@ -491,33 +492,35 @@ const Historial = () => {
                       <div className="historial__empty">No hay registros.</div>
                     ) : (
                       items.map((inc) => (
-                        <div key={inc.id} className="historial__record">
-                          <div className="historial__record-header">
-                            <span className="historial__record-date">
-                              {inc.fecha.toDate().toLocaleDateString('es-AR')}
-                            </span>
-                            <StatusBadge status={inc.estado} />
-                          </div>
-                          <div className="historial__meta">
-                            <span className="historial__meta-tag">
-                              {incidentCategoriaLabel(inc.categoria)}
-                            </span>
-                            {inc.urgencia && (
-                              <span
-                                className={`historial__meta-tag historial__meta-tag--urgencia-${inc.urgencia}`}
-                              >
-                                Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+                        <SwipeableRow key={inc.id}>
+                          <div className="historial__record">
+                            <div className="historial__record-header">
+                              <span className="historial__record-date">
+                                {inc.fecha.toDate().toLocaleDateString('es-AR')}
                               </span>
-                            )}
-                            {inc.ubicacion && (
+                              <StatusBadge status={inc.estado} />
+                            </div>
+                            <div className="historial__meta">
                               <span className="historial__meta-tag">
-                                Ubicación: {inc.ubicacion}
+                                {incidentCategoriaLabel(inc.categoria)}
                               </span>
-                            )}
+                              {inc.urgencia && (
+                                <span
+                                  className={`historial__meta-tag historial__meta-tag--urgencia-${inc.urgencia}`}
+                                >
+                                  Urgencia {incidentUrgenciaLabel(inc.urgencia)}
+                                </span>
+                              )}
+                              {inc.ubicacion && (
+                                <span className="historial__meta-tag">
+                                  Ubicación: {inc.ubicacion}
+                                </span>
+                              )}
+                            </div>
+                            <p className="historial__desc">{inc.descripcion}</p>
+                            <IncidentHistory events={inc.historialEstados} />
                           </div>
-                          <p className="historial__desc">{inc.descripcion}</p>
-                          <IncidentHistory events={inc.historialEstados} />
-                        </div>
+                        </SwipeableRow>
                       ))
                     )}
                     <Pagination
