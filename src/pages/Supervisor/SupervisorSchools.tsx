@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Button from '@/components/common/Button/Button';
 import { useToast } from '@/context/ToastContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import {
   getSchools,
   addSchool,
@@ -118,6 +119,7 @@ const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps
 const SupervisorSchools = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const haptic = useHaptic();
   const [schools, setSchools] = useState<SchoolType[]>([]);
   const [recentAttendances, setRecentAttendances] = useState<Attendance[]>([]);
   const [recentNews, setRecentNews] = useState<News[]>([]);
@@ -199,6 +201,7 @@ const SupervisorSchools = () => {
         });
         addToast('success', 'Escuela creada correctamente.');
       }
+      haptic.success();
       reset();
       setEditingSchool(null);
       setShowForm(false);

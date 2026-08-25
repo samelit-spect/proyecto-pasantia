@@ -5,6 +5,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import { addIncident } from '@/services/api/firestore';
 import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import { markOfflineWrite } from '@/utils/offlineQueue';
@@ -21,6 +22,7 @@ type IncidentFormData = z.infer<typeof incidenteSchema>;
 const Incidentes = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const haptic = useHaptic();
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
@@ -96,6 +98,7 @@ const Incidentes = () => {
 
       if (savedOffline) markOfflineWrite();
 
+      haptic.success();
       setFeedback({
         type: 'success',
         message: savedOffline

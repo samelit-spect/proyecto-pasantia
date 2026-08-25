@@ -5,6 +5,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/AuthContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import { addNews } from '@/services/api/firestore';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
@@ -20,6 +21,7 @@ type NewsFormData = z.infer<typeof novedadSchema>;
 const Novedades = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const haptic = useHaptic();
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
@@ -60,6 +62,7 @@ const Novedades = () => {
 
       if (savedOffline) markOfflineWrite();
 
+      haptic.success();
       setFeedback({
         type: 'success',
         message: savedOffline

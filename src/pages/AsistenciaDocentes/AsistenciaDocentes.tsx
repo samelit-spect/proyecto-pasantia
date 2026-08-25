@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import { addDocenteAttendance, getDocenteAttendanceByUserAndDate } from '@/services/api/firestore';
 import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
@@ -13,6 +14,7 @@ import './AsistenciaDocentes.css';
 const AsistenciaDocentes = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const haptic = useHaptic();
   const escuelaId = profile?.escuelaId || '';
 
   const [fecha, setFecha] = useState(todayISO());
@@ -93,6 +95,7 @@ const AsistenciaDocentes = () => {
 
       if (savedOffline) markOfflineWrite();
 
+      haptic.success();
       setFeedback({
         type: 'success',
         message: savedOffline

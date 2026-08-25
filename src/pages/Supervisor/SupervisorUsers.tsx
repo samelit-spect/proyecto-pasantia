@@ -14,6 +14,7 @@ import {
 import { createUserAccount, sendPasswordReset } from '@/services/api/auth';
 import { getAuthErrorMessage } from '@/utils/authErrors';
 import { useAuth } from '@/context/AuthContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import SchoolSelect from '@/components/common/SchoolSelect/SchoolSelect';
 import type { School, UserProfile } from '@/types';
 import Button from '@/components/common/Button/Button';
@@ -49,6 +50,7 @@ const SupervisorUsers = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { profile } = useAuth();
+  const haptic = useHaptic();
 
   const actor = () => (profile ? { uid: profile.uid, nombre: profile.nombre } : undefined);
 
@@ -113,6 +115,7 @@ const SupervisorUsers = () => {
         actor()
       );
       addToast('success', 'Usuario creado correctamente.');
+      haptic.success();
       createForm.reset();
       setShowForm(false);
       await loadUsers();
@@ -135,6 +138,7 @@ const SupervisorUsers = () => {
         actor()
       );
       addToast('success', 'Usuario actualizado correctamente.');
+      haptic.success();
       setEditingUser(null);
       await loadUsers();
     } catch {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import { getFotosBySchoolAndDate, addFoto, deleteFoto } from '@/services/api/firestore';
 import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
@@ -14,6 +15,7 @@ import './Fotos.css';
 
 const Fotos = () => {
   const { user, profile } = useAuth();
+  const haptic = useHaptic();
   const escuelaId = profile?.escuelaId || '';
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [file, setFile] = useState<File | null>(null);
@@ -108,6 +110,7 @@ const Fotos = () => {
         subidoPorNombre: profile.nombre,
       });
       setFile(null);
+      haptic.success();
       setFeedback({ type: 'success', message: 'Foto subida correctamente.' });
       setRefreshKey((k) => k + 1);
       setTimeout(() => setFeedback(null), FEEDBACK_AUTO_CLEAR_MS);

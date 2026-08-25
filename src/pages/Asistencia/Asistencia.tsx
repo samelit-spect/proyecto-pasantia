@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useHaptic } from '@/hooks/useHaptic';
 import { addAttendance, getAttendanceByUserAndDate } from '@/services/api/firestore';
 import AttendanceForm from '@/components/forms/AttendanceForm/AttendanceForm';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
@@ -17,6 +18,7 @@ const GESTION_SECTIONS: AttendanceSectionDef[] = [
 const Asistencia = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const haptic = useHaptic();
 
   return (
     <>
@@ -48,6 +50,7 @@ const Asistencia = () => {
             cargadoPorNombre: profile.nombre,
             registros,
           });
+          haptic.success();
         }}
       />
     </>
