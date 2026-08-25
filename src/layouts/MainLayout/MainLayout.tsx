@@ -6,6 +6,7 @@ import InstallPrompt from '@/components/common/InstallPrompt/InstallPrompt';
 import WelcomeTour from '@/components/common/WelcomeTour/WelcomeTour';
 import SupervisorLiveAlerts from '@/components/common/SupervisorLiveAlerts/SupervisorLiveAlerts';
 import RealtimeNotifications from '@/components/common/RealtimeNotifications/RealtimeNotifications';
+import ChangelogModal from '@/components/common/ChangelogModal/ChangelogModal';
 import './MainLayout.css';
 
 const PROTECTED_ROUTES = [
@@ -49,6 +50,7 @@ const MainLayout = () => {
       <WelcomeTour />
       <SupervisorLiveAlerts />
       <RealtimeNotifications />
+      <ChangelogModal />
       <main className="main-layout__content" style={{ viewTransitionName: 'page-content' }}>
         <Outlet key={location.pathname} />
       </main>
