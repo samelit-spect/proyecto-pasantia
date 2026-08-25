@@ -40,6 +40,7 @@ import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts
 import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import PullToRefresh from '@/components/common/PullToRefresh/PullToRefresh';
 import Sparkline from '@/components/common/Sparkline/Sparkline';
+import AttendanceHeatMap from '@/components/common/AttendanceHeatMap/AttendanceHeatMap';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import { todayISO } from '@/utils/validation';
@@ -519,6 +520,10 @@ const Home = () => {
               <AnimatedStat value={stats.novedades} label="Novedades" sparkline={weeklyCounts?.novedades} sparklineColor="#1e40af" />
               <AnimatedStat value={stats.incidentes} label="Incidentes" sparkline={weeklyCounts?.incidentes} sparklineColor="#dc2626" />
             </div>
+          </div>
+
+          <div className="home__section">
+            <AttendanceHeatMap />
           </div>
 
           <div className="home__section">

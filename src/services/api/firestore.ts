@@ -901,3 +901,42 @@ export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void):
     unsubInc();
   };
 }
+
+export interface DailyAttendanceCount {
+  date: string;
+  count: number;
+}
+
+export function subscribeLast30DaysAttendance(
+  callback: (data: DailyAttendanceCount[]) => void
+): Unsubscribe {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+  thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+  const dates: string[] = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+
+  const tsStart = Timestamp.fromDate(thirtyDaysAgo);
+
+  return onSnapshot(
+    query(
+      collection(db, COLLECTIONS.attendances),
+      where('fecha', '>=', tsStart),
+      orderBy('fecha', 'asc')
+    ),
+    (snap) => {
+      const counts = dates.map((date) => ({ date, count: 0 }));
+      snap.docs.forEach((d) => {
+        const key = (d.data().fecha as Timestamp).toDate().toISOString().split('T')[0];
+        const idx = dates.indexOf(key);
+        if (idx >= 0) counts[idx].count++;
+      });
+      callback(counts);
+    }
+  );
+}
