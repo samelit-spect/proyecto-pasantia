@@ -12,10 +12,20 @@ const HistorialSkeleton = () => (
       <Skeleton variant="rect" width="120px" height="36px" />
       <Skeleton variant="rect" width="120px" height="36px" />
     </div>
-    <Skeleton variant="rect" height="48px" />
-    <Skeleton variant="rect" height="48px" />
-    <Skeleton variant="rect" height="48px" />
-    <Skeleton variant="rect" height="48px" />
+    <div className="historial-skeleton__section">
+      <Skeleton variant="rect" height="44px" />
+      <Skeleton variant="rect" height="44px" />
+      <Skeleton variant="rect" height="44px" />
+    </div>
+    <div className="historial-skeleton__section">
+      <Skeleton variant="rect" height="44px" />
+      <Skeleton variant="rect" height="44px" />
+    </div>
+    <div className="historial-skeleton__section">
+      <Skeleton variant="rect" height="44px" />
+      <Skeleton variant="rect" height="44px" />
+      <Skeleton variant="rect" height="44px" />
+    </div>
   </div>
 );
 

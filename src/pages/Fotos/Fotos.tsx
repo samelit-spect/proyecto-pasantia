@@ -9,6 +9,7 @@ import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
 import { todayISO } from '@/utils/validation';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { Foto } from '@/types';
+import FotosSkeleton from './FotosSkeleton';
 import './Fotos.css';
 
 const Fotos = () => {
@@ -196,7 +197,7 @@ const Fotos = () => {
         {!escuelaId || !fecha ? (
           <div className="fotos__empty">Seleccioná una escuela y una fecha.</div>
         ) : fotos === null ? (
-          <div className="fotos__empty">Cargando fotos...</div>
+          <FotosSkeleton />
         ) : fotos.length === 0 ? (
           <div className="fotos__empty">No hay fotos cargadas para esta escuela y fecha.</div>
         ) : (

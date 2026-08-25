@@ -1,0 +1,64 @@
+.fotos-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.fotos-skeleton__form {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fotos-skeleton__form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+.fotos-skeleton__school {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.fotos-skeleton__form-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.fotos-skeleton__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.fotos-skeleton__photo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fotos-skeleton__photo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (max-width: 640px) {
+  .fotos-skeleton__form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .fotos-skeleton__form-actions {
+    flex-direction: column;
+  }
+}

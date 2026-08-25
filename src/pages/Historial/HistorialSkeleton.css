@@ -9,3 +9,21 @@
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+
+.historial-skeleton__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.historial-skeleton__section .skeleton {
+  border-radius: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.historial-skeleton__section .skeleton:last-child {
+  border-bottom: none;
+}
