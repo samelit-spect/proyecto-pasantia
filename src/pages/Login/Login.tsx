@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Users, Bell, Camera } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { getAuthErrorMessage } from '@/utils/authErrors';
 import Button from '@/components/common/Button/Button';
@@ -34,64 +34,109 @@ const Login = () => {
   return (
     <div className="login">
       <AnimatedBackground />
-      <div className="login__card">
-        <h1 className="login__title">SIPNAM</h1>
-        <p className="login__subtitle">
-          Sistema Integrado de Partes de Novedades y Asistencias Móvil
-        </p>
 
-        <form onSubmit={handleSubmit} className="login__form">
-          <div className="login__field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              required
-              autoComplete="email"
+      <aside className="login__hero">
+        <div className="login__hero-inner">
+          <img
+            src="/pwa-512x512.png"
+            alt="SIPNAM"
+            className="login__hero-logo"
+            width={96}
+            height={96}
+            draggable={false}
+          />
+          <h1 className="login__hero-title">SIPNAM</h1>
+          <p className="login__hero-subtitle">
+            Sistema Integrado de Partes de Novedades y Asistencias Móvil
+          </p>
+          <ul className="login__hero-features">
+            <li>
+              <Users size={18} strokeWidth={1.75} />
+              <span>Gestión de asistencia de estudiantes y docentes</span>
+            </li>
+            <li>
+              <Bell size={18} strokeWidth={1.75} />
+              <span>Registro de novedades e incidentes</span>
+            </li>
+            <li>
+              <Camera size={18} strokeWidth={1.75} />
+              <span>Documentación fotográfica de las escuelas</span>
+            </li>
+          </ul>
+        </div>
+        <footer className="login__hero-footer">Secretaría de Educación — Tinogasta</footer>
+      </aside>
+
+      <main className="login__panel">
+        <div className="login__card">
+          <div className="login__brand">
+            <img
+              src="/pwa-512x512.png"
+              alt="SIPNAM"
+              className="login__logo"
+              width={72}
+              height={72}
+              draggable={false}
             />
+            <h1 className="login__title">SIPNAM</h1>
+            <p className="login__subtitle">
+              Sistema Integrado de Partes de Novedades y Asistencias Móvil
+            </p>
           </div>
 
-          <div className="login__field">
-            <label htmlFor="password">Contraseña</label>
-            <div className="login__password-wrapper">
+          <form onSubmit={handleSubmit} className="login__form">
+            <div className="login__field">
+              <label htmlFor="email">Email</label>
               <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
                 required
-                autoComplete="current-password"
+                autoComplete="email"
               />
-              <button
-                type="button"
-                className="login__password-toggle"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showPassword ? (
-                  <EyeOff size={16} strokeWidth={1.5} />
-                ) : (
-                  <Eye size={16} strokeWidth={1.5} />
-                )}
-              </button>
             </div>
-          </div>
 
-          {error && (
-            <div className="login__error" role="alert">
-              {error}
+            <div className="login__field">
+              <label htmlFor="password">Contraseña</label>
+              <div className="login__password-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="login__password-toggle"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showPassword ? (
+                    <EyeOff size={16} strokeWidth={1.5} />
+                  ) : (
+                    <Eye size={16} strokeWidth={1.5} />
+                  )}
+                </button>
+              </div>
             </div>
-          )}
 
-          <Button type="submit" loading={isLoading} className="login__button">
-            Iniciar Sesión
-          </Button>
-        </form>
-      </div>
+            {error && (
+              <div className="login__error" role="alert">
+                {error}
+              </div>
+            )}
+
+            <Button type="submit" loading={isLoading} className="login__button">
+              Iniciar Sesión
+            </Button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 };
