@@ -35,6 +35,12 @@ const Login = () => {
     <div className="login">
       <AnimatedBackground />
 
+      <div className="login__decor" aria-hidden="true">
+        <span className="login__decor-circle login__decor-circle--tr" />
+        <span className="login__decor-circle login__decor-circle--bl1" />
+        <span className="login__decor-circle login__decor-circle--bl2" />
+      </div>
+
       <aside className="login__hero">
         <div className="login__hero-inner">
           <img

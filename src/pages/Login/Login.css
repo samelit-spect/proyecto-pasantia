@@ -1,9 +1,48 @@
 .login {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: transparent;
+}
+
+.login__decor {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.login__decor-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--primary-color), transparent 88%);
+}
+
+.login__decor-circle--tr {
+  top: -4rem;
+  right: -4rem;
+  width: 14rem;
+  height: 14rem;
+  background: color-mix(in oklch, var(--primary-light), transparent 86%);
+}
+
+.login__decor-circle--bl1 {
+  bottom: -5rem;
+  left: -4rem;
+  width: 16rem;
+  height: 16rem;
+}
+
+.login__decor-circle--bl2 {
+  bottom: 5rem;
+  left: -6rem;
+  width: 9rem;
+  height: 9rem;
+  background: color-mix(in oklch, var(--primary-light), transparent 90%);
 }
 
 .login__panel {
@@ -370,12 +409,15 @@
 @media (max-width: 859px) {
   .login {
     padding: 0;
-    background: linear-gradient(
-      165deg,
-      color-mix(in oklch, var(--primary-color), white 84%),
-      color-mix(in oklch, var(--primary-light), white 88%) 60%,
-      color-mix(in oklch, var(--primary-color), white 90%)
-    );
+    background-color: var(--background-color);
+  }
+
+  .animated-bg {
+    display: none;
+  }
+
+  .login__decor {
+    display: block;
   }
 
   .login__card {
