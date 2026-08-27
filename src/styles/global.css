@@ -60,17 +60,20 @@ body {
 }
 
 /* Aurora ambiental: dos halos suaves derivados del color del tema que
-   derivan lentamente. Capa fija detrás de todo el contenido. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: -25%;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(40rem 40rem at 20% 15%, var(--primary-tint), transparent 65%),
-    radial-gradient(36rem 36rem at 82% 82%, var(--primary-tint-strong), transparent 62%);
-  animation: aurora-drift 26s ease-in-out infinite alternate;
+   derivan lentamente. Solo en móvil (celular); en tablet/PC no se muestra
+   para evitar que quede descubierto en resoluciones grandes. */
+@media (max-width: 767px) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: -25%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(40rem 40rem at 20% 15%, var(--primary-tint), transparent 65%),
+      radial-gradient(36rem 36rem at 82% 82%, var(--primary-tint-strong), transparent 62%);
+    animation: aurora-drift 26s ease-in-out infinite alternate;
+  }
 }
 
 @keyframes aurora-drift {
