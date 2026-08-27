@@ -39,6 +39,7 @@ const SchoolDetailIncidents = ({
   exporting,
 }: SchoolDetailIncidentsProps) => {
   const [pendingChange, setPendingChange] = useState<PendingStatusChange | null>(null);
+  const [applying, setApplying] = useState<PendingStatusChange | null>(null);
 
   const handleSelectChange = (incidentId: string, newStatus: IncidentStatus) => {
     setPendingChange({ incidentId, newStatus });
@@ -50,12 +51,13 @@ const SchoolDetailIncidents = ({
   const isOptionDisabled = (incidentStatus: IncidentStatus, option: IncidentStatus) =>
     option !== incidentStatus && !canTransitionIncidentStatus(incidentStatus, option);
 
-  // Mientras hay un cambio en confirmación mostramos el valor elegido; si se
-  // cancela (o la actualización falla), el <select> vuelve al estado real.
+  // Mientras hay un cambio en confirmación o en aplicación mostramos el valor
+  // elegido; si se cancela (o la actualización falla), el <select> vuelve al
+  // estado real. Esto mantiene el control sincronizado sin bloquear la UI.
   const displayValue = (incident: Incident) =>
-    pendingChange && pendingChange.incidentId === incident.id
-      ? pendingChange.newStatus
-      : incident.estado;
+    (applying?.incidentId === incident.id ? applying.newStatus : undefined) ??
+    (pendingChange?.incidentId === incident.id ? pendingChange.newStatus : undefined) ??
+    incident.estado;
 
   return (
     <>
@@ -159,11 +161,16 @@ const SchoolDetailIncidents = ({
         }
         confirmLabel="Cambiar estado"
         variant="warning"
-        onConfirm={async () => {
+        onConfirm={() => {
           if (pendingChange) {
-            await onStatusChange(pendingChange.incidentId, pendingChange.newStatus);
+            const pc = pendingChange;
+            // Cerramos el diálogo de inmediato para no bloquear la UI con el
+            // overlay mientras se actualiza en Firestore; el <select> muestra
+            // el nuevo valor vía `applying` hasta que termine.
+            setPendingChange(null);
+            setApplying(pc);
+            onStatusChange(pc.incidentId, pc.newStatus)?.then(() => setApplying(null));
           }
-          setPendingChange(null);
         }}
         onCancel={() => setPendingChange(null)}
       />
