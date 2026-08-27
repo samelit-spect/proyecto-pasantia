@@ -19,6 +19,7 @@
 | `tematicos/10_manejo_errores.md` | Manejo de errores: ErrorBoundary y mensajes amigables |
 | `tematicos/11_validacion_formularios.md` | Validación de formularios con Zod + react-hook-form |
 | `tematicos/12_state_hooks.md` | Gestión de estado (Contexts) y hooks reutilizables |
+| `tematicos/13_testing.md` | Testing: Vitest, tests unitarios, de componentes y smoke global |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
