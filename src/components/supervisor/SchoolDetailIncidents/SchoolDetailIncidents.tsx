@@ -16,7 +16,7 @@ interface SchoolDetailIncidentsProps {
   incidents: Incident[];
   expandedSection: string;
   onToggle: () => void;
-  onStatusChange: (id: string, status: IncidentStatus) => void;
+  onStatusChange: (id: string, status: IncidentStatus) => Promise<void> | void;
   statusUpdatingId: string | null;
   onLightbox: (url: string) => void;
   onExport?: () => void;
@@ -49,6 +49,13 @@ const SchoolDetailIncidents = ({
   // se trabe y sea inusable hasta recargar la página.
   const isOptionDisabled = (incidentStatus: IncidentStatus, option: IncidentStatus) =>
     option !== incidentStatus && !canTransitionIncidentStatus(incidentStatus, option);
+
+  // Mientras hay un cambio en confirmación mostramos el valor elegido; si se
+  // cancela (o la actualización falla), el <select> vuelve al estado real.
+  const displayValue = (incident: Incident) =>
+    pendingChange && pendingChange.incidentId === incident.id
+      ? pendingChange.newStatus
+      : incident.estado;
 
   return (
     <>
@@ -106,7 +113,7 @@ const SchoolDetailIncidents = ({
                   <span className="supervisor-detail__status-label">Estado</span>
                   <select
                     className="supervisor-detail__status-select"
-                    value={inc.estado}
+                    value={displayValue(inc)}
                     disabled={statusUpdatingId === inc.id}
                     onChange={(e) => handleSelectChange(inc.id, e.target.value as IncidentStatus)}
                   >
@@ -152,9 +159,9 @@ const SchoolDetailIncidents = ({
         }
         confirmLabel="Cambiar estado"
         variant="warning"
-        onConfirm={() => {
+        onConfirm={async () => {
           if (pendingChange) {
-            onStatusChange(pendingChange.incidentId, pendingChange.newStatus);
+            await onStatusChange(pendingChange.incidentId, pendingChange.newStatus);
           }
           setPendingChange(null);
         }}
