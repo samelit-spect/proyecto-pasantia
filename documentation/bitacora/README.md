@@ -25,6 +25,7 @@
 | `tematicos/16_accesibilidad.md` | Accesibilidad: ARIA, semántica, contraste y movimiento reducido |
 | `tematicos/17_ux_onboarding.md` | UX y onboarding: WelcomeTour, pistas contextuales y centro de ayuda |
 | `tematicos/18_seguridad.md` | Seguridad: autenticación, permisos por rol y reglas de Firestore |
+| `tematicos/19_despliegue.md` | Despliegue: build, Netlify, headers de caché y variables de entorno |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
