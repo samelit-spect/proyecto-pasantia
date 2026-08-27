@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, WifiOff, Loader2 } from 'lucide-react';
+import { CheckCircle2, WifiOff } from 'lucide-react';
 import { waitForPendingWrites } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useOnlineStatus } from '@/hooks/custom/useOnlineStatus';
-import { markOfflineWrite, hasOfflineWrites, clearOfflineWrites } from '@/utils/offlineQueue';
+import { hasOfflineWrites, clearOfflineWrites } from '@/utils/offlineQueue';
 import './ConnectionBanner.css';
 
 const SYNC_FEEDBACK_MS = 4000;
@@ -44,11 +44,6 @@ const ConnectionBanner = () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [isOnline]);
-
-  const handleMarkWrite = () => {
-    markOfflineWrite();
-    setPendingCount((c) => c + 1);
-  };
 
   if (!isOnline) {
     return (

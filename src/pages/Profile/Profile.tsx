@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Shield, Building2, Calendar, Briefcase, KeyRound, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Mail, Shield, Building2, Calendar, Briefcase, KeyRound, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { getSchoolById } from '@/services/api/firestore';
 import { sendPasswordReset } from '@/services/api/auth';

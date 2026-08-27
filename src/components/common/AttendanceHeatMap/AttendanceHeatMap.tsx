@@ -23,9 +23,6 @@ export default function AttendanceHeatMap() {
     return 4;
   };
 
-  const weekdays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-  const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
   return (
     <div className="heatmap">
       <h3 className="heatmap__title">Asistencia — últimos 30 días</h3>
