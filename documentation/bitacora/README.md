@@ -15,6 +15,7 @@
 | `tematicos/06_servicios_firestore.md` | Servicios/API de datos: CRUD, consultas y suscripciones en tiempo real |
 | `tematicos/07_tiempo_real_offline.md` | Tiempo real (onSnapshot) y modo offline con sincronización |
 | `tematicos/08_notificaciones.md` | Notificaciones: campana, toasts, alertas en vivo y notificaciones nativas |
+| `tematicos/09_reportes_exportacion.md` | Reportes y exportación: CSV, PDF y respaldo jurisdiccional |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
