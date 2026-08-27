@@ -4,7 +4,6 @@ import { Eye, EyeOff, Users, Bell, Camera } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { getAuthErrorMessage } from '@/utils/authErrors';
 import Button from '@/components/common/Button/Button';
-import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import './Login.css';
 
 const Login = () => {
@@ -33,8 +32,6 @@ const Login = () => {
 
   return (
     <div className="login">
-      <AnimatedBackground />
-
       <div className="login__decor" aria-hidden="true">
         <span className="login__decor-circle login__decor-circle--tr" />
         <span className="login__decor-circle login__decor-circle--bl1" />

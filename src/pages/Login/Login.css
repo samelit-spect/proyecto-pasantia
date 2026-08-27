@@ -412,10 +412,6 @@
     background-color: var(--background-color);
   }
 
-  .animated-bg {
-    display: none;
-  }
-
   .login__decor {
     display: block;
   }

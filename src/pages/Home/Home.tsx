@@ -37,7 +37,6 @@ import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import RetentionBanner from '@/components/common/RetentionBanner/RetentionBanner';
 import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timeline';
 import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
-import AnimatedBackground from '@/components/common/AnimatedBackground/AnimatedBackground';
 import PullToRefresh from '@/components/common/PullToRefresh/PullToRefresh';
 import Sparkline from '@/components/common/Sparkline/Sparkline';
 import AttendanceHeatMap from '@/components/common/AttendanceHeatMap/AttendanceHeatMap';
@@ -340,7 +339,6 @@ const Home = () => {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
     <section className="home">
-      <AnimatedBackground />
       <div className="home__header">
         <div className="home__header-text">
           <Breadcrumb items={[{ label: 'Inicio' }]} />
