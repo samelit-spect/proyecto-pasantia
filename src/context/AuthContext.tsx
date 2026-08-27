@@ -80,16 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [loadUserProfile]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const profile = await loadUserProfile(cred.user);
-    setState({
-      user: cred.user,
-      profile,
-      isLoading: false,
-      isAuthenticated: true,
-    });
-  }, [loadUserProfile]);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const profile = await loadUserProfile(cred.user);
+      setState({
+        user: cred.user,
+        profile,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+    },
+    [loadUserProfile]
+  );
 
   const logout = useCallback(async () => {
     await signOut(auth);
@@ -108,6 +111,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [state.profile]
   );
+
+  useEffect(() => {
+    if (!state.isAuthenticated || !state.profile) return;
+    if (state.profile.rol !== 'director') return;
+
+    const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const resetTimer = () => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        logout();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+    events.forEach((event) => window.addEventListener(event, resetTimer, { passive: true }));
+
+    resetTimer();
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+    };
+  }, [state.isAuthenticated, state.profile, logout]);
 
   const canAccess = useCallback(
     (route: string) => {
