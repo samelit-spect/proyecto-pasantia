@@ -13,6 +13,7 @@
 | `tematicos/04_visual_ui.md` | UI: tema, navegación, formularios, componentes, animaciones y tiempos |
 | `tematicos/05_reglas_negocio.md` | Reglas de negocio: asistencia, novedades, incidentes, acceso y supervisor |
 | `tematicos/06_servicios_firestore.md` | Servicios/API de datos: CRUD, consultas y suscripciones en tiempo real |
+| `tematicos/07_tiempo_real_offline.md` | Tiempo real (onSnapshot) y modo offline con sincronización |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
