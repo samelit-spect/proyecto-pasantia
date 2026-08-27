@@ -38,6 +38,7 @@
 
 ### 2.4 Renders mínimos
 
+- **Lazy loading por ruta**: el enrutador (`src/routes/index.tsx`) usa `lazy: () => load(() => import(...))` con `<Suspense fallback={<LoadingScreen />}>` — cada pantalla carga su propio chunk solo al visitarla.
 - **react-hook-form** minimiza los re-renders de formularios (el estado de cada campo se registra sin re-renderizar todo el árbol).
 - Estado local en lugar de re-render global (solo los contexts necesarios comparten estado).
 
@@ -45,9 +46,8 @@
 
 ## 3. Observaciones (pendientes)
 
-- **No hay *lazy loading* de rutas** ni `React.memo`/`useMemo` en el código. Para una app mediana el bundle es aceptable, pero **se puede mejorar**:
-  - `React.lazy` + `Suspense` por ruta para cargar solo el JS de la pantalla que se visita.
-  - `useMemo`/`React.memo` donde haya listas o derivaciones costosas.
+- Hay **lazy loading por ruta**: el enrutador (`src/routes/index.tsx`) usa `lazy: () => load(() => import(...))` envuelto en un `<Suspense fallback={<LoadingScreen />}>` en `main.tsx`. Cada pantalla carga su propio chunk de JS solo cuando se visita.
+- **No hay `React.memo`/`useMemo`** en el código; aunque el bundle ya está dividido por rutas, **se puede mejorar** memoizando listas/derivaciones costosas donde aporte.
 - Evaluar medición de rendimiento real (Lighthouse / Web Vitals) en [deploy].
 
 ---
