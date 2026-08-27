@@ -1,7 +1,7 @@
 .main-layout__content {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 72px 1rem 2rem;
+  padding: 72px clamp(1rem, 4vw, 3rem) 2rem;
 }
 
 @media (max-width: 767px) {

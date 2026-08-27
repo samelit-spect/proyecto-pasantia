@@ -1,7 +1,7 @@
 .home {
   position: relative;
   z-index: 1;
-  max-width: 860px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -188,9 +188,27 @@
 }
 
 .home__cards {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.75rem;
+}
+
+@media (min-width: 560px) {
+  .home__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 980px) {
+  .home__cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .home__cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .home__card {
