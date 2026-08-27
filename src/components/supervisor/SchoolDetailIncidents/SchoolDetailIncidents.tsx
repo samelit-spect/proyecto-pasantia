@@ -44,6 +44,12 @@ const SchoolDetailIncidents = ({
     setPendingChange({ incidentId, newStatus });
   };
 
+  // La opción actual nunca debe estar deshabilitada: un <select> con la
+  // opción seleccionada en disabled hace que el control nativo (iOS/Safari)
+  // se trabe y sea inusable hasta recargar la página.
+  const isOptionDisabled = (incidentStatus: IncidentStatus, option: IncidentStatus) =>
+    option !== incidentStatus && !canTransitionIncidentStatus(incidentStatus, option);
+
   return (
     <>
       <AccordionSection
@@ -106,25 +112,25 @@ const SchoolDetailIncidents = ({
                   >
                     <option
                       value="pendiente"
-                      disabled={!canTransitionIncidentStatus(inc.estado, 'pendiente')}
+                      disabled={isOptionDisabled(inc.estado, 'pendiente')}
                     >
                       Pendiente
                     </option>
                     <option
                       value="en_analisis"
-                      disabled={!canTransitionIncidentStatus(inc.estado, 'en_analisis')}
+                      disabled={isOptionDisabled(inc.estado, 'en_analisis')}
                     >
                       En análisis
                     </option>
                     <option
                       value="en_gestion"
-                      disabled={!canTransitionIncidentStatus(inc.estado, 'en_gestion')}
+                      disabled={isOptionDisabled(inc.estado, 'en_gestion')}
                     >
                       En gestión
                     </option>
                     <option
                       value="resuelto"
-                      disabled={!canTransitionIncidentStatus(inc.estado, 'resuelto')}
+                      disabled={isOptionDisabled(inc.estado, 'resuelto')}
                     >
                       Resuelto
                     </option>
