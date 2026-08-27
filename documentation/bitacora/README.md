@@ -21,6 +21,7 @@
 | `tematicos/12_state_hooks.md` | Gestión de estado (Contexts) y hooks reutilizables |
 | `tematicos/13_testing.md` | Testing: Vitest, tests unitarios, de componentes y smoke global |
 | `tematicos/14_rendimiento.md` | Rendimiento: compresión de imágenes, PWA/workbox y animaciones |
+| `tematicos/15_pwa_movil.md` | PWA y móvil: instalación, offline, y experiencia táctil |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
