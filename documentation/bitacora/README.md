@@ -17,6 +17,7 @@
 | `tematicos/08_notificaciones.md` | Notificaciones: campana, toasts, alertas en vivo y notificaciones nativas |
 | `tematicos/09_reportes_exportacion.md` | Reportes y exportación: CSV, PDF y respaldo jurisdiccional |
 | `tematicos/10_manejo_errores.md` | Manejo de errores: ErrorBoundary y mensajes amigables |
+| `tematicos/11_validacion_formularios.md` | Validación de formularios con Zod + react-hook-form |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
