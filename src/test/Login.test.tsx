@@ -33,7 +33,7 @@ describe('Login', () => {
 
   it('renderiza el formulario de login', () => {
     renderLogin();
-    expect(screen.getByText('SIPNAM')).toBeDefined();
+    expect(screen.getAllByText('SIPNAM').length).toBeGreaterThan(0);
     expect(screen.getByLabelText('Email')).toBeDefined();
     expect(screen.getByLabelText('Contraseña')).toBeDefined();
     expect(screen.getByRole('button', { name: 'Iniciar Sesión' })).toBeDefined();
@@ -41,7 +41,7 @@ describe('Login', () => {
 
   it('muestra el subtítulo del sistema', () => {
     renderLogin();
-    expect(screen.getByText(/Sistema Integrado de Partes/)).toBeDefined();
+    expect(screen.getAllByText(/Sistema Integrado de Partes/).length).toBeGreaterThan(0);
   });
 
   it('el botón se deshabilita durante el envío', async () => {

@@ -86,6 +86,26 @@ vi.mock('@/context/ToastContext', () => ({
 }));
 
 // ---------------------------------------------------------------------------
+// Mock de Firebase: evita que getAuth()/getApp() se ejecuten en el entorno de
+// test (no hay API key válida), lo que lanzaría auth/invalid-api-key.
+// ---------------------------------------------------------------------------
+vi.mock('@/services/firebase', () => ({
+  firebaseConfig: {
+    apiKey: 'test-api-key',
+    authDomain: 'test.firebaseapp.com',
+    projectId: 'test-project',
+    messagingSenderId: '1234',
+    appId: '1:1234:web:abcd',
+  },
+  app: {},
+  auth: {
+    onAuthStateChanged: () => () => {},
+    currentUser: null,
+  },
+  db: {},
+}));
+
+// ---------------------------------------------------------------------------
 // Mock de Firestore: cada función exportada responde con datos seguros
 // ---------------------------------------------------------------------------
 vi.mock('@/services/api/firestore', () => {
