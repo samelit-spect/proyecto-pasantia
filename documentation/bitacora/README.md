@@ -12,6 +12,7 @@
 | `tematicos/03_autenticacion.md` | Autenticación: flujo, roles, creación de usuarios, errores y tiempos |
 | `tematicos/04_visual_ui.md` | UI: tema, navegación, formularios, componentes, animaciones y tiempos |
 | `tematicos/05_reglas_negocio.md` | Reglas de negocio: asistencia, novedades, incidentes, acceso y supervisor |
+| `tematicos/06_servicios_firestore.md` | Servicios/API de datos: CRUD, consultas y suscripciones en tiempo real |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
