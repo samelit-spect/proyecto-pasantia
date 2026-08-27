@@ -22,6 +22,7 @@
 | `tematicos/13_testing.md` | Testing: Vitest, tests unitarios, de componentes y smoke global |
 | `tematicos/14_rendimiento.md` | Rendimiento: compresión de imágenes, PWA/workbox y animaciones |
 | `tematicos/15_pwa_movil.md` | PWA y móvil: instalación, offline, y experiencia táctil |
+| `tematicos/16_accesibilidad.md` | Accesibilidad: ARIA, semántica, contraste y movimiento reducido |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
 ## Semanas (`01-05`)
