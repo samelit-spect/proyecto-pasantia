@@ -46,6 +46,7 @@ import type {
   AddDocenteAttendanceDTO,
   Foto,
   AddFotoDTO,
+  PushToken,
 } from '@/types';
 
 const COLLECTIONS = {
@@ -57,7 +58,16 @@ const COLLECTIONS = {
   docentes: 'docentes',
   docenteAttendances: 'asistencia_docentes',
   fotos: 'fotos',
+  pushTokens: 'push_tokens',
 } as const;
+
+export async function upsertPushToken(token: PushToken): Promise<void> {
+  await setDoc(doc(db, COLLECTIONS.pushTokens, token.token), token, { merge: true });
+}
+
+export async function deletePushToken(token: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTIONS.pushTokens, token));
+}
 
 export async function getSchools(): Promise<School[]> {
   const q = query(collection(db, COLLECTIONS.schools), where('activa', '==', true));

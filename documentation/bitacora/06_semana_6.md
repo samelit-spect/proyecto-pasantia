@@ -1,4 +1,4 @@
-# Semana 6 — Marca PWA e incidentes (estado + exportación)
+# Semana 6 — Marca PWA, fixes de producción y notificaciones push
 
 > **Período:** sábado 29 de agosto de 2026
 
@@ -8,7 +8,7 @@
 
 ## Objetivo de la semana
 
-Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por defecto) y **corregir dos fallos detectados en producción**: el cambio de estado de un incidente no se persistía y la exportación CSV fallaba en silencio en el celular.
+Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por defecto), **corregir dos fallos detectados en producción** (el cambio de estado de un incidente no se persistía y la exportación CSV fallaba en silencio en el celular) e **implementar notificaciones push reales (FCM)** para que el supervisor reciba avisos en el celular aunque la app esté cerrada.
 
 ---
 
@@ -30,6 +30,14 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
   - `downloadCsv` revocaba el blob (`URL.revokeObjectURL`) de forma síncrona justo después de `link.click()`, y el click ocurre **después de varios `await`** (fuera del gesto del usuario). En iOS/PWA esto **cancela la descarga en silencio**.
   - Fix en `src/utils/exportCsv.ts`: `link.rel = 'noopener'`, se mantiene el ancla en el DOM y el revoke se difiere 4 s para dejar que el navegador arranque la descarga.
 - **Verificación:** `tsc` sin errores, `eslint` limpio en los archivos tocados, **121 tests pasan** (14 archivos).
+- **Notificaciones push al celular con la app cerrada (FCM):**
+  - El requisito era que al supervisor le llegara una **notificación real al teléfono** cuando una escuela carga asistencia/novedad/incidente, aunque tenga la PWA **cerrada**. El estado anterior (`SupervisorLiveAlerts`) solo mostraba notificación del navegador con la **pestaña abierta en segundo plano**; no había Web Push.
+  - **SW combinado:** se migró `vite-plugin-pwa` de `generateSW` a `injectManifest`. `src/sw.js` ahora hace precache workbox + SPA + cache de Firestore **y** maneja `onBackgroundMessage` de `firebase/messaging/sw` + `notificationclick` → abre `/supervisor`. Build: `dist/sw.js` único.
+  - **Cliente:** `src/services/push.ts` (`pushSupported`, `registerForPush` con `getToken({ vapidKey: VITE_FIREBASE_VAPID_KEY })`, `onMessage` para toasts en primer plano, `removePushToken`) y `src/hooks/usePushNotifications.ts`, integrado en `SupervisorLiveAlerts` cuando el permiso queda `granted`.
+  - **Firestore:** colección `push_tokens/{token}` (doc id = FCM token) con usuario/rol/plataforma/activo; reglas de escritura del dueño y lectura del dueño/supervisor. **Reglas desplegadas** (`Deploy complete!`).
+  - **Cloud Functions:** `functions/index.js` con 5 triggers v2 `onDocumentCreated` (asistencias, asistencia_docentes, novedades, incidentes, fotos) → `sendEachForMulticast` a los tokens activos + limpieza de tokens inválidos. `firebase.json` agregado.
+  - **Bloqueo externo:** el deploy de funciones requiere **plan Blaze** (Cloud Functions). El intento devolvió `Your project sipnam-proyecto must be on the Blaze (pay-as-you-go) plan`. Dejó documentados los pasos manuales (habilitar Cloud Messaging HTTP v1 + VAPID key en `.env`/Netlify + Blaze + deploy).
+  - Detalle técnico completo en `tematicos/08_notificaciones.md` §5.3.
 
 ---
 
@@ -46,6 +54,7 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
 - PWA con ícono de marca (gradiente azul + portapapeles-check) coherente en login, splash, favicon y pantalla de inicio.
 - Cambio de estado de incidentes **persistido** y con evento en el historial (reglas desplegadas).
 - Exportación CSV funcionando también en móvil (revoke diferido).
+- Notificaciones push implementadas de punta a punta en el código (SW combinado + cliente + Cloud Functions + reglas de `push_tokens`), pendiente solo el **setup manual de consola** (VAPID, Cloud Messaging y plan Blaze).
 - Commits de la sesión: `fe5ae4c`, `4cd94fb`, `f1cb19e`, + fixes de incidentes/exportación.
 
 ---
@@ -60,6 +69,7 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
 
 ## Pendientes / Próxima semana
 
+- **Activar push:** setup en Firebase Console (habilitar Cloud Messaging HTTP v1, pegar la clave VAPID en `.env`/Netlify, subir a Blaze) y `npx firebase deploy --only functions --project sipnam-proyecto`.
 - Pruebas en distintos dispositivos del cambio de estado y la exportación.
 - Splash screen personalizado para iOS (`apple-touch-startup-image`) — sigue pendiente.
 - Preparación de la entrega y documentación final.

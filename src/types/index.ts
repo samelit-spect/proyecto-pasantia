@@ -6,3 +6,4 @@ export * from './models/docenteAttendance';
 export * from './models/foto';
 export * from './models/news';
 export * from './models/incident';
+export * from './models/pushToken';

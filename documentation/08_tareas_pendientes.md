@@ -288,6 +288,22 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ## Pendiente
 
+### ⚠️ Notificaciones push (FCM) — setup manual para activar (29/08/2026)
+
+> El código está hecho y committeado: SW combinado (`src/sw.js` con injectManifest),
+> cliente (`src/services/push.ts` + `usePushNotifications`), colección `push_tokens`
+> con reglas desplegadas, y Cloud Functions de envío (`functions/`). Falta el setup
+> que no se puede hacer desde el código:
+
+- [ ] Habilitar **Cloud Messaging** en Firebase Console (API FCM HTTP v1)
+- [ ] Copiar la **clave VAPID** (Configuración → Cloud Messaging) y pegarla en
+      `VITE_FIREBASE_VAPID_KEY` (`.env` local + **Netlify** → Build → Environment variables)
+- [ ] **Subir el proyecto a plan Blaze** (Firebase → Usage & Billing). El deploy de
+      funciones hoy falla: `cloudbuild.googleapis.com can't be enabled until the upgrade is complete`.
+- [ ] `npx firebase deploy --only functions --project sipnam-proyecto` (5 funciones `sendPushOn*`)
+- [ ] Probar en celular: instalar la PWA, activar "Activar avisos", cerrar la app y
+      hacer que una escuela cargue algo. iOS requiere PWA instalada + iOS ≥ 16.4.
+
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`
 - [ ] Crear usuarios iniciales (1 director por escuela)

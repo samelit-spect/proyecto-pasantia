@@ -62,6 +62,34 @@ Todos se montan en `MainLayout`, de modo que están disponibles en toda la app l
   - Incluye icono y texto del nuevo registro.
 - `notificationsSupported()` valida que el navegador soporte `Notification`.
 
+### 5.3 Web Push con la app cerrada (Firebase Cloud Messaging) — sesión 29/08/2026
+
+> La fase 5.2 solo funcionaba con la **pestaña abierta en segundo plano**. Si la PWA estaba cerrada, no llegaba nada. Esta fase agrega **Web Push real (FCM)** para que el teléfono "despierte" con la notificación aunque la app esté cerrada.
+
+**Arquitectura (3 piezas):**
+
+1. **Service worker combinado (`src/sw.js`)** — se migró `vite-plugin-pwa` de `generateSW` a `injectManifest` (ver `16_pwa_movil.md`). El SW único hace:
+   - precache de workbox (`precacheAndRoute`, SPA navigation) + cache `NetworkFirst` de Firestore;
+   - importa `firebase/messaging/sw` y `onBackgroundMessage` → muestra la notificación;
+   - `notificationclick` → abre/enfoca `/supervisor` (data `url`).
+2. **Cliente (`src/services/push.ts` + `src/hooks/usePushNotifications.ts`):**
+   - `pushSupported()` exige `serviceWorker` + `PushManager` + `Notification` + `VITE_FIREBASE_VAPID_KEY` definida;
+   - `registerForPush(owner, onForeground)` obtiene el token con `getToken({ vapidKey })`, lo guarda en Firestore (`push_tokens`, doc id = token) y suscribe `onMessage` (app abierta → toast);
+   - `removePushToken()` borra token local + doc al desloguear/desactivar;
+   - `usePushNotifications(enabled)` se activa en `SupervisorLiveAlerts` cuando el permiso es `granted` (deps por primitivos: uid, nombre, rol; limpia el handle al desmontar).
+3. **Cloud Function de envío (`functions/index.js`):** 5 triggers v2 `onDocumentCreated` sobre `asistencias`, `asistencia_docentes`, `novedades`, `incidentes` y `fotos`. Envían `sendEachForMulticast` a todos los tokens de `push_tokens` con `activo == true`, y **borran tokens inválidos** (no-registrado/inválido) para no acumular basura.
+
+**Colección nueva en Firestore:** `push_tokens/{token}` con `userId`, `userNombre`, `role`, `platform`, `activo`, `createdAt`, `updatedAt`. Reglas: el dueño crea/actualiza (exige `userId == auth.uid` y `token == doc id`) y borra el suyo; lectura solo del dueño o supervisor. **Reglas desplegadas.**
+
+**Setup manual pendiente en Firebase Console (necesario para que funcione):**
+1. Activar **Cloud Messaging** (API FCM HTTP v1) en el proyecto.
+2. Copiar la **clave VAPID** de Configuración del proyecto → Cloud Messaging y ponerla en la variable `VITE_FIREBASE_VAPID_KEY` (`.env` local y en **Netlify** Build env).
+3. Pasar el proyecto a **plan Blaze** en `Firebase → Usage & Billing` (requisito de Cloud Functions; el deploy actual falla con billing error).
+4. `firebase deploy --only functions --project sipnam-proyecto` (el CLI ya dejó habilitando las APIs de cloudfunctions/cloudbuild/artifactregistry; quedaron a mitad por el bloqueo de billing).
+5. iOS: Web Push en PWA instalada requiere **iOS ≥ 16.4** + permiso; Android Chrome funciona directo.
+
+**Límites conocidos:** FCM no garantiza entrega inmediata en iOS; el envío replica a todos los dispositivos del supervisor logueados (1 token por dispositivo/sesión).
+
 ---
 
 ## 6. Cómo se detectan solo los registros nuevos
@@ -93,5 +121,5 @@ Esto evita notificar datos que ya estaban al iniciar la vista.
 ## 8. Pendientes y observaciones
 
 - Considerar persistir el "leído/no leído" por usuario en Firestore (hoy el conteo es por sesión).
-- Evaluar el envío de notificaciones **push** de Firebase Cloud Messaging para cuando la app esté cerrada.
-- Revisar el manejo de permisos en iOS (PWA).
+- **Web Push FCM:** el código está completo (SW + cliente + Cloud Functions). Falta el setup manual de consola: habilitar Cloud Messaging HTTP v1, pegar la VAPID key en los env, subir el proyecto a Blaze y `firebase deploy --only functions`. Pasos en la sección 5.3.
+- Revisar el manejo de permisos en iOS (PWA instalada ≥ 16.4).

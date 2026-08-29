@@ -14,7 +14,7 @@
 | `tematicos/05_reglas_negocio.md` | Reglas de negocio: asistencia, novedades, incidentes, acceso y supervisor |
 | `tematicos/06_servicios_firestore.md` | Servicios/API de datos: CRUD, consultas y suscripciones en tiempo real |
 | `tematicos/07_tiempo_real_offline.md` | Tiempo real (onSnapshot) y modo offline con sincronización |
-| `tematicos/08_notificaciones.md` | Notificaciones: campana, toasts, alertas en vivo y notificaciones nativas |
+| `tematicos/08_notificaciones.md` | Notificaciones: campana, toasts, alertas en vivo, notificaciones nativas y Web Push (FCM) |
 | `tematicos/09_reportes_exportacion.md` | Reportes y exportación: CSV, PDF y respaldo jurisdiccional |
 | `tematicos/10_manejo_errores.md` | Manejo de errores: ErrorBoundary y mensajes amigables |
 | `tematicos/11_validacion_formularios.md` | Validación de formularios con Zod + react-hook-form |
@@ -37,7 +37,7 @@
 | `03_semana_3.md` | Semana 3 (17–18 ago): tiempo real, Home, tema, gestion usuarios |
 | `04_semana_4.md` | Semana 4 (19–22 ago): PWA, notif, animaciones |
 | `05_semana_5.md` | Semana 5 (24–27 ago): login responsive, onboarding, cierre por inactividad |
-| `06_semana_6.md` | Semana 6 (29 ago): marca de la PWA, fix estado de incidentes y exportación |
+| `06_semana_6.md` | Semana 6 (29 ago): marca de la PWA, fixes de incidentes/exportación y Web Push (FCM) |
 
 ## Semanas futuras
 

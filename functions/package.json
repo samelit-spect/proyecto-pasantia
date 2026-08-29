@@ -1,0 +1,13 @@
+{
+  "name": "sipnam-push-functions",
+  "private": true,
+  "description": "Cloud Functions de SIPNAM: envio de notificaciones push al supervisor",
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.2.0",
+    "firebase-functions": "^6.3.2"
+  }
+}

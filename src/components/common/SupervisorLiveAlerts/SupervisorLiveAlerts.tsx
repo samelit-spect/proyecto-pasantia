@@ -8,6 +8,7 @@ import {
 } from '@/services/api/firestore';
 import type { Attendance, News, Incident } from '@/types';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import './SupervisorLiveAlerts.css';
 
 interface LiveAlert {
@@ -66,6 +67,8 @@ const SupervisorLiveAlerts = () => {
   const [permission, setPermission] = useState<NotificationPermission | null>(
     notificationsSupported() ? Notification.permission : null
   );
+  const pushEnabled = isActive && notificationsSupported() && permission === 'granted';
+  usePushNotifications(pushEnabled);
   const [permDismissed, setPermDismissed] = useState<boolean>(() => {
     try {
       return localStorage.getItem(PERM_DISMISS_KEY) === '1';

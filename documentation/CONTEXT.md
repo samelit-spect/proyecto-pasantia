@@ -32,6 +32,25 @@
 
 ## Lo que ya está hecho (commit por commit)
 
+### 🚧 Notificaciones push con la app cerrada (FCM) — código listo (29/08/2026)
+
+**Problema original:** las notificaciones al supervisor solo funcionaban con la pestaña abierta en segundo plano; con la PWA cerrada no llegaba nada (no había Web Push).
+
+**Qué se implementó (falta setup de consola para que funcione):**
+
+- **SW combinado:** `vite-plugin-pwa` migró de `generateSW` a `injectManifest`. `src/sw.js` hace precache workbox + SPA + cache Firestore Y maneja `onBackgroundMessage` (FCM) y `notificationclick`. Build genera `dist/sw.js` con las 2 cosas.
+- **Cliente:** `src/services/push.ts` (`pushSupported`, `registerForPush`, `removePushToken`) con `getToken({ vapidKey: VITE_FIREBASE_VAPID_KEY })` y `onMessage`; `src/hooks/usePushNotifications.ts` integrado en `SupervisorLiveAlerts` cuando `Notification.permission === 'granted'`.
+- **Firestore:** colección `push_tokens/{token}` (doc id = token) con `userId/userNombre/role/platform/activo/timestamps`; reglas de dueño + supervisor **desplegadas**.
+- **Cloud Functions:** `functions/index.js` con 5 triggers v2 `onDocumentCreated` (asistencias, asistencia_docentes, novedades, incidentes, fotos) que envían `sendEachForMulticast` a todos los tokens activos y limpian tokens inválidos. `firebase.json` incluye `functions.source`.
+- **env:** `VITE_FIREBASE_VAPID_KEY` en `.env`/`.env.example` (pública, no secreta).
+
+**⚠️ Paso manual requerido (detalle en `bitacora/tematicos/08_notificaciones.md` §5.3):**
+1. Habilitar Cloud Messaging (API HTTP v1) en el proyecto.
+2. Poner la clave VAPID en `VITE_FIREBASE_VAPID_KEY` (local y Netlify Build env).
+3. Subir a **plan Blaze** (Cloud Functions) — el deploy actual falla por billing.
+4. `npx firebase deploy --only functions --project sipnam-proyecto`
+5. iOS: PWA instalada ≥ 16.4 para Web Push.
+
 ### ✅ Marca PWA + fixes incidentes/exportación (sesión 29/08/2026)
 
 **Ícono de la PWA con marca SIPNAM (`fe5ae4c`, `4cd94fb`, `f1cb19e`):**

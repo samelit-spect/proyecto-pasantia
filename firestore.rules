@@ -100,5 +100,13 @@ service cloud.firestore {
       allow update: if isSupervisor() && onlyChangedFields(['estado', 'updatedAt', 'historialEstados']);
       allow delete: if false;
     }
+
+    match /push_tokens/{token} {
+      allow read: if isSupervisor() || (hasProfile() && resource.data.userId == request.auth.uid);
+      allow create, update: if hasProfile()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.token == token;
+      allow delete: if hasProfile() && resource.data.userId == request.auth.uid;
+    }
   }
 }
