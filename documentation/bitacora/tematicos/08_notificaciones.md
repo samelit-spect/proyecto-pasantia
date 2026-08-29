@@ -77,16 +77,22 @@ Todos se montan en `MainLayout`, de modo que están disponibles en toda la app l
    - `registerForPush(owner, onForeground)` obtiene el token con `getToken({ vapidKey })`, lo guarda en Firestore (`push_tokens`, doc id = token) y suscribe `onMessage` (app abierta → toast);
    - `removePushToken()` borra token local + doc al desloguear/desactivar;
    - `usePushNotifications(enabled)` se activa en `SupervisorLiveAlerts` cuando el permiso es `granted` (deps por primitivos: uid, nombre, rol; limpia el handle al desmontar).
-3. **Cloud Function de envío (`functions/index.js`):** 5 triggers v2 `onDocumentCreated` sobre `asistencias`, `asistencia_docentes`, `novedades`, `incidentes` y `fotos`. Envían `sendEachForMulticast` a todos los tokens de `push_tokens` con `activo == true`, y **borran tokens inválidos** (no-registrado/inválido) para no acumular basura.
+3. **Netlify Function de envío (`netlify/functions/send-push.mjs`)** — sin Firebase Cloud Functions ni plan Blaze:
+   - Es una función serverless del plan **gratis de Netlify** (125K invocaciones/mes → este uso es <1%).
+   - **No es un trigger de Firestore:** la app la llama con un `fetch` fire-and-forget **después** de cada `addDoc` exitoso (`src/services/pushSender.ts`, enganchado en `firestore.ts` en `addAttendance`, `addDocenteAttendance`, `addNews`, `addIncident`, `addFoto`). Una falla del push NUNCA interfiere con el guardado.
+   - **Seguridad:** recibe `{ collection, id }` + `Authorization: Bearer <idToken de Firebase>`. Verifica el token (`admin.auth()`), que el rol pueda cargar en esa colección (mismo mapa que las reglas), `cargadoPor/subidoPor == uid` y `escuelaId == perfil` — y recién ahí busca los tokens y envía con `admin.messaging().sendEachForMulticast`.
+   - Limpia tokens inválidos (`registration-token-not-registered`, etc.) para no acumular basura.
 
 **Colección nueva en Firestore:** `push_tokens/{token}` con `userId`, `userNombre`, `role`, `platform`, `activo`, `createdAt`, `updatedAt`. Reglas: el dueño crea/actualiza (exige `userId == auth.uid` y `token == doc id`) y borra el suyo; lectura solo del dueño o supervisor. **Reglas desplegadas.**
 
-**Setup manual pendiente en Firebase Console (necesario para que funcione):**
-1. Activar **Cloud Messaging** (API FCM HTTP v1) en el proyecto.
-2. Copiar la **clave VAPID** de Configuración del proyecto → Cloud Messaging y ponerla en la variable `VITE_FIREBASE_VAPID_KEY` (`.env` local y en **Netlify** Build env).
-3. Pasar el proyecto a **plan Blaze** en `Firebase → Usage & Billing` (requisito de Cloud Functions; el deploy actual falla con billing error).
-4. `firebase deploy --only functions --project sipnam-proyecto` (el CLI ya dejó habilitando las APIs de cloudfunctions/cloudbuild/artifactregistry; quedaron a mitad por el bloqueo de billing).
+**Setup manual pendiente (Netlify y una vez en Firebase):**
+1. Firebase Console → ⚙️ Configuración del proyecto → **cuenta de servicio** → **Generar nueva clave privada** → descargar el JSON.
+2. Pasar ese JSON (en una sola línea) a la variable de entorno de Netlify **`FIREBASE_SERVICE_ACCOUNT`** (Site configuration → Environment variables).
+3. Firebase Console → Configuración → **Cloud Messaging** → copiar el **Web Push certificates / Key pair** y ponerlo en la variable de Netlify **`VITE_FIREBASE_VAPID_KEY`**.
+4. Redeploy del sitio en Netlify (el deploy sube automáticamente `netlify/functions/send-push.mjs`).
 5. iOS: Web Push en PWA instalada requiere **iOS ≥ 16.4** + permiso; Android Chrome funciona directo.
+
+**Trade-off vs. Cloud Functions (documentado):** como el disparo es del cliente tras guardar, un registro capturado **sin conexión** (cola offline de Firestore) NO dispara el push en el momento de la sincronización automática. Impacto real: mínimo (la conexión offline suele ser temporal y el caso típico es cargar en línea).
 
 **Límites conocidos:** FCM no garantiza entrega inmediata en iOS; el envío replica a todos los dispositivos del supervisor logueados (1 token por dispositivo/sesión).
 
@@ -121,5 +127,6 @@ Esto evita notificar datos que ya estaban al iniciar la vista.
 ## 8. Pendientes y observaciones
 
 - Considerar persistir el "leído/no leído" por usuario en Firestore (hoy el conteo es por sesión).
-- **Web Push FCM:** el código está completo (SW + cliente + Cloud Functions). Falta el setup manual de consola: habilitar Cloud Messaging HTTP v1, pegar la VAPID key en los env, subir el proyecto a Blaze y `firebase deploy --only functions`. Pasos en la sección 5.3.
+- **Web Push FCM:** el código está completo (SW + cliente + Netlify Function `send-push.mjs`). Falta el setup manual: clave de servicio en `FIREBASE_SERVICE_ACCOUNT`, VAPID en `VITE_FIREBASE_VAPID_KEY` (ambas en Netlify) y redeploy. Pasos en la sección 5.3.
+- Registro **offline** no dispara push al sincronizar (disparo del cliente) — impacto mínimo, documentado en 5.3.
 - Revisar el manejo de permisos en iOS (PWA instalada ≥ 16.4).

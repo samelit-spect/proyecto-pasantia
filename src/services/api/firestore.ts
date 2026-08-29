@@ -17,6 +17,7 @@ import {
 } from 'firebase/firestore';
 import type { QueryConstraint, Unsubscribe } from 'firebase/firestore';
 import { db } from '@/services/firebase';
+import { notifySupervisorPush } from '@/services/pushSender';
 
 /**
  * IMPORTANTE: Algunas queries en este archivo combinan where() + orderBy() en campos
@@ -190,6 +191,7 @@ export async function addAttendance(data: AddAttendanceDTO): Promise<string> {
     verificada: false,
     createdAt: Timestamp.now(),
   });
+  void notifySupervisorPush('asistencias', docRef.id);
   return docRef.id;
 }
 
@@ -254,6 +256,7 @@ export async function addNews(data: AddNewsDTO): Promise<string> {
     cargadoPorNombre: data.cargadoPorNombre,
     createdAt: Timestamp.now(),
   });
+  void notifySupervisorPush('novedades', docRef.id);
   return docRef.id;
 }
 
@@ -400,6 +403,7 @@ export async function addIncident(data: AddIncidentDTO): Promise<string> {
     createdAt: now,
     updatedAt: now,
   });
+  void notifySupervisorPush('incidentes', docRef.id);
   return docRef.id;
 }
 
@@ -511,6 +515,7 @@ export async function addDocenteAttendance(data: AddDocenteAttendanceDTO): Promi
     verificada: false,
     createdAt: Timestamp.now(),
   });
+  void notifySupervisorPush('asistencia_docentes', docRef.id);
   return docRef.id;
 }
 
@@ -579,6 +584,7 @@ export async function addFoto(data: AddFotoDTO): Promise<string> {
     subidoPorNombre: data.subidoPorNombre,
     createdAt: Timestamp.now(),
   });
+  void notifySupervisorPush('fotos', docRef.id);
   return docRef.id;
 }
 

@@ -35,8 +35,8 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
   - **SW combinado:** se migró `vite-plugin-pwa` de `generateSW` a `injectManifest`. `src/sw.js` ahora hace precache workbox + SPA + cache de Firestore **y** maneja `onBackgroundMessage` de `firebase/messaging/sw` + `notificationclick` → abre `/supervisor`. Build: `dist/sw.js` único.
   - **Cliente:** `src/services/push.ts` (`pushSupported`, `registerForPush` con `getToken({ vapidKey: VITE_FIREBASE_VAPID_KEY })`, `onMessage` para toasts en primer plano, `removePushToken`) y `src/hooks/usePushNotifications.ts`, integrado en `SupervisorLiveAlerts` cuando el permiso queda `granted`.
   - **Firestore:** colección `push_tokens/{token}` (doc id = FCM token) con usuario/rol/plataforma/activo; reglas de escritura del dueño y lectura del dueño/supervisor. **Reglas desplegadas** (`Deploy complete!`).
-  - **Cloud Functions:** `functions/index.js` con 5 triggers v2 `onDocumentCreated` (asistencias, asistencia_docentes, novedades, incidentes, fotos) → `sendEachForMulticast` a los tokens activos + limpieza de tokens inválidos. `firebase.json` agregado.
-  - **Bloqueo externo:** el deploy de funciones requiere **plan Blaze** (Cloud Functions). El intento devolvió `Your project sipnam-proyecto must be on the Blaze (pay-as-you-go) plan`. Dejó documentados los pasos manuales (habilitar Cloud Messaging HTTP v1 + VAPID key en `.env`/Netlify + Blaze + deploy).
+  - **Emisor: Netlify Function (`netlify/functions/send-push.mjs`)** en lugar de Cloud Functions, para **no cambiar el plan** (el plan Blaze de Firebase requería Cloud Functions; Netlify las incluye **gratis** en el plan actual). La app dispara un `fetch` fire-and-forget tras cada `addDoc` (`src/services/pushSender.ts` enganchado en `addAttendance`, `addDocenteAttendance`, `addNews`, `addIncident`, `addFoto`). La función verifica el idToken de Firebase, que el rol pueda cargar en esa colección, que `cargadoPor/subidoPor == uid` y la escuela, y recién entonces envía con `firebase-admin` (`sendEachForMulticast`) + limpieza de tokens inválidos.
+  - **Trade-off documentado:** un registro guardado sin conexión (cola offline) no dispara push al sincronizar, porque el disparo es del cliente.
   - Detalle técnico completo en `tematicos/08_notificaciones.md` §5.3.
 
 ---
@@ -54,7 +54,7 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
 - PWA con ícono de marca (gradiente azul + portapapeles-check) coherente en login, splash, favicon y pantalla de inicio.
 - Cambio de estado de incidentes **persistido** y con evento en el historial (reglas desplegadas).
 - Exportación CSV funcionando también en móvil (revoke diferido).
-- Notificaciones push implementadas de punta a punta en el código (SW combinado + cliente + Cloud Functions + reglas de `push_tokens`), pendiente solo el **setup manual de consola** (VAPID, Cloud Messaging y plan Blaze).
+- Notificaciones push implementadas de punta a punta en el código (SW combinado + cliente + Netlify Function `send-push.mjs` + reglas de `push_tokens`), pendiente solo el **setup manual de Netlify** (clave de servicio `FIREBASE_SERVICE_ACCOUNT` + VAPID en `VITE_FIREBASE_VAPID_KEY`).
 - Commits de la sesión: `fe5ae4c`, `4cd94fb`, `f1cb19e`, + fixes de incidentes/exportación.
 
 ---
@@ -64,12 +64,13 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
 - **Reglas de Firestore = la fuente de verdad.** Todo campo que una función de escritura toque debe estar permitido; las reglas se despliegan con `firebase deploy --only firestore:rules`.
 - Descarga de archivos en PWA móvil: mantener el ancla y **no revocar el objeto URL en forma síncrona**.
 - Íconos de PWA: gradiente full-bleed + símbolo dentro del 60% central (zona segura maskable) y `apple-touch-icon` de 180×180.
+- **Web Push sin cambiar el plan:** el "emisor" del push no tiene por qué ser una Cloud Function; una **Netlify Function del plan gratis** (misma plataforma del deploy) cumple el mismo rol, con la única diferencia del disparo (cliente tras guardar en vez de trigger de Firestore).
 
 ---
 
 ## Pendientes / Próxima semana
 
-- **Activar push:** setup en Firebase Console (habilitar Cloud Messaging HTTP v1, pegar la clave VAPID en `.env`/Netlify, subir a Blaze) y `npx firebase deploy --only functions --project sipnam-proyecto`.
+- **Activar push en Netlify:** 1) Firebase → Cuenta de servicio → generar clave privada y pegarla en `FIREBASE_SERVICE_ACCOUNT`; 2) copiar el VAPID de Cloud Messaging en `VITE_FIREBASE_VAPID_KEY`; 3) redeploy del sitio.
 - Pruebas en distintos dispositivos del cambio de estado y la exportación.
 - Splash screen personalizado para iOS (`apple-touch-startup-image`) — sigue pendiente.
 - Preparación de la entrega y documentación final.

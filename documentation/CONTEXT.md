@@ -36,20 +36,19 @@
 
 **Problema original:** las notificaciones al supervisor solo funcionaban con la pestaña abierta en segundo plano; con la PWA cerrada no llegaba nada (no había Web Push).
 
-**Qué se implementó (falta setup de consola para que funcione):**
+**Solución (sin Firebase Cloud Functions ni plan Blaze — gratis en el plan actual):**
 
 - **SW combinado:** `vite-plugin-pwa` migró de `generateSW` a `injectManifest`. `src/sw.js` hace precache workbox + SPA + cache Firestore Y maneja `onBackgroundMessage` (FCM) y `notificationclick`. Build genera `dist/sw.js` con las 2 cosas.
 - **Cliente:** `src/services/push.ts` (`pushSupported`, `registerForPush`, `removePushToken`) con `getToken({ vapidKey: VITE_FIREBASE_VAPID_KEY })` y `onMessage`; `src/hooks/usePushNotifications.ts` integrado en `SupervisorLiveAlerts` cuando `Notification.permission === 'granted'`.
 - **Firestore:** colección `push_tokens/{token}` (doc id = token) con `userId/userNombre/role/platform/activo/timestamps`; reglas de dueño + supervisor **desplegadas**.
-- **Cloud Functions:** `functions/index.js` con 5 triggers v2 `onDocumentCreated` (asistencias, asistencia_docentes, novedades, incidentes, fotos) que envían `sendEachForMulticast` a todos los tokens activos y limpian tokens inválidos. `firebase.json` incluye `functions.source`.
-- **env:** `VITE_FIREBASE_VAPID_KEY` en `.env`/`.env.example` (pública, no secreta).
+- **Emisor: `netlify/functions/send-push.mjs`** (función serverless del plan **gratis de Netlify**, usa `firebase-admin`). La app la llama fire-and-forget tras cada `addDoc` (`src/services/pushSender.ts` enganchado en `firestore.ts`). Verifica idToken + rol + autor + escuela antes de enviar con `sendEachForMulticast`, y limpia tokens inválidos.
+- **env:** `VITE_FIREBASE_VAPID_KEY` (cliente) y `FIREBASE_SERVICE_ACCOUNT` (función) en Netlify.
 
 **⚠️ Paso manual requerido (detalle en `bitacora/tematicos/08_notificaciones.md` §5.3):**
-1. Habilitar Cloud Messaging (API HTTP v1) en el proyecto.
-2. Poner la clave VAPID en `VITE_FIREBASE_VAPID_KEY` (local y Netlify Build env).
-3. Subir a **plan Blaze** (Cloud Functions) — el deploy actual falla por billing.
-4. `npx firebase deploy --only functions --project sipnam-proyecto`
-5. iOS: PWA instalada ≥ 16.4 para Web Push.
+1. Firebase → Configuración → cuenta de servicio → generar clave privada (JSON) → pegarla en Netlify `FIREBASE_SERVICE_ACCOUNT`.
+2. Firebase → Configuración → Cloud Messaging → copiar VAPID (Web Push key pair) → pegarla en Netlify `VITE_FIREBASE_VAPID_KEY`.
+3. Redeploy del sitio en Netlify.
+4. iOS: PWA instalada ≥ 16.4 para Web Push.
 
 ### ✅ Marca PWA + fixes incidentes/exportación (sesión 29/08/2026)
 
