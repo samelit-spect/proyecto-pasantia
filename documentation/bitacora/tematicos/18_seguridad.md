@@ -54,7 +54,7 @@ Las reglas se aplican en el **backend** (no confían solo en la UI):
 | `asistencia_docentes` | director/vice/preceptor de su escuela | Ver por escuela | Supervisor (solo `verificada`...) | ❌ |
 | `fotos` | preceptor de su escuela | Ver por escuela | ❌ | Supervisor o propietario de la foto |
 | `novedades` | director/vice | Ver por escuela | ❌ | ❌ |
-| `incidentes` | director/vice | Ver por escuela | Supervisor (solo `estado`/`updatedAt`) | ❌ |
+| `incidentes` | director/vice | Ver por escuela | Supervisor (solo `estado`/`updatedAt`/`historialEstados`) | ❌ |
 | `docentes` | Supervisor | Ver por escuela | Supervisor | Supervisor |
 
 **Principios clave:**

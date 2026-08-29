@@ -37,12 +37,13 @@
 | `03_semana_3.md` | Semana 3 (17–18 ago): tiempo real, Home, tema, gestion usuarios |
 | `04_semana_4.md` | Semana 4 (19–22 ago): PWA, notif, animaciones |
 | `05_semana_5.md` | Semana 5 (24–27 ago): login responsive, onboarding, cierre por inactividad |
+| `06_semana_6.md` | Semana 6 (29 ago): marca de la PWA, fix estado de incidentes y exportación |
 
 ## Semanas futuras
 
 | Archivo | Período | Estado |
 |---|---|---|
-| `06_semana_6.md` | Siguiente semana | Para completar |
+| `06_semana_6.md` | 29 ago | Completada |
 
 ## Cómo convertir a Word
 

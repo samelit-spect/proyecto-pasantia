@@ -1,7 +1,7 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 24/08/2026
-> Commits totales: 105
+> Última actualización: 29/08/2026
+> Commits totales: 176+
 
 ---
 
@@ -31,6 +31,22 @@
 ---
 
 ## Lo que ya está hecho (commit por commit)
+
+### ✅ Marca PWA + fixes incidentes/exportación (sesión 29/08/2026)
+
+**Ícono de la PWA con marca SIPNAM (`fe5ae4c`, `4cd94fb`, `f1cb19e`):**
+- El `favicon.svg` era el logo por defecto de Vite y de ahí salían todos los PNG. Reemplazado por gradiente institucional `#1e40af → #3b82f6` full-bleed + glifo **portapapeles-check en blanco** en la zona segura central (60%) — compatible con Android maskable, iOS y favicon 16px.
+- Fuente del glifo guardada en `src/assets/clipboard-check-svgrepo-com.svg` (SVG Repo).
+- `scripts/generate-icons.mjs` ahora genera **180×180** para `apple-touch-icon` (ya no apunta a 192).
+
+**Fix: estado de incidente no se persistía (`firestore.rules` + deploy):**
+- `updateIncidentStatus` escribe `historialEstados` (arrayUnion) pero las reglas solo permitían `['estado','updatedAt']` → el update era rechazado en silencio y el incidente seguía "pendiente".
+- Fix: `onlyChangedFields(['estado','updatedAt','historialEstados'])` en `/incidentes/{incidentId}`, desplegado con `firebase deploy --only firestore:rules --project sipnam-proyecto`.
+- **Regla de oro:** todo campo nuevo en un `updateDoc` debe estar en `onlyChangedFields`; las reglas son la fuente de verdad.
+
+**Fix: exportación CSV silenciosa en móvil (`src/utils/exportCsv.ts`):**
+- Se revocaba el blob síncronamente tras `link.click()` y el click ocurría después de `await`s (fuera del gesto del usuario) → iOS/PWA cancelaba la descarga sin avisar.
+- Fix: `link.rel='noopener'`, ancla en DOM y revoke diferido 4 s.
 
 ### ✅ Ayuda y onboarding (sesión 24/08/2026, lote completo)
 

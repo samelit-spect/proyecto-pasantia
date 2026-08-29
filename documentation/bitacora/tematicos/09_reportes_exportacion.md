@@ -20,7 +20,8 @@ Función genérica para descargar cualquier dataset como CSV.
 - Recibe un nombre de archivo, los encabezados y las filas.
 - **Escapa correctamente** valores con comas, comillas, saltos de línea o punto y coma.
 - Agrega **BOM UTF-8** (`\uFEFF`) para que Excel interprete bien los acentos.
-- Genera un `Blob` y lo descarga con un enlace temporal (`URL.createObjectURL` + `link.click()`), limpiando la URL después.
+- Genera un `Blob` y lo descarga con un enlace temporal (`URL.createObjectURL` + `link.click()`, `link.rel="noopener"`).
+- **Compatibilidad móvil/PWA:** la URL del blob se revoca **4 s después** (`setTimeout`) y el ancla se remueve también al finalizar la descarga. Revocarla en forma síncrona justo tras `click()` cancela la descarga en iOS/Safari cuando el click ocurre fuera del gesto de usuario (por ej. después de un `await` de Firestore).
 
 **Uso:** exportar asistencias, novedades, incidentes e historial a Excel-compatible.
 
