@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const sizes = [192, 512];
+const sizes = [180, 192, 512];
 const svgBuffer = readFileSync(join(process.cwd(), 'public', 'favicon.svg'));
 
 async function generate() {
