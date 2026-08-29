@@ -1,6 +1,6 @@
 # 08 - Tareas Pendientes
 
-> Última actualización: 22/08/2026
+> Última actualización: 29/08/2026
 > Commits totales: 98
 
 ---
@@ -288,7 +288,9 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ## Pendiente
 
-### ⚠️ Notificaciones push (FCM) — setup manual para activar (29/08/2026)
+### 🎯 PRÓXIMA SESIÓN — Notificaciones push (FCM): setup manual para activar (29/08/2026)
+
+> Primera tarea de la próxima sesión. El usuario pidió dejarla anotada para no olvidarla.
 
 > El código está hecho y committeado: SW combinado (`src/sw.js` con injectManifest),
 > cliente (`src/services/push.ts` + `usePushNotifications`), colección `push_tokens`
