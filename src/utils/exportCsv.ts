@@ -17,8 +17,14 @@ export function downloadCsv(
   const link = document.createElement('a');
   link.href = url;
   link.download = filename;
+  link.rel = 'noopener';
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // En iOS/PWA la descarga no arranca de inmediato: revocar el blob de forma
+  // síncrona puede cancelarla en silencio. Se mantiene el ancla en el DOM unos
+  // segundos y se revoca recién después.
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 4000);
 }
