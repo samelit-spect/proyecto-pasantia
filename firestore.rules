@@ -97,7 +97,7 @@ service cloud.firestore {
       allow create: if userHasAnyRole(['director', 'vice'])
         && request.resource.data.cargadoPor == request.auth.uid
         && userBelongsToSchool(request.resource.data.escuelaId);
-      allow update: if isSupervisor() && onlyChangedFields(['estado', 'updatedAt']);
+      allow update: if isSupervisor() && onlyChangedFields(['estado', 'updatedAt', 'historialEstados']);
       allow delete: if false;
     }
   }
