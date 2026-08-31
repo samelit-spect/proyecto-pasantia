@@ -27,6 +27,17 @@
 - `registerType: 'autoUpdate'`: la app se **actualiza sola** en segundo plano.
 - **Precache** de `js, css, html, svg, png, woff2`.
 - **`NetworkFirst`** para Firestore: offline-tolerante (ver documento de Tiempo Real y Offline).
+- El `sw.js` compilado además registra FCM (`onBackgroundMessage` → notificación push con la app cerrada, ver `08_notificaciones.md`), `self.skipWaiting()` y `self.clients.claim()`.
+
+### Cómo se actualiza la PWA tras cada deploy (commit + push a `main`)
+> Comportamiento real de producción, verificado el 31/08/2026.
+
+- **Web (navegador normal):** al recargar la pestaña ya toma la versión nueva. Sin intervención.
+- **App instalada (PWA):** por `registerType: 'autoUpdate'` + `skipWaiting`/`clients.claim`, el service worker **descarga la versión nueva en segundo plano al abrir la app** y la activa. No hace falta desinstalar.
+  - Detalle: cuando el `sw.js` cambia, el SW nuevo se descarga y activa (skipWaiting), y el SW activo invalida la precache vieja y baja los assets nuevos (`/assets/*` se sirven con `max-age=31536000, immutable`, pero la nueva precache los redeclara con nombre de hash distinto).
+  - **A veces pide una segunda apertura** (cerrar y reabrir) para que el SW control completamente la página activa. Es normal, no es un bug.
+- **Cuándo SÍ hace falta desinstalar y reinstalar (último recurso):** solo si el SW quedó "atascado" con una versión vieja (ej. la notificación push no llega con la app cerrada aunque FCM la entregue, porque la app la "captura" como toast al abrir). Reinstalar (o forzar `navigator.serviceWorker.getRegistrations().then(rs => rs.map(r => r.update()))`) limpia el SW. Fue la causa de un diagnóstico engañoso del push el 31/08.
+- **Regla de oro para el pasante:** tras cada `git push`, esperar el auto-deploy de Netlify (~1-2 min), recargar la web para verificar; la app del celular se actualiza sola al abrir (a veces con una segunda apertura). No reinstalar salvo problemas puntuales de SW.
 
 ---
 
