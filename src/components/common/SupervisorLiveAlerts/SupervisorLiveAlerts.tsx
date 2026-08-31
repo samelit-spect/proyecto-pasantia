@@ -68,6 +68,13 @@ const SupervisorLiveAlerts = () => {
     notificationsSupported() ? Notification.permission : null
   );
   const pushEnabled = isActive && notificationsSupported() && permission === 'granted';
+  console.log('[push] SupervisorLiveAlerts estado:', {
+    isActive,
+    notificationsSupported: notificationsSupported(),
+    permission,
+    pushEnabled,
+    rol: profile?.rol,
+  });
   usePushNotifications(pushEnabled);
   const [permDismissed, setPermDismissed] = useState<boolean>(() => {
     try {

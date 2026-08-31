@@ -42,7 +42,10 @@ export async function registerForPush(
   try {
     const messaging = await getMessagingLazy();
     const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-    if (!token) return null;
+    if (!token) {
+      console.warn('[push] getToken devolvió null sin token');
+      return null;
+    }
 
     const now = new Date();
     const pushToken: PushToken = {
@@ -56,10 +59,12 @@ export async function registerForPush(
       updatedAt: now,
     };
     await upsertPushToken(pushToken);
+    console.log('[push] token registrado correctamente, longitud:', token.length);
 
     const unsubscribe = onMessage(messaging, (payload) => onForegroundMessage(payload));
     return { token, unsubscribe };
-  } catch {
+  } catch (error) {
+    console.error('[push] Error en registerForPush:', error);
     return null;
   }
 }
