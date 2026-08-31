@@ -12,11 +12,14 @@ const PUSH_ENDPOINT = '/.netlify/functions/send-push';
  */
 export async function notifySupervisorPush(collection: PushCollection, id: string): Promise<void> {
   const currentUser = auth.currentUser;
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.warn('[push-send] Sin usuario autenticado, no se envía push');
+    return;
+  }
 
   try {
     const idToken = await currentUser.getIdToken();
-    await fetch(PUSH_ENDPOINT, {
+    const res = await fetch(PUSH_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +27,8 @@ export async function notifySupervisorPush(collection: PushCollection, id: strin
       },
       body: JSON.stringify({ collection, id }),
     });
-  } catch {
-    // silencioso por diseño
+    console.log('[push-send] respuesta send-push:', res.status, await res.text());
+  } catch (error) {
+    console.error('[push-send] Error al enviar push:', error);
   }
 }
