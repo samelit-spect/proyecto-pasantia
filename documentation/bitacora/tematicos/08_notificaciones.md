@@ -62,9 +62,9 @@ Todos se montan en `MainLayout`, de modo que están disponibles en toda la app l
   - Incluye icono y texto del nuevo registro.
 - `notificationsSupported()` valida que el navegador soporte `Notification`.
 
-### 5.3 Web Push con la app cerrada (Firebase Cloud Messaging) — sesión 29/08/2026
+### 5.3 Web Push con la app cerrada (Firebase Cloud Messaging) — sesión 29/08 y 31/08/2026 ✅ VERIFICADO
 
-> La fase 5.2 solo funcionaba con la **pestaña abierta en segundo plano**. Si la PWA estaba cerrada, no llegaba nada. Esta fase agrega **Web Push real (FCM)** para que el teléfono "despierte" con la notificación aunque la app esté cerrada.
+> La fase 5.2 solo funcionaba con la **pestaña abierta en segundo plano**. Si la PWA estaba cerrada, no llegaba nada. Esta fase agrega **Web Push real (FCM)**, **verificado funcionando** el 31/08/2026 (la notificación llega al celular del supervisor con la PWA cerrada).
 
 **Arquitectura (3 piezas):**
 
@@ -74,23 +74,27 @@ Todos se montan en `MainLayout`, de modo que están disponibles en toda la app l
    - `notificationclick` → abre/enfoca `/supervisor` (data `url`).
 2. **Cliente (`src/services/push.ts` + `src/hooks/usePushNotifications.ts`):**
    - `pushSupported()` exige `serviceWorker` + `PushManager` + `Notification` + `VITE_FIREBASE_VAPID_KEY` definida;
-   - `registerForPush(owner, onForeground)` obtiene el token con `getToken({ vapidKey })`, lo guarda en Firestore (`push_tokens`, doc id = token) y suscribe `onMessage` (app abierta → toast);
+   - `registerForPush(owner, onForeground)` obtiene el token con `getToken({ vapidKey, serviceWorkerRegistration: await navigator.serviceWorker.ready })` (pasar el SW propio evita que FCM intente registrar el inexistente `firebase-messaging-sw.js`), lo guarda en Firestore (`push_tokens`, doc id = token) y suscribe `onMessage` (app abierta → toast);
    - `removePushToken()` borra token local + doc al desloguear/desactivar;
    - `usePushNotifications(enabled)` se activa en `SupervisorLiveAlerts` cuando el permiso es `granted` (deps por primitivos: uid, nombre, rol; limpia el handle al desmontar).
 3. **Netlify Function de envío (`netlify/functions/send-push.mjs`)** — sin Firebase Cloud Functions ni plan Blaze:
    - Es una función serverless del plan **gratis de Netlify** (125K invocaciones/mes → este uso es <1%).
    - **No es un trigger de Firestore:** la app la llama con un `fetch` fire-and-forget **después** de cada `addDoc` exitoso (`src/services/pushSender.ts`, enganchado en `firestore.ts` en `addAttendance`, `addDocenteAttendance`, `addNews`, `addIncident`, `addFoto`). Una falla del push NUNCA interfiere con el guardado.
    - **Seguridad:** recibe `{ collection, id }` + `Authorization: Bearer <idToken de Firebase>`. Verifica el token (`admin.auth()`), que el rol pueda cargar en esa colección (mismo mapa que las reglas), `cargadoPor/subidoPor == uid` y `escuelaId == perfil` — y recién ahí busca los tokens y envía con `admin.messaging().sendEachForMulticast`.
-   - Limpia tokens inválidos (`registration-token-not-registered`, etc.) para no acumular basura.
+   - **Envía mensajes `data` (no `notification`):** así se fuerza la ejecución de `onBackgroundMessage` del SW con la app cerrada (un mensaje `notification` depende de que el SW esté activo). El SW lee `payload.data.title/body` y llama `showNotification`.
+   - **Deduplica tokens:** agrupa por `userId::platform` y mantiene solo el token más reciente (los anteriores quedan `activo:false`), evitando acumular tokens obsoletos por cada reinstalación de la PWA. Limpia además los tokens inválidos (`registration-token-not-registered`, etc.).
+   - **IMPORTANTE:** esta deduplicación se hace con **Admin en la función**, NO con una query de colección en el cliente: las reglas de `push_tokens` usan `resource.data`, que no está disponible en consultas de colección, así que `where('userId','==',...)` desde el SDK del cliente da `permission-denied`.
 
 **Colección nueva en Firestore:** `push_tokens/{token}` con `userId`, `userNombre`, `role`, `platform`, `activo`, `createdAt`, `updatedAt`. Reglas: el dueño crea/actualiza (exige `userId == auth.uid` y `token == doc id`) y borra el suyo; lectura solo del dueño o supervisor. **Reglas desplegadas.**
 
-**Setup manual pendiente (Netlify y una vez en Firebase):**
-1. Firebase Console → ⚙️ Configuración del proyecto → **cuenta de servicio** → **Generar nueva clave privada** → descargar el JSON.
-2. Pasar ese JSON (en una sola línea) a la variable de entorno de Netlify **`FIREBASE_SERVICE_ACCOUNT`** (Site configuration → Environment variables).
-3. Firebase Console → Configuración → **Cloud Messaging** → copiar el **Web Push certificates / Key pair** y ponerlo en la variable de Netlify **`VITE_FIREBASE_VAPID_KEY`**.
-4. Redeploy del sitio en Netlify (el deploy sube automáticamente `netlify/functions/send-push.mjs`).
-5. iOS: Web Push en PWA instalada requiere **iOS ≥ 16.4** + permiso; Android Chrome funciona directo.
+**Setup de Netlify (HECHO el 31/08/2026):**
+1. Firebase Console → ⚙️ Configuración del proyecto → **cuenta de servicio** → **Generar nueva clave privada** → descargar el JSON ✅.
+2. Pasar ese JSON (en una sola línea) a la variable de entorno de Netlify **`FIREBASE_SERVICE_ACCOUNT`** (Site configuration → Environment variables) ✅.
+3. Firebase Console → Configuración → **Cloud Messaging** → copiar el **Web Push certificates / Key pair** y ponerlo en la variable de Netlify **`VITE_FIREBASE_VAPID_KEY`** ✅ (VAPID válida `BINV76...`, 87 chars, empieza con `B_`).
+4. Redeploy del sitio en Netlify (el deploy sube automáticamente `netlify/functions/send-push.mjs`) ✅ (auto-deploy en cada push a `main`).
+5. iOS: Web Push en PWA instalada requiere **iOS ≥ 16.4** + permiso; Android Chrome funciona directo (el supervisor usa Android, verificado).
+
+> **Gotcha (31/08):** la PWA instalada cachea el `sw.js`. Tras un cambio de SW hay que **desinstalar y reinstalar la PWA** (o forzar la actualización); si no, la notificación "no llega" con la app cerrada aunque FCM la entregue (el mensaje llega pero lo captura la app al abrirla como toast con el favicon).
 
 **Trade-off vs. Cloud Functions (documentado):** como el disparo es del cliente tras guardar, un registro capturado **sin conexión** (cola offline de Firestore) NO dispara el push en el momento de la sincronización automática. Impacto real: mínimo (la conexión offline suele ser temporal y el caso típico es cargar en línea).
 
@@ -127,6 +131,6 @@ Esto evita notificar datos que ya estaban al iniciar la vista.
 ## 8. Pendientes y observaciones
 
 - Considerar persistir el "leído/no leído" por usuario en Firestore (hoy el conteo es por sesión).
-- **Web Push FCM:** el código está completo (SW + cliente + Netlify Function `send-push.mjs`). Falta el setup manual: clave de servicio en `FIREBASE_SERVICE_ACCOUNT`, VAPID en `VITE_FIREBASE_VAPID_KEY` (ambas en Netlify) y redeploy. Pasos en la sección 5.3.
+- **Web Push FCM ✅ FUNCIONANDO (31/08/2026):** setup de Netlify completo (`FIREBASE_SERVICE_ACCOUNT` + `VITE_FIREBASE_VAPID_KEY`) y notificación verificada con la PWA cerrada (director → `send-push` → FCM → banner del sistema). Detalle de la depuración en la sección 5.3 y en la bitácora de la semana 6.
 - Registro **offline** no dispara push al sincronizar (disparo del cliente) — impacto mínimo, documentado en 5.3.
-- Revisar el manejo de permisos en iOS (PWA instalada ≥ 16.4).
+- Revisar el manejo de permisos en iOS (PWA instalada ≥ 16.4): no probado porque el supervisor usa Android.

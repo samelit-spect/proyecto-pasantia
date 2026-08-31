@@ -288,25 +288,23 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ## Pendiente
 
-### 🎯 PRÓXIMA SESIÓN — Notificaciones push (FCM): setup manual para activar (29/08/2026)
+### ✅ COMPLETADA — Notificaciones push (FCM): setup y verificación (31/08/2026)
 
-> Primera tarea de la próxima sesión. El usuario pidió dejarla anotada para no olvidarla.
+> Resuelto: setup de Netlify (`FIREBASE_SERVICE_ACCOUNT` + `VITE_FIREBASE_VAPID_KEY`) hecho,
+> depurado y **verificado funcionando** (la notificación llega al supervisor con la PWA cerrada).
+> Detalle completo de bugs y soluciones en `documentation/CONTEXT.md` (sección push) y
+> `documentation/bitacora/06_semana_6.md` (sesión del 31/08).
 
-> El código está hecho y committeado: SW combinado (`src/sw.js` con injectManifest),
-> cliente (`src/services/push.ts` + `usePushNotifications`), colección `push_tokens`
-> con reglas desplegadas, y la Netlify Function de envío (`netlify/functions/send-push.mjs`,
-> plan gratis, sin cambio de plan ni tarjeta). Falta el setup que no se puede hacer desde el código:
-
-- [ ] Firebase Console → Configuración del proyecto → **Cuenta de servicio** →
+- [x] Firebase Console → Configuración del proyecto → **Cuenta de servicio** →
       **Generar nueva clave privada** → descargar el JSON (cuidar el archivo: es una
       credencial). Pegar su contenido **en una sola línea** en la variable de Netlify
       **`FIREBASE_SERVICE_ACCOUNT`**.
-- [ ] Firebase Console → Configuración → **Cloud Messaging** → copiar el **Web Push
+- [x] Firebase Console → Configuración → **Cloud Messaging** → copiar el **Web Push
       certificates / Key pair** y pegarlo en la variable de Netlify
       **`VITE_FIREBASE_VAPID_KEY`** (empieza con `B_`…).
-- [ ] **Redeploy** del sitio en Netlify (el deploy sube solo `netlify/functions/send-push.mjs`).
-- [ ] Probar en celular: instalar la PWA, activar "Activar avisos", cerrar la app y
-      hacer que una escuela cargue algo. iOS requiere PWA instalada + iOS ≥ 16.4.
+- [x] **Redeploy** del sitio en Netlify (el deploy sube solo `netlify/functions/send-push.mjs`).
+- [x] Probar en celular: instalar la PWA, activar "Activar avisos", cerrar la app y
+      hacer que una escuela cargue algo → ✅ banner recibido en Android con la app cerrada.
 
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`

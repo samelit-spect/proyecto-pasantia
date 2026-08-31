@@ -54,7 +54,7 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
 - PWA con ícono de marca (gradiente azul + portapapeles-check) coherente en login, splash, favicon y pantalla de inicio.
 - Cambio de estado de incidentes **persistido** y con evento en el historial (reglas desplegadas).
 - Exportación CSV funcionando también en móvil (revoke diferido).
-- Notificaciones push implementadas de punta a punta en el código (SW combinado + cliente + Netlify Function `send-push.mjs` + reglas de `push_tokens`), pendiente solo el **setup manual de Netlify** (clave de servicio `FIREBASE_SERVICE_ACCOUNT` + VAPID en `VITE_FIREBASE_VAPID_KEY`).
+- Notificaciones push implementadas de punta a punta en el código (SW combinado + cliente + Netlify Function `send-push.mjs` + reglas de `push_tokens`). En la sesión del 31/08 se completó el **setup de Netlify** (clave de servicio `FIREBASE_SERVICE_ACCOUNT` + VAPID en `VITE_FIREBASE_VAPID_KEY`) y se **verificó funcional con la app cerrada**.
 - Commits de la sesión: `fe5ae4c`, `4cd94fb`, `f1cb19e`, + fixes de incidentes/exportación.
 
 ---
@@ -70,7 +70,39 @@ Darle **identidad propia a la PWA** (ícono de marca reemplazando al de Vite por
 
 ## Pendientes / Próxima semana
 
-- **Activar push en Netlify:** 1) Firebase → Cuenta de servicio → generar clave privada y pegarla en `FIREBASE_SERVICE_ACCOUNT`; 2) copiar el VAPID de Cloud Messaging en `VITE_FIREBASE_VAPID_KEY`; 3) redeploy del sitio.
-- Pruebas en distintos dispositivos del cambio de estado y la exportación.
+- **Push activo y verificado (31/08):** setup de Netlify completo + notificación recibida con la app cerrada (ver sección "Lunes 31 de agosto" más abajo).
+- Pruebas en distintos dispositivos del cambio de estado, la exportación y el push en varios celulares.
 - Splash screen personalizado para iOS (`apple-touch-startup-image`) — sigue pendiente.
 - Preparación de la entrega y documentación final.
+
+---
+
+## Lunes 31 de agosto — Activación y depuración del push (FCM) hasta dejarlo funcionando
+
+> Sesión dedicada íntegramente a **configurar Netlify, depurar y VERIFICAR** el push de punta a punta (director → `send-push` → FCM → celular del supervisor con la app cerrada).
+
+### Qué se hizo
+1. **Setup Netlify:** se configuraron las variables `VITE_FIREBASE_VAPID_KEY` y `FIREBASE_SERVICE_ACCOUNT` (todas las scopes) y se hizo redeploy del sitio.
+2. **Verificación del backend Netlify Function:** `GET /` → 405 (función viva); POST sin body → 400 `parametros-invalidos`; POST con token falso → 401 `token-invalido` (confirma que `FIREBASE_SERVICE_ACCOUNT` cargó: el Admin inicializó y pudo validar token).
+
+### Bugs encontrados y cómo se resolvieron
+- **VAPID key truncada/inválida:** el `.env` local tenía `VITE_FIREBASE_VAPID_KEY=` vacío y la key en Netlify estaba cortada (85 chars, `BF5vk...`). Se regeneró y Netlify quedó con la key válida `BINV76...` (87 chars, empieza con `B_`). Se confirmó que la key válida llega al bundle de producción.
+- **`getToken` fallaba:** FCM intentaba auto-registrar `/firebase-messaging-sw.js` (no existía → `messaging/failed-service-worker-registration`, servido como `text/html` por el redirect SPA). Fix: pasar `serviceWorkerRegistration: await navigator.serviceWorker.ready` al `getToken` (`d2da66f`). Log: token de 142 chars registrado en la colección `push_tokens`.
+- **El mensaje `notification` no mostraba banner con la app cerrada:** FCM, con un mensaje `notification`, muestra la notificación "automática" solo si el SW está activo; al cambiarlo a **solo `data`** se fuerza la ejecución de `onBackgroundMessage` del SW, que llama `showNotification`. Además se agregaron `self.skipWaiting()` y `self.clients.claim()` al SW (`b640d64`).
+- **Falsa alarma `sent:0`:** la función devolvió `sent:0` pese a existir un token activo. Se descubrió que era **eventual-consistency** (el token se acababa de registrar); al re-probar con el token asentado devolvió `sent:1`. Se usó un script `firebase-admin` local para aislar: el envío directo al token dio `successCount: 1` y la notificación llegó.
+- **Tokens obsoletos por reinstalación:** cada reinstalación generaba un token nuevo `activo:true` y los viejos quedaban, produciendo entregas parciales/confusas (`sent` entre tokens válidos e inválidos). Se intentó primero limpiar en el cliente (`where('userId','==',...)` en `upsertPushToken`), pero **daba `permission-denied`** porque las reglas de `push_tokens` usan `resource.data` (no disponible en queries de colección) y Firestore evalúa las reglas contra la clave del documento. **Fix final (`7453f76`):** la deduplicación se hace **en `send-push.mjs` con Admin** (bypassa las reglas): se agrupa por `userId::platform` y se mantiene solo el token más reciente, desactivando los anteriores.
+
+### Depuración de diagnóstico (temporal)
+- Se agregó logging temporal (`[push]`, `[push-send]`) en `push.ts`, `usePushNotifications.ts`, `SupervisorLiveAlerts.tsx` y `pushSender.ts` para ver en consola el flujo completo. Se **quitó** al final de la sesión, dejando `pushSender.ts` como fire-and-forget silencioso (una falla aquí NUNCA debe bloquear el guardado de Firestore).
+
+### Resultado final (verificado)
+- Director carga una novedad → la consola muestra `[push-send] respuesta: 200 {"sent":1}` y la **notificación llega al celular del supervisor como banner del sistema con la app cerrada**.
+- Mensajes `data` y `notification` de FCM se entregan correctamente (verificado con envíos directos `messaging.send` y `sendEachForMulticast`).
+
+### Evidencias / commits de la sesión
+- `d2da66f` (SW personalizado en getToken), `b640d64` (enviar `data` + `skipWaiting`/`clients.claim`, `7453f76` (deduplicación de tokens en `send-push`), `pushSender.ts` limpio en `f0e1bc9`.
+
+### Aprendizajes de la sesión
+- **Reglas de Firestore y queries de colección:** una regla con `resource.data` impide las consultas de colección (Firestore evalúa reglas contra la clave del doc, no contra los resultados). Para operar sobre colecciones con lógica (deduplicar/limpiar) hay que usar **Admin** (server-side), no el SDK del cliente.
+- **`data` vs `notification` en FCM Web:** para controlar la notificación con la app cerrada desde el SW, enviá **`data`** y mostralo con `onBackgroundMessage`; un mensaje `notification` depende de que el SW esté activo.
+- **Reinstalación de la PWA:** el SW se cachea; un SW desactualizado hace que la notificación "no llegue" con la app cerrada (el mensaje llega pero lo muestra la app como toast al abrirla, se reconoce porque lleva el favicon). Para tomar un SW nuevo hay que reinstalar la PWA.

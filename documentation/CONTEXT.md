@@ -1,7 +1,7 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 29/08/2026
-> Commits totales: 176+
+> Última actualización: 31/08/2026
+> Commits totales: 180+
 
 ---
 
@@ -32,23 +32,35 @@
 
 ## Lo que ya está hecho (commit por commit)
 
-### 🚧 Notificaciones push con la app cerrada (FCM) — código listo (29/08/2026)
+### ✅ Notificaciones push con la app cerrada (FCM) — FUNCIONANDO (31/08/2026)
 
 **Problema original:** las notificaciones al supervisor solo funcionaban con la pestaña abierta en segundo plano; con la PWA cerrada no llegaba nada (no había Web Push).
 
 **Solución (sin Firebase Cloud Functions ni plan Blaze — gratis en el plan actual):**
 
 - **SW combinado:** `vite-plugin-pwa` migró de `generateSW` a `injectManifest`. `src/sw.js` hace precache workbox + SPA + cache Firestore Y maneja `onBackgroundMessage` (FCM) y `notificationclick`. Build genera `dist/sw.js` con las 2 cosas.
-- **Cliente:** `src/services/push.ts` (`pushSupported`, `registerForPush`, `removePushToken`) con `getToken({ vapidKey: VITE_FIREBASE_VAPID_KEY })` y `onMessage`; `src/hooks/usePushNotifications.ts` integrado en `SupervisorLiveAlerts` cuando `Notification.permission === 'granted'`.
+- **Cliente:** `src/services/push.ts` (`pushSupported`, `registerForPush`, `removePushToken`) con `getToken({ vapidKey: VITE_FIREBASE_VAPID_KEY, serviceWorkerRegistration: navigator.serviceWorker.ready })` y `onMessage`; `src/hooks/usePushNotifications.ts` integrado en `SupervisorLiveAlerts` cuando `Notification.permission === 'granted'`.
 - **Firestore:** colección `push_tokens/{token}` (doc id = token) con `userId/userNombre/role/platform/activo/timestamps`; reglas de dueño + supervisor **desplegadas**.
-- **Emisor: `netlify/functions/send-push.mjs`** (función serverless del plan **gratis de Netlify**, usa `firebase-admin`). La app la llama fire-and-forget tras cada `addDoc` (`src/services/pushSender.ts` enganchado en `firestore.ts`). Verifica idToken + rol + autor + escuela antes de enviar con `sendEachForMulticast`, y limpia tokens inválidos.
-- **env:** `VITE_FIREBASE_VAPID_KEY` (cliente) y `FIREBASE_SERVICE_ACCOUNT` (función) en Netlify.
+- **Emisor: `netlify/functions/send-push.mjs`** (función serverless del plan **gratis de Netlify**, usa `firebase-admin`). La app la llama fire-and-forget tras cada `addDoc` (`src/services/pushSender.ts` enganchado en `firestore.ts`). Verifica idToken + rol + autor + escuela antes de enviar. Envía mensajes **`data`** (para que `onBackgroundMessage` del SW siempre se ejecute con la app cerrada), **deduplica tokens por usuario+plataforma** (mantiene el más reciente) y limpia tokens inválidos.
+- **env:** `VITE_FIREBASE_VAPID_KEY` (cliente) y `FIREBASE_SERVICE_ACCOUNT` (función) en Netlify. **Ambas configuradas.**
 
-**⚠️ Paso manual requerido (detalle en `bitacora/tematicos/08_notificaciones.md` §5.3):**
-1. Firebase → Configuración → cuenta de servicio → generar clave privada (JSON) → pegarla en Netlify `FIREBASE_SERVICE_ACCOUNT`.
-2. Firebase → Configuración → Cloud Messaging → copiar VAPID (Web Push key pair) → pegarla en Netlify `VITE_FIREBASE_VAPID_KEY`.
-3. Redeploy del sitio en Netlify.
-4. iOS: PWA instalada ≥ 16.4 para Web Push.
+**✅ VERIFICADO FUNCIONAL 31/08/2026:** la novedad que carga el director llega como **banner del sistema al celular del supervisor con la app CERRADA** (`send-push` responde `sent:1`). Mensajes `data` y `notification` por FCM se entregan correctamente.
+
+#### 🔧 Depuración y fixes claves de la sesión (31/08)
+
+1. **VAPID key truncada/inválida (commit inicial):** el `.env` local tenía `VITE_FIREBASE_VAPID_KEY=` vacío y la de Netlify estaba truncada (85 chars). Se regeneró a la key válida `BINV76...` (87 chars, empieza con `B_`).
+2. **`getToken` registraba `firebase-messaging-sw.js` inexistente (`messaging/failed-service-worker-registration`):** se pasó `serviceWorkerRegistration: await navigator.serviceWorker.ready` al `getToken` (`d2da66f`). Confirmado `getToken` devolvió token de 142 chars.
+3. **Mensaje `notification` no activaba el SW en background:** se cambió el envío a **solo `data`** + `self.skipWaiting()` y `self.clients.claim()` en el SW para que `onBackgroundMessage` siempre se ejecute (`b640d64`).
+4. **`sent:0` pese a existir token activo:** era eventual-consistency del token recién registrado. Al re-probar con el token asentado devolvió `sent:1`. Se aísla el problema del **tiempo** (no del código).
+5. **Tokens obsoletos tras cada reinstalación:** cada re-instalación generaba un token nuevo `activo:true` y los viejos quedaban para siempre, ensuciando el envío. Fix FINAL (`7453f76`): la deduplicación se hace **en `send-push.mjs` con Admin** (mantiene el token más reciente por `userId::platform`, desactiva los anteriores). **NO hacer la query de limpieza en el cliente** (`where('userId','==',...)` sobre `push_tokens` da `permission-denied` porque las reglas usan `resource.data`, no disponible en queries de colección).
+
+**⚠️ Paso manual original (detalle en `bitacora/tematicos/08_notificaciones.md` §5.3) — YA HECHO vía el setup de Netlify:**
+1. Firebase → Configuración → cuenta de servicio → generar clave privada (JSON) → pegarla en Netlify `FIREBASE_SERVICE_ACCOUNT` (hecho).
+2. Firebase → Configuración → Cloud Messaging → copiar VAPID (Web Push key pair) → pegarla en Netlify `VITE_FIREBASE_VAPID_KEY` (hecho).
+3. Redeploy del sitio en Netlify (automático en cada push a `main`).
+4. iOS: PWA instalada ≥ 16.4 para Web Push (no aplicable: el supervisor usa Android).
+
+**⚠️ Lección / gotcha de reinstalación:** la PWA instalada cachea el `sw.js` viejo. Para tomar un SW nuevo hay que **desinstalar y reinstalar la PWA** (o forzar `navigator.serviceWorker.getRegistrations().then(rs => rs.map(r => r.update()))`). Un SW no actualizado puede hacer que la notificación "no llegue" con la app cerrada aunque FCM la entregue (la app la captura como toast al abrir, distinguiéndose por el favicon).
 
 ### ✅ Marca PWA + fixes incidentes/exportación (sesión 29/08/2026)
 
@@ -462,6 +474,7 @@ Plan de 12 mejoras documentado ítem por ítem en `documentation/18_animaciones.
 | `fotos` | Fotos de planillas firmadas | `escuelaId`, `fecha`, `dataUrl`, `autorId` |
 | `novedades` | Novedades institucionales | `escuelaId`, `fecha`, `tipo`, `hora`, `descripcion`, `cargadoPorNombre` |
 | `incidentes` | Incidentes/informes | `escuelaId`, `fecha`, `categoria`, `urgencia`, `descripcion`, `ubicacion`, `fotoDataUrl`, `estado` |
+| `push_tokens` | Tokens FCM para notificaciones push | `userId`, `userNombre`, `role`, `platform`, `activo`, `token` (doc id), `createdAt`, `updatedAt` |
 
 ### Índices compuestos (`firestore.indexes.json`)
 - `asistencias`: `escuelaId + fecha`
@@ -545,6 +558,9 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
 ---
 
 ## Tareas pendientes conocidas
+
+### Push notifications
+- [x] **Push con app cerrada (FCM) — FUNCIONANDO (31/08/2026):** verificado de punta a punta; ver sección "Notificaciones push" arriba.
 
 ### Firebase Console
 - [ ] Crear 17 escuelas en Firestore `escuelas`
