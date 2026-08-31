@@ -41,7 +41,11 @@ export async function registerForPush(
 
   try {
     const messaging = await getMessagingLazy();
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+    const registration = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registration,
+    });
     if (!token) {
       console.warn('[push] getToken devolvió null sin token');
       return null;
