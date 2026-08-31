@@ -105,7 +105,25 @@ export const handler = async (event) => {
     const tokenSnap = await db.collection('push_tokens').where('activo', '==', true).get();
     if (tokenSnap.empty) return json(200, { sent: 0 });
 
-    const tokens = tokenSnap.docs.map((doc) => doc.data().token);
+    // Deduplicar tokens: por usuario+plataforma mantenemos solo el más reciente
+    // (los anteriores quedan como obsoletos tras reinstalar la PWA). Con Admin se
+    // pueden consultar y modificar sin chocar con las reglas del cliente.
+    const byKey = new Map();
+    for (const doc of tokenSnap.docs) {
+      const data = doc.data();
+      const key = `${data.userId}::${data.platform ?? 'web'}`;
+      const updatedAt = data.updatedAt?.toDate?.()?.getTime?.() ?? 0;
+      if (!byKey.has(key) || updatedAt > byKey.get(key).updatedAt) {
+        byKey.set(key, { doc, updatedAt });
+      }
+    }
+    const winners = [...byKey.values()];
+    const staleDocs = tokenSnap.docs.filter((doc) => !winners.some((w) => w.doc.id === doc.id));
+    await Promise.all(
+      staleDocs.map((ref) => ref.ref.update({ activo: false }).catch(() => null))
+    );
+
+    const tokens = winners.map((w) => w.doc.data().token);
     const body = buildBody(collection, data);
     const message = {
       tokens,
@@ -125,9 +143,10 @@ export const handler = async (event) => {
       'messaging/invalid-argument',
     ];
     const stale = result.responses
-      .map((response, i) => ({ response, doc: tokenSnap.docs[i] }))
+      .map((response, i) => ({ response, doc: winners[i]?.doc }))
       .filter(
-        ({ response }) =>
+        ({ response, doc }) =>
+          doc &&
           !response.success &&
           response.error &&
           invalidCodes.includes(response.error.code)
