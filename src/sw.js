@@ -8,6 +8,9 @@ import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
+self.skipWaiting();
+self.clients.claim();
+
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
 
 registerRoute(
@@ -34,14 +37,14 @@ const firebaseConfig = {
 const messaging = getMessaging(initializeApp(firebaseConfig));
 
 onBackgroundMessage(messaging, (payload) => {
-  const { notification, data } = payload;
-  const title = notification?.title ?? 'SIPNAM · Nuevo registro';
+  const d = payload?.data ?? {};
+  const title = d.title ?? 'SIPNAM · Nuevo registro';
   const options = {
-    body: notification?.body ?? '',
+    body: typeof d.body === 'string' && d.body ? d.body : 'Nuevo registro en SIPNAM',
     icon: '/pwa-192x192.png',
     badge: '/pwa-192x192.png',
     data: {
-      url: data?.url ?? '/supervisor',
+      url: d.url ?? '/supervisor',
     },
   };
   return self.registration.showNotification(title, options);

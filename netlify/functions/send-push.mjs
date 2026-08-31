@@ -106,13 +106,12 @@ export const handler = async (event) => {
     if (tokenSnap.empty) return json(200, { sent: 0 });
 
     const tokens = tokenSnap.docs.map((doc) => doc.data().token);
+    const body = buildBody(collection, data);
     const message = {
       tokens,
-      notification: {
-        title: 'SIPNAM · Nuevo registro',
-        body: buildBody(collection, data),
-      },
       data: {
+        title: 'SIPNAM · Nuevo registro',
+        body,
         url: '/supervisor',
         type: config.code,
       },
