@@ -63,6 +63,15 @@ const COLLECTIONS = {
 } as const;
 
 export async function upsertPushToken(token: PushToken): Promise<void> {
+  const tokensRef = collection(db, COLLECTIONS.pushTokens);
+  const prevSnap = await getDocs(
+    query(tokensRef, where('userId', '==', token.userId), where('activo', '==', true))
+  );
+  await Promise.all(
+    prevSnap.docs.map((doc) =>
+      updateDoc(doc.ref, { activo: false, updatedAt: Timestamp.now() }).catch(() => null)
+    )
+  );
   await setDoc(doc(db, COLLECTIONS.pushTokens, token.token), token, { merge: true });
 }
 

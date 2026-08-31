@@ -22,17 +22,9 @@ export const usePushNotifications = (enabled: boolean): void => {
 
   useEffect(() => {
     if (!enabled || !uid || !profileId || !nombre || !rol) {
-      console.log('[push] usePushNotifications skip:', {
-        enabled,
-        uid,
-        profileId: !!profileId,
-        nombre: !!nombre,
-        rol,
-      });
       return;
     }
 
-    console.log('[push] usePushNotifications ejecutando setup con rol:', rol);
     let cancelled = false;
     const owner = { uid, nombre, rol };
 

@@ -47,7 +47,6 @@ export async function registerForPush(
       serviceWorkerRegistration: registration,
     });
     if (!token) {
-      console.warn('[push] getToken devolvió null sin token');
       return null;
     }
 
@@ -63,7 +62,6 @@ export async function registerForPush(
       updatedAt: now,
     };
     await upsertPushToken(pushToken);
-    console.log('[push] token registrado correctamente, longitud:', token.length);
 
     const unsubscribe = onMessage(messaging, (payload) => onForegroundMessage(payload));
     return { token, unsubscribe };
