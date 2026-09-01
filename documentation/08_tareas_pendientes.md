@@ -324,14 +324,19 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 - [x] Probar en celular: instalar la PWA, activar "Activar avisos", cerrar la app y
       hacer que una escuela cargue algo → ✅ banner recibido en Android con la app cerrada.
 
-### Firebase Console
+### Firebase Console / Data (AL HACERLO DESPUÉS DE RECIBIR LA INFO DEL SUPERVISOR)
 
-- [ ] Crear 17 escuelas en Firestore `escuelas`
-- [ ] Crear usuarios iniciales (1 dirección por escuela) — **solo 1 cuenta por escuela** (rol `director`) + 1 supervisor
+> El supervisor pasará los datos (17 escuelas + dirección de cada una + 1 supervisor).
+> Hacer este bloque **después de recibirlos**, en este orden:
+
+- [ ] Armar **script de seed** (o import manual) que cree las 17 escuelas en `escuelas`
+      y los 18 usuarios (17 `director` + 1 `supervisor`) en `usuarios`.
+- [ ] Cargar/ejecutar el seed con los datos reales.
 - [ ] **Desplegar `firestore.rules` actualizadas** (cambio: `director`/`vice` pueden
-      subir fotos de la foto diaria — ya commiteado en el repo, falta subirlo a la consola)
+      subir fotos de la foto diaria — ya commiteado en el repo, falta subirlo a la consola).
 - [ ] Verificar los **índices compuestos** de `firestore.indexes.json` (las queries
-      con `where + orderBy` en campos distintos fallan sin índice en producción)
+      con `where + orderBy` en campos distintos fallan sin índice en producción).
+- [ ] Prueba piloto real con 1-2 escuelas durante una semana antes del rollout completo.
 
 ### Testing (prioritario)
 
@@ -603,3 +608,41 @@ así que el director no podía subir la foto de la planilla.
 ⚠️ **Despliegue manual pendiente:** subir `firestore.rules` a Firebase Console (ver sección Firebase Console).
 
 Suite completa: **176/176 en verde**, tsc/eslint/prettier limpios en los archivos tocados.
+
+## Completado — Consistencia visual dark mode + micro-interacciones (01/09/2026)
+
+**Problema:** varios componentes usaban colores fijos (`#hex`) en vez de variables
+del tema, por lo que NO se adaptaban al modo oscuro ni al color personalizado
+(mientras el resto del sistema sí). El usuario confirmó arreglarlo + sumar
+micro-animaciones.
+
+**Fixes de tema → variables (en dark se ven bien ahora):**
+- `AttendanceRow.css`, `Fotos.css`, `SchoolSelect.css`, `AttendanceForm.css`: rojos
+  (`#dc2626`, `#fecaca`, `#fef2f2`) → `var(--accent-red-*)`.
+- `IncidentHistory.css`, `StatusBadge.css`: color "en gestión" (`#9a3412`) →
+  `var(--accent-yellow-text)` (adapta al dark).
+- `AsistenciaDocentes.css`, `Novedades.css`, `Incidentes.css`: feedback
+  success/error → `var(--accent-green-*)` / `var(--accent-red-*)`; bordes con
+  `color-mix()`.
+- `SupervisorSchoolDetail.css`: present/absent + badge de rol + hover delete →
+  variables del tema.
+- `Supervisor.css`, `SupervisorSchools.css`, `SupervisorUsers.css`: textos de error
+  → `var(--accent-red-text)`.
+- **Nuevas variables de tema derivadas:** `--accent-purple-*` y `--accent-teal-*`
+  (agregadas en `global.css:root` + `theme.ts` DARK/LIGHT). Se usan en los chips de
+  ícono de tarjetas del `Home` (antes `#f3e8ff`/`#7c3aed`, `#ccfbf1`/`#0d9488`).
+
+**Lo que se dejó a propósito (colores de marca que se ven bien en ambos modos):**
+ámbar de `ConnectionBanner`/`HolidayNotice`/íconos Home, scale de `AttendanceHeatMap`
+(ya tenía variante dark) y confeti de `SuccessAnimation`.
+
+**Micro-interacciones nuevas:**
+- `Button.css`: **shine sweep** en `.btn--primary` (brillo que recorre el botón al
+  hover, pseudoelemento con `overflow:hidden`; deshabilitado con reduced-motion).
+- **Transición suave al cambiar de tema:** clase `.theme-transitioning` en
+  `global.css`; `applyTheme(theme, animate)` activa transición de colores SOLO
+  durante el cambio (~350ms con `setTimeout`) y no interfiere con el primer paint
+  ni las animaciones. Conectada en `useTheme`, `ThemeSettings` y el arranque sin
+  animar.
+
+Suite: **176/176 en verde**, tsc y eslint/prettier limpios.

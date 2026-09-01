@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Palette, Check } from 'lucide-react';
-import {
-  loadTheme,
-  saveTheme,
-  clearTheme,
-  applyTheme,
-  type ThemeState,
-} from '@/utils/theme';
+import { loadTheme, saveTheme, clearTheme, applyTheme, type ThemeState } from '@/utils/theme';
 import './ThemeSettings.css';
 
 const PRESET_COLORS = [
@@ -34,7 +28,7 @@ const ThemeSettings = () => {
 
   const handleSave = () => {
     saveTheme(theme);
-    applyTheme(theme);
+    applyTheme(theme, true);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

@@ -139,7 +139,7 @@
 
 .supervisor-users__error {
   font-size: 0.75rem;
-  color: #dc2626;
+  color: var(--accent-red-text);
 }
 
 .supervisor-users__feedback {

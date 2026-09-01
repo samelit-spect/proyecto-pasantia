@@ -193,7 +193,7 @@
 
 .supervisor-schools__error {
   display: block;
-  color: #dc2626;
+  color: var(--accent-red-text);
   font-size: 0.8rem;
   margin-top: 0.25rem;
 }
@@ -415,7 +415,7 @@
 }
 
 .supervisor-schools__card-btn--danger:hover {
-  color: #dc2626;
+  color: var(--accent-red-text);
 }
 
 .supervisor-schools__card-icon {

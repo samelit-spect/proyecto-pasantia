@@ -32,6 +32,23 @@
 
 ## Lo que ya está hecho (commit por commit)
 
+### ✅ Consistencia visual dark mode + micro-interacciones (01/09/2026)
+
+Se revisó el sistema visual. Diagnóstico: el design system era sólido (variables,
+tema claro/oscuro, color personalizado, animaciones de entrada, `prefers-reduced-motion`),
+pero **varios componentes usaban colores `#hex` fijos** que ignoraban el modo oscuro
+(filas de ausentes con fondo casi blanco, puntos/etiquetas "en gestión", feedbacks de
+éxito/error, chips de íconos de tarjetas). Se reemplazaron por variables del tema y se
+agregaron 2 familias nuevas (`--accent-purple-*`, `--accent-teal-*`).
+
+**Micro-interacciones sumadas:** shine sweep en botón primario (hover) y transición
+suave de colores al cambiar tema (`applyTheme(theme, animate)`, clase `.theme-transitioning`
+durante ~350ms, respetando reduced-motion). Sin sobre-ingeniería: hovers, `:active` y
+spinners ya estaban pulidos.
+
+Se dejaron a propósito los colores de marca que funcionan en ambos modos (ámbar de
+banners/vacaciones, escala del heatmap, confeti de éxito).
+
 ### ✅ Foto diaria accesible para director/vice (01/09/2026)
 
 **Decisión de producto:** en producción habrá **1 sola cuenta por escuela** (rol

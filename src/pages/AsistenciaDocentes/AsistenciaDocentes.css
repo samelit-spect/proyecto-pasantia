@@ -109,15 +109,15 @@
 }
 
 .asist-docentes__feedback--success {
-  background-color: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background-color: var(--accent-green-surface);
+  color: var(--accent-green-text);
+  border: 1px solid color-mix(in oklch, var(--accent-green-text), transparent 70%);
 }
 
 .asist-docentes__feedback--error {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red-text);
+  border: 1px solid color-mix(in oklch, var(--accent-red-text), transparent 75%);
 }
 
 .asist-docentes__submit {

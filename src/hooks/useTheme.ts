@@ -1,11 +1,5 @@
 import { useState, useCallback } from 'react';
-import {
-  loadTheme,
-  saveTheme,
-  applyTheme,
-  type ThemeState,
-  type ThemeMode,
-} from '@/utils/theme';
+import { loadTheme, saveTheme, applyTheme, type ThemeState, type ThemeMode } from '@/utils/theme';
 
 export function useTheme() {
   const [theme, setThemeState] = useState<ThemeState>(loadTheme);
@@ -13,7 +7,7 @@ export function useTheme() {
   const setTheme = useCallback((updater: ThemeState | ((prev: ThemeState) => ThemeState)) => {
     setThemeState((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      applyTheme(next);
+      applyTheme(next, true);
       saveTheme(next);
       return next;
     });

@@ -26,6 +26,12 @@ const DARK_VARS: Record<string, string> = {
   '--accent-yellow-bg': '#451a03',
   '--accent-yellow-surface': '#78350f',
   '--accent-yellow-text': '#fbbf24',
+  '--accent-purple-bg': '#2e1065',
+  '--accent-purple-surface': '#4c1d95',
+  '--accent-purple-text': '#c4b5fd',
+  '--accent-teal-bg': '#042f2e',
+  '--accent-teal-surface': '#134e4a',
+  '--accent-teal-text': '#5eead4',
 };
 
 const LIGHT_VARS: Record<string, string> = {
@@ -46,6 +52,12 @@ const LIGHT_VARS: Record<string, string> = {
   '--accent-yellow-bg': '#fffbeb',
   '--accent-yellow-surface': '#fde68a',
   '--accent-yellow-text': '#b45309',
+  '--accent-purple-bg': '#faf5ff',
+  '--accent-purple-surface': '#f3e8ff',
+  '--accent-purple-text': '#7c3aed',
+  '--accent-teal-bg': '#f0fdfa',
+  '--accent-teal-surface': '#ccfbf1',
+  '--accent-teal-text': '#0d9488',
 };
 
 export const DEFAULT_THEME: ThemeState = {
@@ -54,8 +66,15 @@ export const DEFAULT_THEME: ThemeState = {
   mode: 'light',
 };
 
-export function applyTheme(theme: ThemeState) {
+function transitionThemeColors() {
   const root = document.documentElement;
+  root.classList.add('theme-transitioning');
+  window.setTimeout(() => root.classList.remove('theme-transitioning'), 350);
+}
+
+export function applyTheme(theme: ThemeState, animate = false) {
+  const root = document.documentElement;
+  if (animate) transitionThemeColors();
   root.style.setProperty('--primary-color', theme.primary);
   root.style.setProperty('--primary-light', theme.primaryLight);
 

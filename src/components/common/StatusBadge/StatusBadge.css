@@ -19,7 +19,7 @@
 
 .status-badge--gestion {
   background-color: var(--accent-yellow-bg);
-  color: #9a3412;
+  color: var(--accent-yellow-text);
 }
 
 .status-badge--resuelto {

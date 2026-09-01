@@ -43,6 +43,14 @@
   --accent-yellow-surface: #fde68a;
   --accent-yellow-text: #b45309;
 
+  --accent-purple-bg: #faf5ff;
+  --accent-purple-surface: #f3e8ff;
+  --accent-purple-text: #7c3aed;
+
+  --accent-teal-bg: #f0fdfa;
+  --accent-teal-surface: #ccfbf1;
+  --accent-teal-text: #0d9488;
+
   /* Tonos derivados del color principal: siguen automáticamente al tema
      elegido en /tema (y funcionan en claro y oscuro al mezclar con transparencia). */
   --primary-tint: color-mix(in oklch, var(--primary-color), transparent 93%);
@@ -88,6 +96,29 @@ body {
 @media (max-width: 767px) {
   body {
     overflow-x: hidden;
+  }
+}
+
+/* Transición suave de colores SOLO durante el cambio de tema (la clase se
+   agrega y remueve en ~350ms desde applyTheme). Fuera de ese momento no hay
+   transición global, así no interfiere con las animaciones ni el primer paint. */
+.theme-transitioning,
+.theme-transitioning * {
+  transition:
+    background-color 0.3s ease,
+    color 0.2s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition: none;
+  }
+
+  .btn--primary::after {
+    display: none;
   }
 }
 

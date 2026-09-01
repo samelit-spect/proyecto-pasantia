@@ -304,13 +304,13 @@
 }
 
 .home__card-icon--purple {
-  background-color: #f3e8ff;
-  color: #7c3aed;
+  background-color: var(--accent-purple-surface);
+  color: var(--accent-purple-text);
 }
 
 .home__card-icon--teal {
-  background-color: #ccfbf1;
-  color: #0d9488;
+  background-color: var(--accent-teal-surface);
+  color: var(--accent-teal-text);
 }
 
 .home__error {

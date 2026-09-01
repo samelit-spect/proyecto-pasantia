@@ -39,7 +39,7 @@
 }
 
 .incident-history__dot--gestion {
-  background-color: #9a3412;
+  background-color: var(--accent-yellow-text);
 }
 
 .incident-history__dot--resuelto {

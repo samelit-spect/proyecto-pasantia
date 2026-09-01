@@ -77,7 +77,7 @@
 }
 
 .supervisor__loading--error {
-  color: #dc2626;
+  color: var(--accent-red-text);
 }
 
 .supervisor__section {
