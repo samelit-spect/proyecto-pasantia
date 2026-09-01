@@ -1,6 +1,6 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 31/08/2026
+> Última actualización: 01/09/2026
 > Commits totales: 180+
 
 ---
@@ -31,6 +31,19 @@
 ---
 
 ## Lo que ya está hecho (commit por commit)
+
+### ✅ Refactor SupervisorSchoolDetail (01/09/2026)
+
+**Página descompuesta (estaba en ~720 líneas):**
+- Hook `src/hooks/useSchoolDetailData.ts`: toda la lógica de datos (carga
+  estática + 5 suscripciones onSnapshot), filtros, y handlers (docentes,
+  incidentes, verificación, export CSV, fotos). Exporta `ViewMode`/`ExportType`.
+- Componentes nuevos: `SchoolDetailToday` (vista "Hoy") y `SchoolDetailFeedback`
+  (banner único reutilizable).
+- Hooks de feedback separados: `statusOp` (incidentes), `verifyOp`
+  (verificación), `fotoOp` (borrar fotos), `exportOp` (export), `docenteOp`
+  (docentes) — ya no comparten estado de carga.
+- Página resultante: ~286 líneas de pura composición. Sin cambios funcionales.
 
 ### ✅ Notificaciones push con la app cerrada (FCM) — FUNCIONANDO (31/08/2026)
 

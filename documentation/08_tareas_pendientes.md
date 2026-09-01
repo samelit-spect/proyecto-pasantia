@@ -1,7 +1,6 @@
 # 08 - Tareas Pendientes
 
-> Última actualización: 29/08/2026
-> Commits totales: 98
+> Última actualización: 01/09/2026
 
 ---
 
@@ -331,8 +330,8 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 ### UX media (priorizado por impacto)
 - [x] Incidentes: validación de tamaño de archivo (hecho 24/08/2026, ver abajo)
 - [ ] Novedades/Incidentes: feedback cuando user context falta (silencioso `return`)
-- [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
-- [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado para 3 cosas)
+- [x] SupervisorSchoolDetail: descomponer componente (hecho 01/09/2026, ver abajo)
+- [x] SupervisorSchoolDetail: hooks de feedback separados (hecho 01/09/2026, ver abajo)
 - [ ] SupervisorUsers: sort controls en lista
 - [ ] Login: focus management después de error
 
@@ -412,3 +411,36 @@ pero Firestore tiene límite de 1MB por documento → error críptico en producc
 Asistencia de Docentes (reemplazó sus chequeos inline de tipo).
 
 **Tests:** 5 unitarios nuevos para los helpers (121/121 en verde).
+
+## Completado — Refactor SupervisorSchoolDetail (01/09/2026)
+
+**Problema original (tarea pendiente):** la página era de 634 líneas con toda la
+lógica y el JSX de la vista "Hoy" en un solo archivo. Además, `statusOp` estaba
+reutilizado para varias operaciones distintas (cambio de estado de incidentes Y
+eliminación de fotos) con un solo `verifyOp` compartiendo carga de verificación
+con el export.
+
+**Solución — descomposición en 3 piezas nuevas:**
+
+- `src/hooks/useSchoolDetailData.ts` — hook con TODA la lógica: estado, carga
+  estática (`getSchoolById` + `getUsersBySchool` + `getDocentesBySchool`), las 5
+  suscripciones onSnapshot (asistencias, novedades, incidentes, asistencia
+  docentes, fotos), filtros de rango y del día, y todos los handlers
+  (docentes, estado de incidentes, verificación, export CSV, borrado de fotos).
+  Exporta los tipos `ViewMode` y `ExportType`.
+- `src/components/supervisor/SchoolDetailToday/` — vista "Hoy" (fecha + 4 cards
+  de resumen) como componente memoizado.
+- `src/components/supervisor/SchoolDetailFeedback/` — banner de feedback único
+  reutilizable (type + message), reemplaza los 2 bloques duplicados.
+
+**Hooks de feedback separados (ya no comparten estado de carga):**
+- `statusOp` → solo cambio de estado de incidentes
+- `verifyOp` → solo verificación de asistencias
+- `fotoOp` → nuevo, eliminar fotos
+- `exportOp` → nuevo, exportación CSV
+- `docenteOp` → CRUD de docentes (ya estaba separado)
+
+**Resultado:** la página pasa de 720 → ~286 líneas (solo composición de
+componentes y orquestación del hook). Sin cambios funcionales ni de CSS.
+Verificación: `tsc -b --noEmit` sin errores, `vitest` 121/121 en verde, lint
+limpio en los 4 archivos nuevos/modificados.
