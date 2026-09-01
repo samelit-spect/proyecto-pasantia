@@ -362,7 +362,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 ### Tareas futuras (post-MVP)
 
 - [ ] Crear composite indexes para queries adicionales
-- [ ] Ampliar cobertura de tests
+- [x] Ampliar cobertura de tests (hecho 01/09/2026, ver abajo)
 - [ ] Evaluar migración a Firebase v12.x si hay nuevas features
 
 ## Completado — Smoke test global de componentes (24/08/2026)
@@ -544,3 +544,19 @@ orderBy/limit/arrayUnion/Timestamp/onSnapshot) + `@/services/pushSender`.
 
 Suite completa: **157/157 en verde**, tsc sin errores, lint limpio en los
 archivos de tests.
+
+## Completado — Ampliar cobertura de tests: componentes (01/09/2026)
+
+`src/test/componentTests.test.tsx` — 19 tests que cubren:
+
+- `SchoolDetailToday`: fecha de hoy, estado vacío ("Sin registros hoy" ×4),
+  asistencias con presente/total, docentes con indicador de foto, novedades con
+  tipo/hora, incidentes con categoría, conteos de cada tarjeta.
+- `SchoolDetailFeedback`: no renderiza con `null`, mensaje `role="status"`,
+  clases CSS `--success`/`--error`.
+- `useFeedback`: `start` (updatingId + limpieza), `end` success (auto-clear con
+  fake timers), `end` error (se mantiene), `clear`.
+- `SchoolSelect`: estado de carga, render de escuelas, `onChange` al seleccionar,
+  caso de lista vacía (con mocks de AuthContext y firestore).
+
+Suite completa: **176/176 en verde** (eran 157), tsc sin errores, lint limpio.

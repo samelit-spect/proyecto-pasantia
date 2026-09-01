@@ -45,8 +45,10 @@ Cuatro pendientes de `08_tareas_pendientes.md` resueltos en esta sesión:
 4. **Tests de Firestore services** (`src/test/firestore.test.ts`): mocks de bajo
    nivel de firebase/firestore; 25 tests de CRUD de escuelas/usuarios/
    docentes/incidentes/asistencias/fotos y suscripciones.
+5. **Ampliar cobertura de tests** (`src/test/componentTests.test.tsx`): 19 tests
+   de `SchoolDetailToday`, `SchoolDetailFeedback`, `useFeedback` y `SchoolSelect`.
 
-Suite completa: **157/157 en verde** (eran 115). Commits: `e5865ef`, `fc60243`,
+Suite completa: **176/176 en verde** (eran 115). Commits: `e5865ef`, `fc60243`,
 `2dbd48d`, `42568fc`.
 
 ### ✅ Refactor SupervisorSchoolDetail (01/09/2026)
