@@ -332,7 +332,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 - [x] Novedades/Incidentes: feedback cuando user context falta (hecho 01/09/2026, ver abajo)
 - [x] SupervisorSchoolDetail: descomponer componente (hecho 01/09/2026, ver abajo)
 - [x] SupervisorSchoolDetail: hooks de feedback separados (hecho 01/09/2026, ver abajo)
-- [ ] SupervisorUsers: sort controls en lista
+- [x] SupervisorUsers: sort controls en lista (hecho 01/09/2026, ver abajo)
 - [x] Login: focus management después de error (hecho 01/09/2026, ver abajo)
 
 ### Tareas futuras (post-MVP)
@@ -421,6 +421,18 @@ quedaba donde estuviera; un usuario de teclado o screen reader no lo notaba.
 - `errorRef` + `useEffect`: cuando `error` pasa a tener valor, el foco va al
   `div.login__error` (`role="alert"` + `aria-live="assertive"` + `tabIndex={-1}`).
 - Test nuevo: tras un login fallido el alerta tiene el foco (8/8 en Login).
+
+## Completado — SupervisorUsers: sort controls en lista (01/09/2026)
+
+**Problema:** la lista de usuarios del panel de supervisión solo tenía filtro por
+escuela; cuando había muchos usuarios era difícil encontrarlos.
+
+**Solución:**
+- Controles de ordenamiento junto al filtro: criterio (`nombre`, `rol`,
+  `escuela`, `fechaCreacion`) + botón de dirección asc/desc (ArrowUp/ArrowDown).
+- `sortedUsers` usa `localeCompare` con `'es'` para nombres (acentos).
+- 3 tests nuevos: orden por nombre asc por defecto, inversión de dirección y
+  orden por escuela (127/127 en verde).
 
 ## Completado — Feedback cuando falta user context en Novedades/Incidentes (01/09/2026)
 

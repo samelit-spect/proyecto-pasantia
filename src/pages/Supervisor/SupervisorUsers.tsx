@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, UserPlus, X, Power, Pencil, RotateCcw } from 'lucide-react';
+import { ArrowLeft, UserPlus, X, Power, Pencil, RotateCcw, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   getSchools,
   getAllUsers,
@@ -26,6 +26,9 @@ import { SupervisorUsersSkeleton } from './SupervisorSkeleton';
 import './SupervisorUsers.css';
 
 const ROLES = ['director', 'vice', 'preceptor', 'secretario', 'conserje', 'supervisor'] as const;
+
+const SORT_OPTIONS = ['nombre', 'rol', 'escuela', 'creado'] as const;
+type SortKey = (typeof SORT_OPTIONS)[number];
 
 const createUserSchema = z.object({
   nombre: z.string().min(3, 'Mínimo 3 caracteres'),
@@ -59,6 +62,8 @@ const SupervisorUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterSchoolId, setFilterSchoolId] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('nombre');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
@@ -211,6 +216,31 @@ const SupervisorUsers = () => {
     ? users.filter((u) => u.escuelaId === filterSchoolId)
     : users;
 
+  const sortLabel: Record<SortKey, string> = {
+    nombre: 'Nombre',
+    rol: 'Rol',
+    escuela: 'Escuela',
+    creado: 'Fecha de creación',
+  };
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const compare = (): number => {
+      switch (sortKey) {
+        case 'rol':
+          return a.rol.localeCompare(b.rol);
+        case 'escuela':
+          return schoolNameById(a.escuelaId).localeCompare(schoolNameById(b.escuelaId));
+        case 'creado':
+          return (
+            new Date(a.fechaCreacion ?? 0).getTime() - new Date(b.fechaCreacion ?? 0).getTime()
+          );
+        default:
+          return a.nombre.localeCompare(b.nombre, 'es');
+      }
+    };
+    return sortDir === 'asc' ? compare() : -compare();
+  });
+
   return (
     <>
       <Breadcrumb items={[{ label: 'Inicio', to: '/' }, { label: 'Usuarios' }]} />
@@ -260,6 +290,36 @@ const SupervisorUsers = () => {
               ))}
             </select>
           </label>
+
+          <div className="supervisor-users__sort">
+            <label className="supervisor-users__filter">
+              <span className="supervisor-users__filter-label">Ordenar</span>
+              <select
+                className="supervisor-users__filter-select"
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as SortKey)}
+              >
+                {SORT_OPTIONS.map((key) => (
+                  <option key={key} value={key}>
+                    {sortLabel[key]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="supervisor-users__sort-dir"
+              onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+              aria-label={sortDir === 'asc' ? 'Orden ascendente' : 'Orden descendente'}
+              title={sortDir === 'asc' ? 'Orden ascendente' : 'Orden descendente'}
+            >
+              {sortDir === 'asc' ? (
+                <ArrowUp size={16} strokeWidth={1.5} />
+              ) : (
+                <ArrowDown size={16} strokeWidth={1.5} />
+              )}
+            </button>
+          </div>
         </div>
       )}
 
@@ -451,9 +511,9 @@ const SupervisorUsers = () => {
 
       {!error && !isLoading && (
         <div className="supervisor-users__section">
-          <h3 className="supervisor__section-title">Usuarios ({filteredUsers.length})</h3>
+          <h3 className="supervisor__section-title">Usuarios ({sortedUsers.length})</h3>
 
-          {filteredUsers.length === 0 ? (
+          {sortedUsers.length === 0 ? (
             <EmptyState
               icon="users"
               title="No hay usuarios"
@@ -462,7 +522,7 @@ const SupervisorUsers = () => {
             />
           ) : (
             <div className="supervisor-users__list">
-              {filteredUsers.map((user) => {
+              {sortedUsers.map((user) => {
                 const isActive = user.activo ?? true;
                 return (
                   <div
