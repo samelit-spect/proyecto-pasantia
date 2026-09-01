@@ -25,7 +25,7 @@ const ROUTE_PERMISSIONS: Record<string, UserRole[]> = {
   '/asistencia': ['director', 'vice', 'preceptor'],
   '/asistencia-docentes': ['director', 'vice', 'preceptor'],
   '/historial': ['director', 'vice', 'preceptor'],
-  '/fotos': ['preceptor'],
+  '/fotos': ['director', 'vice', 'preceptor'],
   '/novedades': ['director', 'vice'],
   '/incidentes': ['director', 'vice'],
   '/supervisor': ['supervisor'],

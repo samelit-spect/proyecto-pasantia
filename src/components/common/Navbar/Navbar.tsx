@@ -38,13 +38,16 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useKeyboardShortcuts({
-    'mod+k': () => setIsSearchOpen(true),
-    'escape': () => {
-      if (isSearchOpen) setIsSearchOpen(false);
-      else if (isMenuOpen) setIsMenuOpen(false);
+  useKeyboardShortcuts(
+    {
+      'mod+k': () => setIsSearchOpen(true),
+      escape: () => {
+        if (isSearchOpen) setIsSearchOpen(false);
+        else if (isMenuOpen) setIsMenuOpen(false);
+      },
     },
-  }, [isSearchOpen, isMenuOpen]);
+    [isSearchOpen, isMenuOpen]
+  );
 
   const isActive = (to: string) =>
     to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
@@ -129,7 +132,7 @@ const Navbar = () => {
             </Link>
           </>
         )}
-        {hasRole('preceptor') && (
+        {hasRole('director', 'vice', 'preceptor') && (
           <Link viewTransition to="/fotos" className="navbar__desktop-link">
             <Camera size={16} strokeWidth={1.5} />
             Fotos
@@ -255,7 +258,7 @@ const Navbar = () => {
             </>
           )}
 
-          {hasRole('preceptor') && (
+          {hasRole('director', 'vice', 'preceptor') && (
             <Link
               viewTransition
               to="/fotos"

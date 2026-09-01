@@ -57,6 +57,7 @@ function Probe({ children }: { children?: ReactNode }) {
       <span data-testid="hasRoleDirector">{String(auth.hasRole('director'))}</span>
       <span data-testid="hasRolePreceptor">{String(auth.hasRole('preceptor'))}</span>
       <span data-testid="canAccesoAsistencia">{String(auth.canAccess('/asistencia'))}</span>
+      <span data-testid="canAccesoFotos">{String(auth.canAccess('/fotos'))}</span>
       <span data-testid="canAccesoSupervisor">{String(auth.canAccess('/supervisor'))}</span>
       {children}
     </div>
@@ -137,6 +138,7 @@ describe('AuthContext', () => {
       expect(screen.getByTestId('hasRoleDirector').textContent).toBe('true');
       expect(screen.getByTestId('hasRolePreceptor').textContent).toBe('false');
       expect(screen.getByTestId('canAccesoAsistencia').textContent).toBe('true');
+      expect(screen.getByTestId('canAccesoFotos').textContent).toBe('true');
       expect(screen.getByTestId('canAccesoSupervisor').textContent).toBe('false');
     });
     expect(signInMock).toHaveBeenCalledWith(expect.anything(), 'd@test.com', 'pass123');

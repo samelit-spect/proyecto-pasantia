@@ -32,6 +32,19 @@
 
 ## Lo que ya está hecho (commit por commit)
 
+### ✅ Foto diaria accesible para director/vice (01/09/2026)
+
+**Decisión de producto:** en producción habrá **1 sola cuenta por escuela** (rol
+`director`, que carga asistencia, novedades, incidentes Y la foto diaria) + 1
+supervisor. No se usarán los roles `vice`/`preceptor`/`secretario`/`conserje`.
+
+**Cambio (en repos y commit):** la sección "Foto Diaria" (antes solo `preceptor`)
+ahora también permite a `director` y `vice`:
+- `firestore.rules` (+ `AuthContext` + `Navbar`)
+- Test actualizado: `canAccess('/fotos') === true` para director.
+
+⚠️ **Pendiente manual:** desplegar `firestore.rules` en Firebase Console.
+
 ### ✅ Tareas pendientes de UX/media resueltas (01/09/2026)
 
 Cuatro pendientes de `08_tareas_pendientes.md` resueltos en esta sesión:

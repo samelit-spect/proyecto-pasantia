@@ -77,7 +77,7 @@ service cloud.firestore {
 
     match /fotos/{fotoId} {
       allow read: if canSeeSchoolData();
-      allow create: if userHasAnyRole(['preceptor'])
+      allow create: if userHasAnyRole(['director', 'vice', 'preceptor'])
         && request.resource.data.subidoPor == request.auth.uid
         && userBelongsToSchool(request.resource.data.escuelaId);
       allow update: if false;

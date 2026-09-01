@@ -327,7 +327,11 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 ### Firebase Console
 
 - [ ] Crear 17 escuelas en Firestore `escuelas`
-- [ ] Crear usuarios iniciales (1 director por escuela)
+- [ ] Crear usuarios iniciales (1 dirección por escuela) — **solo 1 cuenta por escuela** (rol `director`) + 1 supervisor
+- [ ] **Desplegar `firestore.rules` actualizadas** (cambio: `director`/`vice` pueden
+      subir fotos de la foto diaria — ya commiteado en el repo, falta subirlo a la consola)
+- [ ] Verificar los **índices compuestos** de `firestore.indexes.json` (las queries
+      con `where + orderBy` en campos distintos fallan sin índice en producción)
 
 ### Testing (prioritario)
 
@@ -581,3 +585,21 @@ auth/firestore de forma diferida, pero `AuthContext` los necesita en el arranque
 (protege rutas y hace login inmediato) → refactor de alto riesgo y bajo margen
 (reemplazar ~160 KB del chunk inicial más relevante). Se deja documentado como
 futuro; no se modifica el código de producción.
+
+## Completado — Foto diaria accesible para director/vice (01/09/2026)
+
+**Motivo:** en producción se usará **1 sola cuenta por escuela** (rol `director`);
+no existirán cuentas `preceptor`. La sección "Foto Diaria" solo permitía `preceptor`,
+así que el director no podía subir la foto de la planilla.
+
+**Cambios:**
+- `firestore.rules`: `fotos` → `allow create: if userHasAnyRole(['director', 'vice', 'preceptor'])`
+  (antes solo `preceptor`).
+- `src/context/AuthContext.tsx`: `ROUTE_PERMISSIONS['/fotos']` incluye `director`, `vice`, `preceptor`.
+- `src/components/common/Navbar/Navbar.tsx` (desktop + drawer): el link "Fotos/Foto Diaria"
+  se muestra para `director`, `vice`, `preceptor`.
+- Test: AuthContext verifica `canAccess('/fotos') === true` para un director logueado.
+
+⚠️ **Despliegue manual pendiente:** subir `firestore.rules` a Firebase Console (ver sección Firebase Console).
+
+Suite completa: **176/176 en verde**, tsc/eslint/prettier limpios en los archivos tocados.
