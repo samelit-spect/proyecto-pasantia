@@ -333,7 +333,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 - [x] SupervisorSchoolDetail: descomponer componente (hecho 01/09/2026, ver abajo)
 - [x] SupervisorSchoolDetail: hooks de feedback separados (hecho 01/09/2026, ver abajo)
 - [ ] SupervisorUsers: sort controls en lista
-- [ ] Login: focus management después de error
+- [x] Login: focus management después de error (hecho 01/09/2026, ver abajo)
 
 ### Tareas futuras (post-MVP)
 - [ ] Crear composite indexes para queries adicionales
@@ -411,6 +411,16 @@ pero Firestore tiene límite de 1MB por documento → error críptico en producc
 Asistencia de Docentes (reemplazó sus chequeos inline de tipo).
 
 **Tests:** 5 unitarios nuevos para los helpers (121/121 en verde).
+
+## Completado — Login: focus management después de error (01/09/2026)
+
+**Problema:** al fallar el login, el mensaje de error aparecía pero el foco se
+quedaba donde estuviera; un usuario de teclado o screen reader no lo notaba.
+
+**Solución:**
+- `errorRef` + `useEffect`: cuando `error` pasa a tener valor, el foco va al
+  `div.login__error` (`role="alert"` + `aria-live="assertive"` + `tabIndex={-1}`).
+- Test nuevo: tras un login fallido el alerta tiene el foco (8/8 en Login).
 
 ## Completado — Feedback cuando falta user context en Novedades/Incidentes (01/09/2026)
 

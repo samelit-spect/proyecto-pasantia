@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Users, Bell, Camera } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -12,8 +12,15 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const errorRef = useRef<HTMLDivElement>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Cuando el login falla, el foco va al mensaje de error para que usuarios
+  // de teclado/screen reader lo noten de inmediato (aria-alert + tabIndex).
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +136,13 @@ const Login = () => {
             </div>
 
             {error && (
-              <div className="login__error" role="alert">
+              <div
+                ref={errorRef}
+                className="login__error"
+                role="alert"
+                tabIndex={-1}
+                aria-live="assertive"
+              >
                 {error}
               </div>
             )}

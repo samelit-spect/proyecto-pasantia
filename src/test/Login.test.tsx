@@ -96,6 +96,21 @@ describe('Login', () => {
     });
   });
 
+  it('mueve el foco al mensaje de error tras un login fallido', async () => {
+    mockLogin.mockRejectedValue(new Error('Credenciales inválidas'));
+    const user = userEvent.setup();
+    renderLogin();
+
+    await user.type(screen.getByLabelText('Email'), 'bad@test.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'wrong');
+    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
+
+    const alert = screen.getByRole('alert');
+    await waitFor(() => {
+      expect(alert).toHaveFocus();
+    });
+  });
+
   it('mapea errores de Firebase a mensajes amigables', async () => {
     mockLogin.mockRejectedValue({ code: 'auth/wrong-password', message: 'Firebase error' });
     const user = userEvent.setup();
