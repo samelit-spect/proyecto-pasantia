@@ -65,7 +65,16 @@ const Novedades = () => {
   const descripcion = useWatch({ control, name: 'descripcion' }) || '';
 
   const onSubmit = async (data: NewsFormData) => {
-    if (!user || !profile || !profile.escuelaId) return;
+    if (!user || !profile || !profile.escuelaId) {
+      setFeedback({
+        type: 'error',
+        message:
+          !user || !profile
+            ? 'Tu sesión no está completa. Volvé a iniciar sesión para continuar.'
+            : 'Tu perfil no tiene una escuela asignada. Contactá al supervisor para configurarla.',
+      });
+      return;
+    }
 
     const savedOffline = !navigator.onLine;
 

@@ -329,7 +329,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ### UX media (priorizado por impacto)
 - [x] Incidentes: validación de tamaño de archivo (hecho 24/08/2026, ver abajo)
-- [ ] Novedades/Incidentes: feedback cuando user context falta (silencioso `return`)
+- [x] Novedades/Incidentes: feedback cuando user context falta (hecho 01/09/2026, ver abajo)
 - [x] SupervisorSchoolDetail: descomponer componente (hecho 01/09/2026, ver abajo)
 - [x] SupervisorSchoolDetail: hooks de feedback separados (hecho 01/09/2026, ver abajo)
 - [ ] SupervisorUsers: sort controls en lista
@@ -411,6 +411,20 @@ pero Firestore tiene límite de 1MB por documento → error críptico en producc
 Asistencia de Docentes (reemplazó sus chequeos inline de tipo).
 
 **Tests:** 5 unitarios nuevos para los helpers (121/121 en verde).
+
+## Completado — Feedback cuando falta user context en Novedades/Incidentes (01/09/2026)
+
+**Problema:** en ambos formularios el `onSubmit` arrancaba con
+`if (!user || !profile || !profile.escuelaId) return;` — un return silencioso:
+si el contexto faltaba, el click en "Guardar" no hacía nada ni avisaba por qué.
+
+**Solución:**
+- Novedades y Incidentes muestran ahora un feedback de error al intentar
+  guardar sin contexto: si falta sesión → "Tu sesión no está completa. Volvé a
+  iniciar sesión para continuar."; si falta `escuelaId` → "Tu perfil no tiene
+  una escuela asignada. Contactá al supervisor para configurarla."
+- Tests: 2 nuevos (uno por formulario) que verifican el mensaje y que
+  `addNews`/`addIncident` NO se llaman (123/123 en verde).
 
 ## Completado — Refactor SupervisorSchoolDetail (01/09/2026)
 
