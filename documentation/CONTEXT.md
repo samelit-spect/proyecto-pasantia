@@ -47,6 +47,12 @@ Cuatro pendientes de `08_tareas_pendientes.md` resueltos en esta sesión:
    docentes/incidentes/asistencias/fotos y suscripciones.
 5. **Ampliar cobertura de tests** (`src/test/componentTests.test.tsx`): 19 tests
    de `SchoolDetailToday`, `SchoolDetailFeedback`, `useFeedback` y `SchoolSelect`.
+6. **Evaluar bundle de Firebase** (medir y documentar, sin tocar producción):
+   `npm run analyze` (`rollup-plugin-visualizer`) → Firestore 107 KB + auth
+   33 KB + webchannel 21 KB = **161 KB gzip** del chunk inicial (429 KB gzip).
+   recharts/jspdf/html2canvas ya viven en chunks lazy. Firebase es modular y
+   tree-shaken; la carga diferida de auth/firestore queda como futuro (alto
+   riesgo por el bootstrap de AuthContext).
 
 Suite completa: **176/176 en verde** (eran 115). Commits: `e5865ef`, `fc60243`,
 `2dbd48d`, `42568fc`.

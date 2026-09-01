@@ -2,6 +2,9 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
+import { visualizer } from 'rollup-plugin-visualizer';
+
+const isAnalyze = process.env.ANALYZE === 'true';
 
 export default defineConfig({
   plugins: [
@@ -74,6 +77,16 @@ export default defineConfig({
         ],
       },
     }),
+    ...(isAnalyze
+      ? [
+          visualizer({
+            open: false,
+            filename: 'bundle-report.html',
+            gzipSize: true,
+            template: 'raw-data',
+          }),
+        ]
+      : []),
   ],
   resolve: {
     alias: {

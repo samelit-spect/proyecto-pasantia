@@ -346,7 +346,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ### Mejoras futuras
 
-- [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
+- [x] Evaluar reducir bundle de Firebase (~930KB monolítico) (medido 01/09/2026, ver abajo)
 - [ ] Evaluar índices compuestos adicionales
 - [x] Extender marcador offline-sync a novedades y asistencias (hecho 24/08/2026, ver abajo)
 
@@ -560,3 +560,24 @@ archivos de tests.
   caso de lista vacía (con mocks de AuthContext y firestore).
 
 Suite completa: **176/176 en verde** (eran 157), tsc sin errores, lint limpio.
+
+## Completado — Evaluar bundle de Firebase (01/09/2026)
+
+**Medición real con `rollup-plugin-visualizer`** (`npm run analyze`, emite
+`bundle-report.html` + `analyze-bundle.mjs`). Resultados en gzip:
+
+- Chunk inicial `index-*.js`: **429 KB gzip** (era el "~930KB monolítico" sin
+  comprimir; el gzip real es ~304 KB en total incluyendo lazy chunks).
+- **Firebase en el chunk inicial: 161.2 KB gzip** = `@firebase/firestore`
+  (107.2 KB) + `@firebase/auth` (33.4 KB) + `@firebase/webchannel-wrapper`
+  (20.6 KB). Ya está tree-shaken por módulo, NO es un monolito.
+- Los paquetes más pesados del proyecto (recharts 180 KB, jspdf 114 KB,
+  html2canvas 60 KB) NO están en la carga inicial: viven en los chunks lazy de
+  `Home` (282 KB) e `Historial` (169 KB), ya separados por página. ✓
+
+**Conclusión:** Firebase ya está bien optimizado (modular + tree-shaken). Las
+únicas palancas para bajar aún más la carga inicial serían cargar
+auth/firestore de forma diferida, pero `AuthContext` los necesita en el arranque
+(protege rutas y hace login inmediato) → refactor de alto riesgo y bajo margen
+(reemplazar ~160 KB del chunk inicial más relevante). Se deja documentado como
+futuro; no se modifica el código de producción.
