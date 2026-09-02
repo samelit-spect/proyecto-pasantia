@@ -119,10 +119,7 @@ const SchoolDetailIncidents = ({
                     disabled={statusUpdatingId === inc.id}
                     onChange={(e) => handleSelectChange(inc.id, e.target.value as IncidentStatus)}
                   >
-                    <option
-                      value="pendiente"
-                      disabled={isOptionDisabled(inc.estado, 'pendiente')}
-                    >
+                    <option value="pendiente" disabled={isOptionDisabled(inc.estado, 'pendiente')}>
                       Pendiente
                     </option>
                     <option
@@ -137,10 +134,7 @@ const SchoolDetailIncidents = ({
                     >
                       En gestión
                     </option>
-                    <option
-                      value="resuelto"
-                      disabled={isOptionDisabled(inc.estado, 'resuelto')}
-                    >
+                    <option value="resuelto" disabled={isOptionDisabled(inc.estado, 'resuelto')}>
                       Resuelto
                     </option>
                   </select>
@@ -169,7 +163,7 @@ const SchoolDetailIncidents = ({
             // el nuevo valor vía `applying` hasta que termine.
             setPendingChange(null);
             setApplying(pc);
-            onStatusChange(pc.incidentId, pc.newStatus)?.then(() => setApplying(null));
+            onStatusChange(pc.incidentId, pc.newStatus)?.finally(() => setApplying(null));
           }
         }}
         onCancel={() => setPendingChange(null)}

@@ -761,3 +761,36 @@ directores, `addSchool` según reglas.
 **Suite:** **179/179 en verde** (eran 176), `tsc -b --noEmit` sin errores, `vite
 build` OK (PWA v1.3.0), lint en baseline exacto (16 errores pre-existentes + 667
 warnings prettier).
+
+## Completado — Combo de estado de incidentes nunca queda "trabado" (02/09/2026)
+
+**Síntoma reportado:** al cambiar el estado de un incidente desde el combo del
+Supervisor, el cambio "no ocurría" o "se hacía pero quedaba trabado".
+
+**Diagnóstico (flow auditado):** `SchoolDetailIncidents` (select + ConfirmDialog)
+→ `handleStatusChange` en `useSchoolDetailData` → `updateIncidentStatus` en
+`firestore.ts`. El manejo de éxito/cancelación/fallo era correcto y las reglas
+habilitan el update (`onlyChangedFields(['estado','updatedAt','historialEstados'])`),
+pero quedaba una falla de robustez: el select quedaba `disabled` (via
+`statusUpdatingId`) y el valor elegido colgado en `applying` **mientras la promesa
+de la escritura no se asentara**; con red lenta/colgada el control se quedaba
+bloqueado para siempre.
+
+**Fix (commit):**
+- `useSchoolDetailData.ts`: `INCIDENT_STATUS_CHANGE_TIMEOUT_MS = 15000` +
+  `withStatusChangeTimeout` (Promise.race acotado). Si la escritura tarda más de
+  15 s, se aborta la espera y se libera el select con mensaje "La actualización
+  está tardando demasiado. Si el estado no cambió, probá de nuevo."
+- `SchoolDetailIncidents.tsx`: `onStatusChange(...)?.finally(...)` en vez de `.then`
+  para liberar `applying` también en caminos de rechazo.
+
+**Tests nuevos (7):**
+- `SchoolDetailIncidents.test.tsx` (5): diálogo de confirmación, cancelar vuelve
+  al estado real, éxito deja el select en el nuevo estado, rechazo rehabilita y
+  revierte, select deshabilitado mientras la escritura no termina.
+- `incidentStatusTimeout.test.tsx` (2): con escritura que nunca asienta señala
+  `updatingId` y lo libera tras el timeout; con éxito limpia uno mismo.
+
+**Suite:** **186/186 en verde**, `tsc -b --noEmit` sin errores, `vite build` OK
+(PWA v1.3.0), lint en **16 errores + 665 warnings** (prettier re-formateó los
+archivos; no hay problemas nuevos).

@@ -39,6 +39,26 @@ import { novedadTipoLabel, incidentCategoriaLabel, incidentUrgenciaLabel } from 
 
 const DEFAULT_RANGE_START = new Date(2000, 0, 1);
 
+// El cambio de estado de un incidente no puede quedar esperando a la red para
+// siempre: si Firestore no responde, el <select> quedaría deshabilitado y la
+// UI "trabada". Se acota el tiempo de espera y se reabre el control.
+const INCIDENT_STATUS_CHANGE_TIMEOUT_MS = 15000;
+
+const withStatusChangeTimeout = (op: Promise<void>, ms: number): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('timeout')), ms);
+    op.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+
 export type ViewMode = 'hoy' | 'historico';
 export type ExportType = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 
@@ -236,18 +256,27 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
     statusOp.start(incidentId);
 
     try {
-      await updateIncidentStatus(
-        incidentId,
-        newStatus,
-        { uid: profile.uid, nombre: profile.nombre },
-        estadoAnterior
+      await withStatusChangeTimeout(
+        updateIncidentStatus(
+          incidentId,
+          newStatus,
+          { uid: profile.uid, nombre: profile.nombre },
+          estadoAnterior
+        ),
+        INCIDENT_STATUS_CHANGE_TIMEOUT_MS
       );
       setIncidents((prev) =>
         prev.map((inc) => (inc.id === incidentId ? { ...inc, estado: newStatus } : inc))
       );
       statusOp.end({ type: 'success', message: 'Estado del incidente actualizado.' });
-    } catch {
-      statusOp.end({ type: 'error', message: 'No se pudo actualizar el estado.' });
+    } catch (err) {
+      statusOp.end({
+        type: 'error',
+        message:
+          err instanceof Error && err.message === 'timeout'
+            ? 'La actualización está tardando demasiado. Si el estado no cambió, probá de nuevo.'
+            : 'No se pudo actualizar el estado.',
+      });
     }
   };
 
