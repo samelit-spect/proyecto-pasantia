@@ -16,8 +16,11 @@ self.addEventListener('activate', (event) => {
 
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
 
+// Cache de lectura de Firestore (SÓLO GET): las escrituras (POST/PATCH, los
+// update de estado/verificación) salen directo por red para no interferir.
 registerRoute(
-  /^https:\/\/firestore\.googleapis\.com\/.*/i,
+  ({ url, request }) =>
+    request.method === 'GET' && /^https:\/\/firestore\.googleapis\.com\/.*/i.test(url.href),
   new NetworkFirst({
     cacheName: 'firestore-cache',
     plugins: [
