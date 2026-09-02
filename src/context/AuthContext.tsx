@@ -45,7 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
-        return { uid: user.uid, ...userSnap.data() } as UserProfile;
+        const data = userSnap.data();
+        const fechaRaw = data.fechaCreacion ?? data.createdAt;
+        const fechaCreacion =
+          fechaRaw && typeof fechaRaw === 'object' && 'toDate' in (fechaRaw as object)
+            ? (fechaRaw as { toDate: () => Date }).toDate()
+            : fechaRaw instanceof Date
+              ? fechaRaw
+              : undefined;
+        return { uid: user.uid, ...data, fechaCreacion } as UserProfile;
       }
       console.warn(
         `[AuthContext] No existe documento usuarios/${user.uid}. El usuario autenticado no tiene perfil en Firestore.`

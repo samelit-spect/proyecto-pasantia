@@ -62,6 +62,28 @@ const COLLECTIONS = {
   pushTokens: 'push_tokens',
 } as const;
 
+/** Convierte un Timestamp de Firestore (o Date) a Date, tolerando ambos. */
+const asDate = (value: unknown): Date | undefined => {
+  if (!value) return undefined;
+  if (typeof value === 'object' && 'toDate' in (value as Record<string, unknown>)) {
+    return (value as { toDate: () => Date }).toDate();
+  }
+  if (value instanceof Date) return value;
+  return new Date(value as string | number);
+};
+
+/**
+ * Normaliza un documento de usuarios. Los usuarios creados antes del
+ * guardado de fechaCreacion solo tienen createdAt, así que se usa como
+ * respaldo para que perfil y orden por antigüedad funcionen con ambos.
+ */
+const toUserProfile = (uid: string, data: Record<string, unknown>): UserProfile =>
+  ({
+    uid,
+    ...(data as object),
+    fechaCreacion: asDate(data.fechaCreacion ?? data.createdAt),
+  }) as UserProfile;
+
 export async function upsertPushToken(token: PushToken): Promise<void> {
   await setDoc(doc(db, COLLECTIONS.pushTokens, token.token), token, { merge: true });
 }
@@ -119,14 +141,14 @@ export async function getUsersBySchool(schoolId: string): Promise<UserProfile[]>
   const q = query(collection(db, COLLECTIONS.users), where('escuelaId', '==', schoolId));
   const snapshot = await getDocs(q);
   return snapshot.docs
-    .map((d) => ({ uid: d.id, ...d.data() }) as UserProfile)
+    .map((d) => toUserProfile(d.id, d.data()))
     .filter((u) => u.activo !== false);
 }
 
 export async function getAllUsers(): Promise<UserProfile[]> {
   const q = query(collection(db, COLLECTIONS.users), orderBy('nombre'));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ uid: d.id, ...d.data() }) as UserProfile);
+  return snapshot.docs.map((d) => toUserProfile(d.id, d.data()));
 }
 
 export async function addUserProfile(
@@ -148,6 +170,7 @@ export async function addUserProfile(
     cargo: data.cargo,
     activo: true,
     createdAt: Timestamp.now(),
+    fechaCreacion: Timestamp.now(),
     ...(actor ? { creadoPor: actor.uid, creadoPorNombre: actor.nombre } : {}),
   });
 }

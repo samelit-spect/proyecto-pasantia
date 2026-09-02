@@ -170,6 +170,7 @@ describe('firestore services — usuarios', () => {
     expect(payload.creadoPor).toBe('sup-1');
     expect(payload.creadoPorNombre).toBe('Supervisor');
     expect(payload.activo).toBe(true);
+    expect(payload.fechaCreacion).toBeDefined();
   });
 
   it('addUserProfile sin actor no incluye creadoPor', async () => {
@@ -183,6 +184,15 @@ describe('firestore services — usuarios', () => {
     });
     const payload = mocks.setDoc.mock.calls[0][1] as Record<string, unknown>;
     expect(payload.creadoPor).toBeUndefined();
+  });
+
+  it('getAllUsers expone fechaCreacion desde createdAt para usuarios creados antes', async () => {
+    const fecha = new Date('2026-01-05T10:00:00');
+    mocks.getDocs.mockResolvedValue(
+      makeDocsSnap([{ nombre: 'X', createdAt: { toDate: () => fecha } }])
+    );
+    const users = await getAllUsers();
+    expect(users[0].fechaCreacion).toEqual(fecha);
   });
 
   it('setUserActive registra editor cuando se pasa', async () => {
