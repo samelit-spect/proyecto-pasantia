@@ -11,7 +11,7 @@ import SuccessAnimation from '@/components/common/SuccessAnimation/SuccessAnimat
 import { addNews } from '@/services/api/firestore';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
-import { novedadSchema } from '@/utils/validation';
+import { novedadSchema, todayISO } from '@/utils/validation';
 import { markOfflineWrite } from '@/utils/offlineQueue';
 import { friendlyFirestoreError } from '@/utils/firestoreErrors';
 import { NOVEDAD_TIPOS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -30,7 +30,7 @@ const Novedades = () => {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const defaults = {
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: todayISO(),
     tipo: '',
     hora: '',
     descripcion: '',

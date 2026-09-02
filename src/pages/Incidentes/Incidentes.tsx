@@ -13,7 +13,7 @@ import { markOfflineWrite } from '@/utils/offlineQueue';
 import { friendlyFirestoreError } from '@/utils/firestoreErrors';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
-import { incidenteSchema } from '@/utils/validation';
+import { incidenteSchema, todayISO } from '@/utils/validation';
 import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { IncidentCategoria, IncidentUrgencia } from '@/types';
 import './Incidentes.css';
@@ -31,7 +31,7 @@ const Incidentes = () => {
   const [preview, setPreview] = useState<string | null>(null);
 
   const defaults = {
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: todayISO(),
     categoria: '',
     urgencia: '',
     ubicacion: '',

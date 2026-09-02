@@ -17,7 +17,7 @@ const Fotos = () => {
   const { user, profile } = useAuth();
   const haptic = useHaptic();
   const escuelaId = profile?.escuelaId || '';
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [fecha, setFecha] = useState(todayISO());
   const [file, setFile] = useState<File | null>(null);
   const [fotos, setFotos] = useState<Foto[] | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
