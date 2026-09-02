@@ -9,7 +9,10 @@ precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
 self.skipWaiting();
-self.clients.claim();
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
 
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
 
