@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useViewTransitionState } from 'react-router-dom';
 import { Search, X, School, Users, User, ArrowRight } from 'lucide-react';
 import { getSchools, getAllUsers, getAllDocentes } from '@/services/api/firestore';
+import { useAuth } from '@/context/AuthContext';
 import type { School as SchoolType, UserProfile, Docente } from '@/types';
 import './GlobalSearch.css';
 
@@ -92,6 +93,7 @@ const SearchResultItem = ({
 
 const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -206,7 +208,7 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
     }
   };
 
-  if (!open) return null;
+  if (!open || !hasRole('supervisor')) return null;
 
   const renderLabel = (result: SearchResult) => {
     const q = query.trim();

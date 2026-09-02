@@ -445,6 +445,13 @@ describe('Componentes con navegación / overlays', () => {
     expect(container.firstElementChild).not.toBeNull();
   });
 
+  it('GlobalSearch oculto para directores', async () => {
+    setProfile(PROFILE_DIRECTOR);
+    const { container } = renderPage(<GlobalSearch open onClose={() => {}} />);
+    await flush();
+    expect(container.firstElementChild).toBeNull();
+  });
+
   it('Navbar como director', async () => {
     setProfile(PROFILE_DIRECTOR);
     const { container } = renderPage(<Navbar />);

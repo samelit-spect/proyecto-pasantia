@@ -37,16 +37,19 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const isSupervisor = profile?.rol === 'supervisor';
 
   useKeyboardShortcuts(
     {
-      'mod+k': () => setIsSearchOpen(true),
+      'mod+k': () => {
+        if (isSupervisor) setIsSearchOpen(true);
+      },
       escape: () => {
         if (isSearchOpen) setIsSearchOpen(false);
         else if (isMenuOpen) setIsMenuOpen(false);
       },
     },
-    [isSearchOpen, isMenuOpen]
+    [isSearchOpen, isMenuOpen, isSupervisor]
   );
 
   const isActive = (to: string) =>
@@ -168,14 +171,16 @@ const Navbar = () => {
           Ayuda
         </Link>
         <NotificationBell />
-        <button
-          onClick={() => setIsSearchOpen(true)}
-          className="navbar__desktop-search"
-          title="Buscar (Ctrl+K)"
-        >
-          <Search size={14} strokeWidth={2} />
-          <kbd>⌘K</kbd>
-        </button>
+        {isSupervisor && (
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="navbar__desktop-search"
+            title="Buscar (Ctrl+K)"
+          >
+            <Search size={14} strokeWidth={2} />
+            <kbd>⌘K</kbd>
+          </button>
+        )}
         <Link viewTransition to="/perfil" className="navbar__desktop-link">
           <CircleUser size={16} strokeWidth={1.5} />
           Mi Perfil
