@@ -75,6 +75,28 @@
 .attendance-row__toggle-label {
   font-weight: 500;
   min-width: 70px;
+  transition: color 0.2s;
+  animation: attendance-label-pop 0.25s ease-out;
+}
+
+.attendance-row__toggle-label--presente {
+  color: var(--accent-green-text);
+}
+
+.attendance-row__toggle-label--ausente {
+  color: var(--accent-red-text);
+}
+
+@keyframes attendance-label-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .attendance-row__motivo {
@@ -138,5 +160,11 @@
 
   .attendance-row__motivo-input {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attendance-row__toggle-label {
+    animation: none;
   }
 }

@@ -46,7 +46,12 @@ const AttendanceRow = ({
       <div className="attendance-row__actions">
         <label className="attendance-row__toggle">
           <input type="checkbox" checked={presente} onChange={(e) => onToggle(e.target.checked)} />
-          <span className="attendance-row__toggle-label">{presente ? 'Presente' : 'Ausente'}</span>
+          <span
+            key={presente ? 'presente' : 'ausente'}
+            className={`attendance-row__toggle-label attendance-row__toggle-label--${presente ? 'presente' : 'ausente'}`}
+          >
+            {presente ? 'Presente' : 'Ausente'}
+          </span>
         </label>
 
         {!presente && (
