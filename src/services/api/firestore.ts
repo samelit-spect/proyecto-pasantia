@@ -140,9 +140,7 @@ export async function deleteSchool(schoolId: string): Promise<void> {
 export async function getUsersBySchool(schoolId: string): Promise<UserProfile[]> {
   const q = query(collection(db, COLLECTIONS.users), where('escuelaId', '==', schoolId));
   const snapshot = await getDocs(q);
-  return snapshot.docs
-    .map((d) => toUserProfile(d.id, d.data()))
-    .filter((u) => u.activo !== false);
+  return snapshot.docs.map((d) => toUserProfile(d.id, d.data())).filter((u) => u.activo !== false);
 }
 
 export async function getAllUsers(): Promise<UserProfile[]> {
