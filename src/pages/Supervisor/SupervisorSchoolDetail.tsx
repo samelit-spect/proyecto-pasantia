@@ -114,8 +114,17 @@ const SupervisorSchoolDetail = () => {
       <SchoolDetailFeedback feedback={fotoOp.feedback} />
       <SchoolDetailFeedback feedback={exportOp.feedback} />
 
-      <div className="supervisor-detail__tabs">
+      <div className="supervisor-detail__tabs" role="tablist">
+        <span
+          className="supervisor-detail__tab-indicator"
+          data-view={viewMode}
+          aria-hidden="true"
+        />
         <button
+          id="supervisor-detail-tab-hoy"
+          role="tab"
+          aria-selected={viewMode === 'hoy'}
+          aria-controls="supervisor-detail-panel-hoy"
           className={`supervisor-detail__tab ${viewMode === 'hoy' ? 'supervisor-detail__tab--active' : ''}`}
           onClick={() => setViewMode('hoy')}
         >
@@ -123,6 +132,10 @@ const SupervisorSchoolDetail = () => {
           Hoy
         </button>
         <button
+          id="supervisor-detail-tab-historico"
+          role="tab"
+          aria-selected={viewMode === 'historico'}
+          aria-controls="supervisor-detail-panel-historico"
           className={`supervisor-detail__tab ${viewMode === 'historico' ? 'supervisor-detail__tab--active' : ''}`}
           onClick={() => setViewMode('historico')}
         >
@@ -132,16 +145,28 @@ const SupervisorSchoolDetail = () => {
       </div>
 
       {viewMode === 'hoy' && (
-        <SchoolDetailToday
-          attendances={todayAttendances}
-          docenteAttendances={todayDocenteAttendances}
-          news={todayNews}
-          incidents={todayIncidents}
-        />
+        <div
+          id="supervisor-detail-panel-hoy"
+          role="tabpanel"
+          aria-labelledby="supervisor-detail-tab-hoy"
+          className="supervisor-detail__view animate-fade-in"
+        >
+          <SchoolDetailToday
+            attendances={todayAttendances}
+            docenteAttendances={todayDocenteAttendances}
+            news={todayNews}
+            incidents={todayIncidents}
+          />
+        </div>
       )}
 
       {viewMode === 'historico' && (
-        <>
+        <div
+          id="supervisor-detail-panel-historico"
+          role="tabpanel"
+          aria-labelledby="supervisor-detail-tab-historico"
+          className="supervisor-detail__view animate-fade-in"
+        >
           <div className="supervisor-detail__filters">
             <DatePicker label="Desde" value={dateFrom} onChange={setDateFrom} />
             <DatePicker label="Hasta" value={dateTo} onChange={setDateTo} />
@@ -233,7 +258,7 @@ const SupervisorSchoolDetail = () => {
               onDelete={(fotoId) => setConfirmDeleteFoto(fotoId)}
             />
           </div>
-        </>
+        </div>
       )}
 
       <AnimatePresence>
