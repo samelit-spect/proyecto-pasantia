@@ -117,6 +117,12 @@ body {
     transition: none;
   }
 
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    transition: none;
+  }
+
   button:not(:disabled):active,
   [role='button']:not([aria-disabled='true']):active {
     transform: none;
@@ -136,11 +142,21 @@ body {
   outline: none;
 }
 
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Foco de los campos de texto: anillo suave del color del tema. Se aplica
+   tambien a :focus (no solo :focus-visible) porque en pantalla tactil no
+   hay "focus por teclado": tocar un campo debe mostrarlo activado. */
+input:not([type='checkbox']):not([type='radio']):focus,
+select:focus,
+textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 30%, transparent);
 }
 
 button:focus-visible,
