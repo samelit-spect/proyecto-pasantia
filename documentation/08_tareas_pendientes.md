@@ -398,8 +398,9 @@ inferida (`profile`) no coincide con la manual (`hasRole, profile?.escuelaId`).
 - [ ] Cargar/ejecutar el seed con los datos reales.
 - [ ] **Desplegar `firestore.rules` actualizadas** (cambio: `director`/`vice` pueden
       subir fotos de la foto diaria — ya commiteado en el repo, falta subirlo a la consola).
-- [ ] Verificar los **índices compuestos** de `firestore.indexes.json` (las queries
-      con `where + orderBy` en campos distintos fallan sin índice en producción).
+- [x] Verificar los **índices compuestos** de `firestore.indexes.json` (**hecho
+      02/09/2026** contra producción: NO faltan índices; listado real en
+      `documentation/CONTEXT.md` — sección índice compuestos).
 - [ ] Prueba piloto real con 1-2 escuelas durante una semana antes del rollout completo.
 
 ### Testing (prioritario)
@@ -420,7 +421,7 @@ inferida (`profile`) no coincide con la manual (`hasRole, profile?.escuelaId`).
 ### Mejoras futuras
 
 - [x] Evaluar reducir bundle de Firebase (~930KB monolítico) (medido 01/09/2026, ver abajo)
-- [ ] Evaluar índices compuestos adicionales
+- [x] Evaluar índices compuestos adicionales (hecho 02/09/2026 — ver "Completado — Auditoría" abajo)
 - [x] Extender marcador offline-sync a novedades y asistencias (hecho 24/08/2026, ver abajo)
 
 ### UX media (priorizado por impacto)
@@ -434,7 +435,9 @@ inferida (`profile`) no coincide con la manual (`hasRole, profile?.escuelaId`).
 
 ### Tareas futuras (post-MVP)
 
-- [ ] Crear composite indexes para queries adicionales
+- [x] Crear composite indexes para queries adicionales (hecho 02/09/2026: verificado
+      contra producción que todas las queries con `where + orderBy` ya tienen su
+      compuesto desplegado; NO se requieren nuevos)
 - [x] Ampliar cobertura de tests (hecho 01/09/2026, ver abajo)
 - [ ] Evaluar migración a Firebase v12.x si hay nuevas features
 
@@ -710,3 +713,51 @@ micro-animaciones.
   animar.
 
 Suite: **176/176 en verde**, tsc y eslint/prettier limpios.
+
+## Completado — Auditoría de la capa de datos + 4 correcciones (02/09/2026)
+
+Auditoría **estática** de `src/services/api/firestore.ts` (las 52 funciones) contra
+los índices compuestos **realmente desplegados** (`npx firebase firestore:indexes
+--project sipnam-proyecto`) y contra `firestore.rules`. Antes de esta sesión, el
+pendiente era "verificar índices y crear composites si faltan".
+
+**Veredicto de índices:** NO faltan. El listado desplegado coincide exacto con
+`firestore.indexes.json` (asistencias, asistencia_docentes, novedades, incidentes
+×2, fotos ×2). `getSchools()` y `getDocentesBySchool()` ordenan **en memoria** (no
+requieren compuesto). Se corrigió la doc técnica que citaba compuestos inexistentes
+(`docentes: escuelaId+activo`, `getSchools: activa+nombre`).
+
+**Hallazgos que se corrigieron (4 commits):**
+
+1. **Buscador global roto en silencio para no-supervisores** (`fd988aa`):
+   `GlobalSearch` (Navbar + `Ctrl+K`) hacía queries de colección
+   (`getSchools`/`getAllUsers`/`getAllDocentes`) que las reglas deniegan fuera de
+   `supervisor` → panel vacío sin aviso. Ahora el buscador (botón desktop, drawer
+   y atajo) está gateado por `isSupervisor` y el componente hace
+   `if (!open || !hasRole('supervisor')) return null;`.
+   - Test smoke nuevo: `GlobalSearch` no se renderiza para un director.
+2. **`fechaCreacion` nunca escrita** (`0b9e895`): `Profile`/`SupervisorUsers` la
+   mostraban pero `addUserProfile` solo escribía `createdAt`. Ahora escribe
+   `fechaCreacion: Timestamp.now()` y los getters de usuarios + `AuthContext` la
+   exponen con **fallback a `createdAt`** (helpers `asDate`/`toUserProfile`).
+   - Tests: `getAllUsers` devuelve `fechaCreacion` desde `createdAt`; aserción en
+     `addUserProfile`.
+3. **Gráficos 7/30 días con desfase UTC** (`87d74b2`): ejes y buckets usaban
+   `toISOString().split('T')[0]` (día UTC) contra `fecha` guardada como medianoche
+   local → el día "hoy" caía fuera del rango de noche en Argentina. Pasados a
+   `localISODate()` (convención `todayISO()`).
+   - Test ajustado: `subscribeLast7DaysCounts` usa la fecha local.
+4. **Borde en `updateIncidentStatus`** (`3f54d64`): `estadoAnterior` podía ser
+   `undefined` y `arrayUnion({ ..., estadoAnterior: undefined })` tiraba "Unsupported
+   field value" en Firestore. La entrada de `historialEstados` se construye
+   condicionalmente y omite el campo.
+   - Test nuevo: sin estado anterior se omite el campo en la entrada del historial.
+
+**Verificado como correcto (sin cambios):** escrituras con `onlyChangedFields` (solo
+campos permitidos), `updateUserProfile`/`setUserActive` solo invocados por el
+Supervisor, `SchoolSelect` solo en `SupervisorUsers`, `getSchoolById` para
+directores, `addSchool` según reglas.
+
+**Suite:** **179/179 en verde** (eran 176), `tsc -b --noEmit` sin errores, `vite
+build` OK (PWA v1.3.0), lint en baseline exacto (16 errores pre-existentes + 667
+warnings prettier).

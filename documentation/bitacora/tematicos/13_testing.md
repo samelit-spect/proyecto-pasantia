@@ -66,11 +66,14 @@ El test más importante: **monta TODAS las páginas y componentes comunes** para
 - Objetivo: Lines/Functions/Statements > 60%, Branches > 50%.
 - Para el MVP la cobertura **no es bloqueante**; se prioriza testear la lógica crítica (validación, auth, servicios, formularios) y el smoke test global.
 
-## 7. Estado actual de la suite (01/09/2026)
+## 7. Estado actual de la suite (02/09/2026)
 
-- **176/176 tests en verde** (eran 115). Esquema: unitarios (validación, constantes,
+- **179/179 tests en verde** (eran 115). Esquema: unitarios (validación, constantes,
   imagen) + componentes (Login, formularios, incidentes, badges, banners, SchoolSelect)
   + lógica/servicios (AuthContext, firestore, componentTests) + smoke global.
+- Últimos sumados (02/09/2026, auditoría de datos): `fechaCreacion` con fallback a
+  `createdAt`, `updateIncidentStatus` sin estado anterior, y `GlobalSearch` oculto
+  para no-supervisores.
 - Verificación completa tras cada cambio: `npx tsc -b --noEmit` + `npx vitest run` +
   `npm run lint`.
 

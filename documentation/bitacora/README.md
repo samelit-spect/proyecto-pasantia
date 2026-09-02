@@ -28,7 +28,7 @@
 | `tematicos/19_despliegue.md` | Despliegue: build, Netlify, headers de caché y variables de entorno |
 | `template_semana.md` | Plantilla en blanco para completar semanas futuras |
 
-## Semanas (`01-05`)
+## Semanas (01-05)
 
 | Archivo | Contenido |
 |---|---|
@@ -39,13 +39,15 @@
 | `05_semana_5.md` | Semana 5 (24–27 ago): login responsive, onboarding, cierre por inactividad |
 | `06_semana_6.md` | Semana 6 (29 ago): marca de la PWA, fixes de incidentes/exportación y Web Push (FCM) |
 | `07_semana_7.md` | Semana 7 (1 sep): cierre de tests, bundle de Firebase, foto diaria director/vice, dark mode |
+| `08_semana_8.md` | Semana 8 (2 sep): auditoría de la capa de datos (índices + reglas) y 4 correcciones |
 
-## Semanas futuras
+## Semanas completadas
 
 | Archivo | Período | Estado |
 |---|---|---|
 | `06_semana_6.md` | 29 ago | Completada |
-| `07_semana_7.md` | 1 sep | En curso |
+| `07_semana_7.md` | 1 sep | Completada |
+| `08_semana_8.md` | 2 sep | Completada |
 
 ## Cómo convertir a Word
 

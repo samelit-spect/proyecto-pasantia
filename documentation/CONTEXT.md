@@ -1,7 +1,8 @@
 # CONTEXT — SIPNAM Proyecto Pasantía
 
-> Última actualización: 01/09/2026
-> Commits totales: 180+
+> Última actualización: 02/09/2026
+> Commits totales: 216
+> Tests: 179/179 en verde
 
 ---
 
@@ -31,6 +32,41 @@
 ---
 
 ## Lo que ya está hecho (commit por commit)
+
+### ✅ Auditoría de la capa de datos + 4 correcciones (02/09/2026)
+
+Auditoría **estática** consulta-por-consulta de `src/services/api/firestore.ts`
+contra los índices compuestos **realmente desplegados** (`npx firebase
+firestore:indexes --project sipnam-proyecto`; coinciden exacto con
+`firestore.indexes.json`) y contra las reglas. **Veredicto: NO faltan índices**;
+`getSchools()`/`getDocentesBySchool()` ordenan en memoria (no requieren compuesto).
+
+Hallazgos corregidos (cada uno con su commit y su test):
+
+1. **#2 Buscador global roto en silencio para no-supervisores** (`fd988aa`):
+   `GlobalSearch` (visible para TODOS + `Ctrl+K`) hacía queries de colección que
+   las reglas deniegan si no sos supervisor → panel vacío sin aviso. Ahora solo
+   está disponible para `supervisor` (botón desktop, drawer Y atajo gateados por
+   `isSupervisor` + guard `hasRole('supervisor')` en el componente).
+2. **#3 `fechaCreacion` nunca se escribía** (`0b9e895`): `Profile`/`SupervisorUsers`
+   la leen, pero `addUserProfile` solo escribía `createdAt`. Ahora
+   `addUserProfile` escribe `fechaCreacion: Timestamp.now()` y
+   `getUsersBySchool`/`getAllUsers`/`AuthContext` la exponen con **fallback a
+   `createdAt`** (helpers `asDate`/`toUserProfile` en `firestore.ts`).
+3. **#4 Gráficos 7/30 días desfasados de noche** (`87d74b2`): ejes y buckets de
+   `subscribeLast7DaysCounts`/`subscribeLast30DaysAttendance` usaban el día UTC
+   (`toISOString`) contra fechas guardadas como medianoche local → se pasaron a
+   `localISODate()` (misma convención que `todayISO()`).
+4. **#5 Borde en `updateIncidentStatus`** (`3f54d64`): `estadoAnterior` podía ser
+   `undefined` y `arrayUnion({..., estadoAnterior: undefined})` tiraba "Unsupported
+   field value" en Firestore. La entrada de `historialEstados` se construye ahora
+   de forma condicional y omite el campo cuando no existe.
+
+Verificado como correcto sin cambios: escrituras solo con campos permitidos
+(`onlyChangedFields`), `updateUserProfile`/`setUserActive` solo de Supervisor,
+`SchoolSelect` solo en `SupervisorUsers`, `getSchoolById` para directores y
+`addSchool` según reglas. Suite: **179/179 en verde**, build OK (PWA v1.3.0),
+lint en baseline (16 errores + 667 warnings).
 
 ### ✅ Consistencia visual dark mode + micro-interacciones (01/09/2026)
 
@@ -641,12 +677,20 @@ Plan de 12 mejoras documentado ítem por ítem en `documentation/18_animaciones.
 
 ### Índices compuestos (`firestore.indexes.json`)
 
-- `asistencias`: `escuelaId + fecha`
-- `docentes`: `escuelaId + activo`
-- `asistencia_docentes`: `escuelaId + fecha`
-- `fotos`: `escuelaId + fecha`
-- `novedades`: `escuelaId + fecha`
-- `incidentes`: `escuelaId + fecha`
+Verificados contra producción el 02/09/2026 (`npx firebase firestore:indexes --project sipnam-proyecto`); coinciden exacto con el archivo:
+
+| Colección | Campos | Para qué consulta |
+|---|---|---|
+| `asistencias` | `escuelaId` asc + `fecha` desc | getAttendancesBySchool / subscribeToday |
+| `asistencia_docentes` | `escuelaId` asc + `fecha` desc | getDocenteAttendancesBySchool |
+| `novedades` | `escuelaId` asc + `fecha` desc | getNewsBySchool |
+| `incidentes` | `escuelaId` asc + `fecha` desc | getIncidentsBySchool |
+| `incidentes` | `estado` asc + `fecha` desc | subscribeIncidentsByStatus |
+| `fotos` | `escuelaId` asc + `fecha` asc + `createdAt` desc | fotos del día |
+| `fotos` | `escuelaId` asc + `createdAt` desc | getFotosBySchool / subscribeFotosBySchool |
+
+No existen compuestos para `docentes` ni `escuelas`: `getDocentesBySchool()` y
+`getSchools()` ordenan **en memoria** (no usan `orderBy`).
 
 ### Reglas de seguridad
 
@@ -677,11 +721,11 @@ El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `r
 
 ### 5. Tests
 
-57 tests (56 pasan + 1 falla PRE-EXISTENTE de Login "muestra texto de carga en el botón"). Ejecutar con `npx vitest run` o `npm run test`.
+179/179 en verde (02/09/2026). Ejecutar con `npx vitest run` o `npm run test`. Últimos sumados: AuthContext (5), Firestore services (25 → 27 con fechaCreacion y updateIncidentStatus), componentes (19), smoke global (+ test GlobalSearch oculto para director).
 
 ### 6. Lint
 
-Línea base actual: 16 errores PRE-EXISTENTES (11 react-compiler por setState síncrono en effects + 3 `no-explicit-any` en pdfExport.ts + 1 `purity` en useFormDraft + 1 `preserve-manual-memoization` en Home) + 667 warnings prettier. Verificado contra baseline en la sesión de animaciones (02/09/2026): un cambio no agregó ningún problema nuevo. Detalle en `08_tareas_pendientes.md` (ver entrada ⚠️ deuda de lint).
+Línea base actual: 16 errores PRE-EXISTENTES (11 react-compiler por setState síncrono en effects + 3 `no-explicit-any` en pdfExport.ts + 1 `purity` en useFormDraft + 1 `preserve-manual-memoization` en Home) + 667 warnings prettier. Re-verificado en la auditoría (02/09/2026): los 4 fixes no agregaron problemas nuevos y el formateo quedó en baseline exacto. Detalle en `08_tareas_pendientes.md` (ver entrada ⚠️ deuda de lint).
 
 ### 7. Build
 
@@ -751,14 +795,14 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
 
 ### Testing
 
-- [ ] Tests de AuthContext
-- [ ] Tests de Firestore services (CRUD schools, docentes, attendance)
-- [ ] Tests de formularios de novedades/incidentes
+- [x] Tests de AuthContext (hecho 01/09/2026, ver sección arriba)
+- [x] Tests de Firestore services (CRUD schools, docentes, attendance) (hecho 01/09/2026 + ampliado 02/09/2026)
+- [x] Tests de formularios de novedades/incidentes (hecho 01/09/2026 con el refactor de feedback)
 
 ### Mejoras futuras
 
-- [ ] Evaluar reducir bundle de Firebase (~930KB monolítico)
-- [ ] Evaluar índices compuestos adicionales
+- [x] Evaluar reducir bundle de Firebase (~930KB monolítico) (medido 01/09/2026: 161 KB gzip real, ver arriba)
+- [x] Evaluar índices compuestos adicionales (auditado 02/09/2026: NO faltan índices; listado real verificado arriba)
 - [x] Extender marcador offline-sync a novedades y asistencias (hecho 24/08/2026:
       mismo patrón que incidentes — `savedOffline` + `markOfflineWrite()` + mensaje
       específico en AttendanceForm, AsistenciaDocentes y Novedades; ConnectionBanner
@@ -770,11 +814,11 @@ El type `School` de `@/types` fue renombrado a `SchoolType` en `GlobalSearch.tsx
       compartidos `validateImageFile` / `isSafeDataUrl` en utils/image.ts, aplicados
       en Incidentes, Fotos y AsistenciaDocentes: rechazo de no-imágenes y >20MB al
       seleccionar + guarda post-compresión contra el límite de 1MB/doc Firestore)
-- [ ] Novedades/Incidentes: feedback cuando user context falta
-- [ ] SupervisorSchoolDetail: descomponer componente (634 líneas)
-- [ ] SupervisorSchoolDetail: hooks de feedback separados (statusOp reutilizado)
-- [ ] SupervisorUsers: sort controls en lista
-- [ ] Login: focus management después de error
+- [x] Novedades/Incidentes: feedback cuando user context falta (hecho 01/09/2026, ver arriba)
+- [x] SupervisorSchoolDetail: descomponer componente (hecho 01/09/2026, ver arriba)
+- [x] SupervisorSchoolDetail: hooks de feedback separados (hecho 01/09/2026, ver arriba)
+- [x] SupervisorUsers: sort controls en lista (hecho 01/09/2026, ver arriba)
+- [x] Login: focus management después de error (hecho 01/09/2026, ver arriba)
 - [ ] Home: empty state para supervisor cuando no hay actividad
 
 ### Mobile

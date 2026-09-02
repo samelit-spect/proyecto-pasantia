@@ -169,17 +169,23 @@ export function subscribeTodayAttendances(callback) {
 
 ## 5. Consultas que requieren índices compuestos
 
-Combinar `where` + `orderBy` en campos distintos exige **índices compuestos** creados en Firebase Console (documentados en `documentation/05_base_datos.md`):
+Combinar `where` + `orderBy` en campos distintos exige **índices compuestos** creados
+en Firebase Console. Listado **verificado contra producción** (02/09/2026) con
+`npx firebase firestore:indexes --project sipnam-proyecto` (coincide con
+`firestore.indexes.json`):
 
 | Consulta | Índice |
 |---|---|
-| `getSchools` | `activa` + `nombre` |
-| `getAttendancesBySchool` | `escuelaId` + `fecha` (range + orderBy) |
-| `getNewsBySchool` | `escuelaId` + `fecha` |
-| `getIncidentsBySchool` | `escuelaId` + `fecha` |
-| `getDocenteAttendancesBySchool` | `escuelaId` + `fecha` |
-| `getFotosBySchool` | `escuelaId` + `createdAt` |
+| `getAttendancesBySchool` | `asistencias`: `escuelaId` + `fecha` (asc + desc) |
+| `getDocenteAttendancesBySchool` | `asistencia_docentes`: `escuelaId` + `fecha` (asc + desc) |
+| `getNewsBySchool` | `novedades`: `escuelaId` + `fecha` (asc + desc) |
+| `getIncidentsBySchool` | `incidentes`: `escuelaId` + `fecha` (asc + desc) |
+| `subscribeIncidentsByStatus` | `incidentes`: `estado` + `fecha` (asc + desc) |
+| Fotos del día | `fotos`: `escuelaId` + `fecha` + `createdAt` (asc + asc + desc) |
+| `getFotosBySchool` / `subscribeFotosBySchool` | `fotos`: `escuelaId` + `createdAt` (asc + desc) |
 
+> `getSchools()` y `getDocentesBySchool()` **NO** requieren compuesto: ordenan **en
+> memoria** (no usan `orderBy`). No existen compuestos para `escuelas` ni `docentes`.
 > Si una consulta falla, la consola de Firestore sugiere el índice a crear.
 
 ---
