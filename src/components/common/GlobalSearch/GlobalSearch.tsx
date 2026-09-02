@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useViewTransitionState } from 'react-router-dom';
 import { Search, X, School, Users, User, ArrowRight } from 'lucide-react';
 import { getSchools, getAllUsers, getAllDocentes } from '@/services/api/firestore';
 import type { School as SchoolType, UserProfile, Docente } from '@/types';
@@ -31,6 +31,63 @@ const scoreField = (field: string | undefined, q: string): number => {
   if (nf.startsWith(q)) return 3;
   if (nf.split(/\s+/).some((word) => word.startsWith(q))) return 2;
   return 1;
+};
+
+const ICONS = {
+  escuela: <School size={16} />,
+  usuario: <Users size={16} />,
+  docente: <User size={16} />,
+};
+
+const TYPE_LABELS = {
+  escuela: 'Escuela',
+  usuario: 'Usuario',
+  docente: 'Docente',
+};
+
+/**
+ * Ítem de resultado: es un sub-componente con estado porque
+ * useViewTransitionState(respeta.to) debe llamarse incondicionalmente.
+ * Los resultados que aterrizan en el detalle de una escuela (escuela o
+ * docente) morfean con el shared element "school-hero" de la hero.
+ */
+const SearchResultItem = ({
+  result,
+  index,
+  selected,
+  renderLabel,
+  onSelect,
+  onHover,
+}: {
+  result: SearchResult;
+  index: number;
+  selected: boolean;
+  renderLabel: (result: SearchResult) => React.ReactNode;
+  onSelect: (result: SearchResult) => void;
+  onHover: (index: number) => void;
+}) => {
+  const isTransitioning = useViewTransitionState(result.to);
+  const morphable = result.type !== 'usuario';
+
+  return (
+    <button
+      key={`${result.type}-${result.label}-${index}`}
+      className={`global-search__result ${selected ? 'global-search__result--selected' : ''} ${morphable && isTransitioning ? 'global-search__result--morphing' : ''}`}
+      onClick={() => onSelect(result)}
+      onMouseEnter={() => onHover(index)}
+    >
+      <span className={`global-search__result-icon global-search__result-icon--${result.type}`}>
+        {ICONS[result.type]}
+      </span>
+      <div className="global-search__result-text">
+        <span className="global-search__result-label">{renderLabel(result)}</span>
+        <span className="global-search__result-sublabel">
+          {TYPE_LABELS[result.type]} · {result.sublabel}
+        </span>
+      </div>
+      <ArrowRight size={14} className="global-search__result-arrow" />
+    </button>
+  );
 };
 
 const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
@@ -151,18 +208,6 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
 
   if (!open) return null;
 
-  const typeIcons = {
-    escuela: <School size={16} />,
-    usuario: <Users size={16} />,
-    docente: <User size={16} />,
-  };
-
-  const typeLabels = {
-    escuela: 'Escuela',
-    usuario: 'Usuario',
-    docente: 'Docente',
-  };
-
   const renderLabel = (result: SearchResult) => {
     const q = query.trim();
     if (!q) return result.label;
@@ -205,25 +250,15 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
           )}
           {!loading &&
             results.map((result, i) => (
-              <button
+              <SearchResultItem
                 key={`${result.type}-${result.label}-${i}`}
-                className={`global-search__result ${i === selectedIndex ? 'global-search__result--selected' : ''}`}
-                onClick={() => handleSelect(result)}
-                onMouseEnter={() => setSelectedIndex(i)}
-              >
-                <span
-                  className={`global-search__result-icon global-search__result-icon--${result.type}`}
-                >
-                  {typeIcons[result.type]}
-                </span>
-                <div className="global-search__result-text">
-                  <span className="global-search__result-label">{renderLabel(result)}</span>
-                  <span className="global-search__result-sublabel">
-                    {typeLabels[result.type]} · {result.sublabel}
-                  </span>
-                </div>
-                <ArrowRight size={14} className="global-search__result-arrow" />
-              </button>
+                result={result}
+                index={i}
+                selected={i === selectedIndex}
+                renderLabel={renderLabel}
+                onSelect={handleSelect}
+                onHover={setSelectedIndex}
+              />
             ))}
           {!loading && !query.trim() && (
             <p className="global-search__hint">

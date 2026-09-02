@@ -185,10 +185,22 @@
   opacity: 1;
 }
 
+/* Mientras se navega al detalle de una escuela, el resultado es el shared
+   element del morph hacia la hero (mismo nombre que .supervisor__header--hero). */
+.global-search__result--morphing {
+  view-transition-name: school-hero;
+}
+
 @media (max-width: 480px) {
   .global-search__overlay {
     padding-top: 5vh;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-search__result--morphing {
+    view-transition-name: none;
   }
 }
