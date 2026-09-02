@@ -37,12 +37,17 @@
   border-radius: var(--radius-md);
   transition:
     color 0.15s,
-    border-color 0.15s;
+    border-color 0.15s,
+    transform 0.1s ease;
 }
 
 .supervisor-schools__users-link:hover {
   color: var(--text-color);
   border-color: var(--text-secondary);
+}
+
+.supervisor-schools__users-link:active {
+  transform: scale(0.97);
 }
 
 .supervisor-schools__backup {
@@ -385,6 +390,11 @@
   text-align: center;
   /* Empuja las acciones al fondo cuando la grila estira la card */
   flex: 1;
+  transition: transform 0.1s ease;
+}
+
+.supervisor-schools__card-link:active {
+  transform: scale(0.97);
 }
 
 .supervisor-schools__card-actions {
