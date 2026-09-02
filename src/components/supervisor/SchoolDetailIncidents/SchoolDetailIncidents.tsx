@@ -162,6 +162,7 @@ const SchoolDetailIncidents = ({
             // Cerramos el diálogo de inmediato para no bloquear la UI con el
             // overlay mientras se actualiza en Firestore; el <select> muestra
             // el nuevo valor vía `applying` hasta que termine.
+            console.debug('[inc-confirm] clicked', pc);
             setPendingChange(null);
             setApplying(pc);
             onStatusChange(pc.incidentId, pc.newStatus)?.finally(() => setApplying(null));
