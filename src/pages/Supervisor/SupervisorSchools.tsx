@@ -20,6 +20,7 @@ import {
 import Button from '@/components/common/Button/Button';
 import { useToast } from '@/context/ToastContext';
 import { useHaptic } from '@/hooks/useHaptic';
+import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import {
   getSchools,
   addSchool,
@@ -57,6 +58,20 @@ interface SchoolCardProps {
   onEdit: (school: SchoolType) => void;
   onDelete: (school: SchoolType) => void;
 }
+
+/**
+ * Contador del resumen del día: hace un pequeño "pop" cada vez que el valor
+ * sube en vivo (evento del snapshot). Gateado por useAmbientMotion para no
+ * animar en conexiones débiles u offline.
+ */
+const LiveCount = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
+  const ambient = useAmbientMotion();
+  return (
+    <span key={ambient ? value : 'static'} className={`supervisor-schools__summary-count ${ambient ? 'supervisor-schools__bump' : ''}`}>
+      {value} {suffix}
+    </span>
+  );
+};
 
 const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps) => {
   const to = `/supervisor/escuela/${school.id}`;
@@ -386,9 +401,7 @@ const SupervisorSchools = () => {
                 </div>
                 <div className="supervisor-schools__summary-info">
                   <span className="supervisor-schools__summary-title">Asistencias</span>
-                  <span className="supervisor-schools__summary-count">
-                    {recentAttendances.length} hoy
-                  </span>
+                  <LiveCount value={recentAttendances.length} suffix="hoy" />
                 </div>
               </div>
               <div className="supervisor-schools__summary-list" ref={attListRef}>
@@ -416,7 +429,7 @@ const SupervisorSchools = () => {
                 </div>
                 <div className="supervisor-schools__summary-info">
                   <span className="supervisor-schools__summary-title">Novedades</span>
-                  <span className="supervisor-schools__summary-count">{recentNews.length} hoy</span>
+                  <LiveCount value={recentNews.length} suffix="hoy" />
                 </div>
               </div>
               <div className="supervisor-schools__summary-list" ref={newsListRef}>
@@ -442,9 +455,7 @@ const SupervisorSchools = () => {
                 </div>
                 <div className="supervisor-schools__summary-info">
                   <span className="supervisor-schools__summary-title">Incidentes</span>
-                  <span className="supervisor-schools__summary-count">
-                    {recentIncidents.length} hoy
-                  </span>
+                  <LiveCount value={recentIncidents.length} suffix="hoy" />
                 </div>
               </div>
               <div className="supervisor-schools__summary-list" ref={incListRef}>

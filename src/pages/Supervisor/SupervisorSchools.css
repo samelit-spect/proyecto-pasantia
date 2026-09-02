@@ -557,8 +557,34 @@
   view-transition-name: school-hero;
 }
 
+/* Rebote: al subir el valor en vivo el span se remonta (key) y repite la
+   animación; solo transform/opacity. */
+.supervisor-schools__bump {
+  display: inline-block;
+  animation: summary-count-bump 0.3s ease-out;
+}
+
+@keyframes summary-count-bump {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  35% {
+    transform: translateY(-4px) scale(1.25);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .supervisor-schools__card--transitioning {
     view-transition-name: none;
+  }
+
+  .supervisor-schools__bump {
+    animation: none;
   }
 }
