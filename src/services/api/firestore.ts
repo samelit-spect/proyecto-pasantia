@@ -874,6 +874,10 @@ export interface DailyCounts {
   incidentes: number[];
 }
 
+/** "YYYY-MM-DD" en zona horaria local (no UTC): evita corrimientos de día en gráficos. */
+const localISODate = (d: Date): string =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void): Unsubscribe {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
@@ -883,7 +887,7 @@ export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void):
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    dates.push(d.toISOString().split('T')[0]);
+    dates.push(localISODate(d));
   }
 
   const buildCounts = (
@@ -896,17 +900,17 @@ export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void):
     const incidentes = dates.map(() => 0);
 
     attendances.forEach((a) => {
-      const key = a.fecha.toDate().toISOString().split('T')[0];
+      const key = localISODate(a.fecha.toDate());
       const idx = dates.indexOf(key);
       if (idx >= 0) asistencias[idx]++;
     });
     newsList.forEach((n) => {
-      const key = n.fecha.toDate().toISOString().split('T')[0];
+      const key = localISODate(n.fecha.toDate());
       const idx = dates.indexOf(key);
       if (idx >= 0) novedades[idx]++;
     });
     incidentsList.forEach((i) => {
-      const key = i.fecha.toDate().toISOString().split('T')[0];
+      const key = localISODate(i.fecha.toDate());
       const idx = dates.indexOf(key);
       if (idx >= 0) incidentes[idx]++;
     });
@@ -957,7 +961,7 @@ export function subscribeLast30DaysAttendance(
   for (let i = 29; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    dates.push(d.toISOString().split('T')[0]);
+    dates.push(localISODate(d));
   }
 
   const tsStart = Timestamp.fromDate(thirtyDaysAgo);
@@ -971,7 +975,7 @@ export function subscribeLast30DaysAttendance(
     (snap) => {
       const counts = dates.map((date) => ({ date, count: 0 }));
       snap.docs.forEach((d) => {
-        const key = (d.data().fecha as Timestamp).toDate().toISOString().split('T')[0];
+        const key = localISODate((d.data().fecha as Timestamp).toDate());
         const idx = dates.indexOf(key);
         if (idx >= 0) counts[idx].count++;
       });

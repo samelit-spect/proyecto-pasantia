@@ -427,7 +427,11 @@ describe('firestore services — fotos y suscripciones', () => {
     expect(callback).toHaveBeenCalledTimes(1);
     const data = callback.mock.calls[0][0] as { dates: string[]; asistencias: number[] };
     expect(data.dates).toHaveLength(7);
-    const todayIdx = data.dates.indexOf(today.toISOString().split('T')[0]);
+    const toLocalDate = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+        d.getDate()
+      ).padStart(2, '0')}`;
+    const todayIdx = data.dates.indexOf(toLocalDate(today));
     expect(data.asistencias[todayIdx]).toBe(1);
     expect(typeof unsubscribe).toBe('function');
   });
