@@ -255,6 +255,7 @@
 }
 
 .supervisor-detail__verify-badge {
+  display: inline-block;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--accent-green-text);
@@ -262,6 +263,26 @@
   border: 1px solid var(--accent-green-surface);
   border-radius: var(--radius-full);
   padding: 0.125rem 0.625rem;
+  animation: verify-badge-pop 0.35s ease-out;
+}
+
+/* El badge se monta al confirmarse la verificación: entra con un pop y un
+   destello verde suave alrededor (solo transform/opacity/box-shadow). */
+@keyframes verify-badge-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+    box-shadow: 0 0 0 0 var(--accent-green-surface);
+  }
+  55% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 6px transparent;
+  }
 }
 
 .supervisor-detail__verify-pending {
@@ -885,6 +906,10 @@
   }
 
   .supervisor-detail__view {
+    animation: none;
+  }
+
+  .supervisor-detail__verify-badge {
     animation: none;
   }
 }
