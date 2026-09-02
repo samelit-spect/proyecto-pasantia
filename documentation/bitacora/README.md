@@ -38,12 +38,14 @@
 | `04_semana_4.md` | Semana 4 (19–22 ago): PWA, notif, animaciones |
 | `05_semana_5.md` | Semana 5 (24–27 ago): login responsive, onboarding, cierre por inactividad |
 | `06_semana_6.md` | Semana 6 (29 ago): marca de la PWA, fixes de incidentes/exportación y Web Push (FCM) |
+| `07_semana_7.md` | Semana 7 (1 sep): cierre de tests, bundle de Firebase, foto diaria director/vice, dark mode |
 
 ## Semanas futuras
 
 | Archivo | Período | Estado |
 |---|---|---|
 | `06_semana_6.md` | 29 ago | Completada |
+| `07_semana_7.md` | 1 sep | En curso |
 
 ## Cómo convertir a Word
 

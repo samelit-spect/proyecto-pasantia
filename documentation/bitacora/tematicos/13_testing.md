@@ -31,13 +31,22 @@
 
 | Archivo | Qué cubre |
 |---|---|
-| `Login.test.tsx` | Formulario de inicio de sesión, validación y manejo de errores |
-| `Novedades.test.tsx` / `Incidentes.test.tsx` | Formularios de registro y su validación |
+| `Login.test.tsx` | Formulario de inicio de sesión, validación y manejo de errores (incluye foco al mensaje de error tras login fallido) |
+| `Novedades.test.tsx` / `Incidentes.test.tsx` | Formularios de registro, su validación y el feedback cuando falta user context |
 | `AttendanceRow.test.tsx` | Fila de asistencia (estados, motivo si ausente) |
 | `IncidentHistory.test.tsx` | Historial de incidentes y cambio de estado |
 | `StatusBadge.test.tsx` | Renderizado según los 4 estados |
 | `RetentionBanner.test.tsx` | Banner de retención/avisos |
 | `NotFound.test.tsx` | Página 404 |
+| `SchoolSelect.test.tsx` | Selector de escuelas (carga, selección, lista vacía) |
+
+## 5. Tests de lógica / servicios (01/09/2026)
+
+| Archivo | Qué cubre |
+|---|---|
+| `AuthContext.test.tsx` | Contexto de autenticación: arranque sin sesión, carga de perfil desde `usuarios/{uid}`, login con permisos, logout y usuario sin perfil (mocks de `firebase/auth` + `firebase/firestore`) |
+| `firestore.test.ts` | Servicios de Firestore (mocks de bajo nivel): CRUD de escuelas/usuarios/docentes/incidentes/asistencias/fotos, actor en auditoría, `historialEstados` con `arrayUnion`, notificación al supervisor y suscripciones `subscribe*` |
+| `componentTests.test.tsx` | `SchoolDetailToday` (vista Hoy), `SchoolDetailFeedback`, `useFeedback` y `SchoolSelect` |
 
 ## 5. Smoke test global (`all-components.smoke.test.tsx`)
 
@@ -57,7 +66,15 @@ El test más importante: **monta TODAS las páginas y componentes comunes** para
 - Objetivo: Lines/Functions/Statements > 60%, Branches > 50%.
 - Para el MVP la cobertura **no es bloqueante**; se prioriza testear la lógica crítica (validación, auth, servicios, formularios) y el smoke test global.
 
-## 7. Tiempo estimado por tarea
+## 7. Estado actual de la suite (01/09/2026)
+
+- **176/176 tests en verde** (eran 115). Esquema: unitarios (validación, constantes,
+  imagen) + componentes (Login, formularios, incidentes, badges, banners, SchoolSelect)
+  + lógica/servicios (AuthContext, firestore, componentTests) + smoke global.
+- Verificación completa tras cada cambio: `npx tsc -b --noEmit` + `npx vitest run` +
+  `npm run lint`.
+
+## 8. Tiempo estimado por tarea
 
 | Tarea | Cuándo | Tiempo estimado |
 |---|---|---|
@@ -65,10 +82,11 @@ El test más importante: **monta TODAS las páginas y componentes comunes** para
 | Tests unitarios (validación, constantes, imagen) | Semana 3 | ~3 h |
 | Tests de componentes (Login, Novedades, Incidentes, etc.) | Semanas 3-5 | ~5 h |
 | Smoke test global (mocks + montaje de todas las pantallas) | Semanas 4-5 | ~6 h |
-| **Total aproximado** | - | **~1.5-2 días** |
+| Tests de AuthContext + Firestore services + componentes | Semana 7 | ~5 h |
+| **Total aproximado** | - | **~2.5 días** |
 
-## 8. Pendientes y observaciones
+## 9. Pendientes y observaciones
 
 - Agregar tests de integración de servicios (`firestore.ts` con emulador de Firestore).
-- Agregar tests más específicos de formularios (submit, validación en pantalla).
+- Evaluar los 11 errores eslint `react-compiler` pre-existentes (setState síncrono en effects).
 - Considerar generación de reporte de cobertura para visualizar avance.

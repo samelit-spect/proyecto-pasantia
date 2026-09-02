@@ -49,6 +49,19 @@ spinners ya estaban pulidos.
 Se dejaron a propósito los colores de marca que funcionan en ambos modos (ámbar de
 banners/vacaciones, escala del heatmap, confeti de éxito).
 
+### ✅ Fix: fecha por defecto "futura" en Novedades/Incidentes/Fotos de noche (01/09/2026)
+
+`Novedades.tsx`, `Incidentes.tsx` y `Fotos.tsx` inicializaban la fecha con
+`new Date().toISOString().split('T')[0]` (día **UTC**) mientras el validador
+(`todayISO()` en `validation.ts`) compara contra el día **local**. En
+UTN-3 (Argentina) de ~21:00 a medianoche el día UTC ya es "mañana" local → el
+formulario nacía con fecha inválida y no se podía guardar; la suite fallaba 3 tests
+solo si se corría en ese horario. **Fix:** las 3 páginas usan `todayISO()` como
+default (convención de asistencias y `DatePicker`).
+
+> Regla para futuro: para valores de FECHA-por-defecto usar siempre `todayISO()`
+> (día local), NO `new Date().toISOString().split('T')[0]` (día UTC).
+
 ### ✅ Foto diaria accesible para director/vice (01/09/2026)
 
 **Decisión de producto:** en producción habrá **1 sola cuenta por escuela** (rol
