@@ -115,6 +115,7 @@ const SchoolDetailIncidents = ({
                   <span className="supervisor-detail__status-label">Estado</span>
                   <select
                     className="supervisor-detail__status-select"
+                    name={`incident-status-${inc.id}`}
                     value={displayValue(inc)}
                     disabled={statusUpdatingId === inc.id}
                     onChange={(e) => handleSelectChange(inc.id, e.target.value as IncidentStatus)}
