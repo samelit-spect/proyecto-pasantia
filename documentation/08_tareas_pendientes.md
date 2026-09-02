@@ -1,6 +1,6 @@
 # 08 - Tareas Pendientes
 
-> Última actualización: 01/09/2026
+> Última actualización: 02/09/2026
 
 ---
 
@@ -304,7 +304,71 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
 
 ---
 
+## Completado — Detalles visuales PWA round 2 (02/09/2026)
+
+Implementación de 7 mejoras de micro-interacción/morph, una por commit, todas
+respetando `prefers-reduced-motion` (y `useAmbientMotion` donde aplica). Detalle
+técnico por ítem en `documentation/18_animaciones.md` (filas 14-20):
+
+- ✅ `bbc4bc7` A1 press feedback estándar: regla global
+      `button:not(:disabled):active { transform: scale(.97) }` + `:active` en los
+      links-tarjeta del panel supervisor (school card + link de usuarios)
+- ✅ `ddaf45a` A2 foco suave en campos de texto: anillo del tema en `:focus`
+      (`box-shadow 0 0 0 2px color-mix(primary 30%)`), útil en touch donde no hay
+      `:focus-visible` de teclado
+- ✅ `451c2d5` A3 pop al alternar presente/ausente: la etiqueta se re-anima (key
+      por estado) + color verde/rojo del veredicto
+- ✅ `6da1ece` A4 tabs Hoy/Histórico: píldora deslizante posicionada en absoluto
+      (`translateX(100%)`) + crossfade del contenido + roles tablist/tab/tabpanel
+- ✅ `38910d9` B5 morph shared element desde GlobalSearch: resultados que van al
+      detalle de escuela adoptan `view-transition-name: school-hero` (sub-componente
+      `SearchResultItem` con `useViewTransitionState`)
+- ✅ `09b3176` C6 rebote de contadores del resumen del día: `LiveCount` re-anima
+      (key por valor) gateado por `useAmbientMotion` (no anima offline/3g/reduced)
+- ✅ `a57c069` C7 destello de éxito al verificar: badge "Verificada" monta con pop +
+      halo verde que se desvanece
+- ✅ `12543ff` docs: `18_animaciones.md` con el estado de las 7 mejoras
+
+Suite completa: **176/176 en verde**, tsc sin errores. Lint: los archivos tocados
+no introdujeron errores nuevos (verificado contra baseline).
+
+---
+
 ## Pendiente
+
+### ⚠️ Deuda de lint pre-existente (16 errores — NO introducidos en esta sesión)
+
+Al revisar el proyecto para entrega (02/09/2026) se confirmó que el lint del repo
+tiene **16 errores que ya existían antes de la sesión de animaciones** (verificado
+comparando contra el baseline). No bloquean el build ni los tests (`tsc` y
+`vitest` pasan), pero conviene limpiarlos antes del entregable final. Desglose:
+
+**`react-hooks/set-state-in-effect` (11 errores)** — agrupados por patrón:
+- `GlobalSearch.tsx` (2): `setLoading(true)` y `setResults([])` dentro de effects
+- `SupervisorSchools.tsx` (1): effect de carga
+- `SupervisorUsers.tsx` (1)
+- `Button.tsx` (1)
+- `ChangelogModal.tsx` (1)
+- `NotificationBell.tsx` (2)
+- `SuccessAnimation.tsx` (1): `setState` + `onComplete?.()` en effect
+- `AttendanceForm.tsx` (1): reset con `setErrors({})`
+- `useFormDraft.ts` (1)
+
+Sugerencia: muchos son "sincronizar estado cuando cambia una prop/query" → mover a
+derivación durante render o _key_ los efectos. El de `SuccessAnimation` usa un
+timer → refactorizable con `useEffect` que no setee estado en el mismo tick.
+
+**`@typescript-eslint/no-explicit-any` (3 errores)** en `pdfExport.ts` (líneas
+79/103/130): tipar los argumentos genéricos de jspdf-autotable.
+
+**`react-hooks/purity` (1)** en `useFormDraft.ts:79`: `Date.now()` llamado durante
+render → extraer a variable memoizada/estado.
+
+**`react-hooks/preserve-manual-memoization` (1)** en `Home.tsx:326`: dependencia
+inferida (`profile`) no coincide con la manual (`hasRole, profile?.escuelaId`).
+
+> Nota: no se pidió refactorizarlos en esta sesión para no arriesgar regresiones;
+> quedan anotados como tarea futura prioritaria.
 
 ### ✅ COMPLETADA — Notificaciones push (FCM): setup y verificación (31/08/2026)
 
@@ -347,7 +411,7 @@ Los 6 extras pedidos están implementados: /ayuda con glosario, prompt PWA intel
       → Resuelto 24/08/2026: el test esperaba el texto "Ingresando..." de un diseño
       viejo del botón; actualizado para verificar el spinner (`.btn__spinner`) y la
       clase `btn--loading` del diseño actual. Suite completa: **115/115 en verde**.
-- [ ] Evaluar errores eslint react-compiler pre-existentes (setState síncrono en effects, 11 errores)
+- [ ] Evaluar errores eslint react-compiler pre-existentes (16 errores: 11 setState síncrono en effects + 3 `any` en pdfExport + 1 purity + 1 memoization — ver entrada ⚠️ deuda de lint arriba)
 
 ### Respaldo anual
 

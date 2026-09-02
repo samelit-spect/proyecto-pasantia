@@ -88,5 +88,7 @@ El test más importante: **monta TODAS las páginas y componentes comunes** para
 ## 9. Pendientes y observaciones
 
 - Agregar tests de integración de servicios (`firestore.ts` con emulador de Firestore).
-- Evaluar los 11 errores eslint `react-compiler` pre-existentes (setState síncrono en effects).
+- Evaluar los 16 errores eslint pre-existentes (11 `react-compiler` setState síncrono en
+  effects + 3 `any` en pdfExport + 1 purity + 1 memoization; detalle en
+  `08_tareas_pendientes.md` ⚠️ deuda de lint).
 - Considerar generación de reporte de cobertura para visualizar avance.

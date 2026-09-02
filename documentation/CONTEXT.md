@@ -681,7 +681,7 @@ El tipo `DocenteAttendance` tiene `fotoDataUrl` (base64 comprimido). No tiene `r
 
 ### 6. Lint
 
-Línea base actual: 12 problemas PRE-EXISTENTES (11 errores react-compiler por setState síncrono en effects + 1 warning `any` en pdfExport.ts). No "arreglarlos" silenciosamente; un cambio no debe agregar problemas nuevos.
+Línea base actual: 16 errores PRE-EXISTENTES (11 react-compiler por setState síncrono en effects + 3 `no-explicit-any` en pdfExport.ts + 1 `purity` en useFormDraft + 1 `preserve-manual-memoization` en Home) + 667 warnings prettier. Verificado contra baseline en la sesión de animaciones (02/09/2026): un cambio no agregó ningún problema nuevo. Detalle en `08_tareas_pendientes.md` (ver entrada ⚠️ deuda de lint).
 
 ### 7. Build
 

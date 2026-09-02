@@ -149,7 +149,8 @@ verde** (eran 115), lint limpio en los archivos tocados (solo warnings pre-exist
 - ⚠️ Esperar los **datos reales del supervisor** (17 escuelas + direcciones + 1
   supervisor) para el **seed inicial** y la prueba piloto.
 - Migración a Firebase v12.x: se evalúa **luego** (sesión siguiente).
-- Evaluar errores eslint react-compiler pre-existentes (11 errores de setState síncrono
-  en effects).
+- Evaluar errores eslint react-compiler pre-existentes (16 errores: 11 setState síncrono
+  en effects + 3 `any` en pdfExport + 1 purity + 1 memoization; detalle en
+  `08_tareas_pendientes.md` ⚠️ deuda de lint).
 - Respaldo anual: evaluar ZIP de fotos (el export CSV no incluye base64).
 - Preparación de la entrega y documentación final (incluye pasar la semana 7 a Word).
