@@ -458,16 +458,18 @@ export async function updateIncidentStatus(
   estadoAnterior?: IncidentStatus
 ): Promise<void> {
   const docRef = doc(db, COLLECTIONS.incidents, incidentId);
+  const entrada: Record<string, unknown> = {
+    estadoNuevo: newStatus,
+    cambiadoPor: actor.uid,
+    cambiadoPorNombre: actor.nombre,
+    fecha: Timestamp.now(),
+  };
+  if (estadoAnterior) entrada.estadoAnterior = estadoAnterior;
+
   await updateDoc(docRef, {
     estado: newStatus,
     updatedAt: Timestamp.now(),
-    historialEstados: arrayUnion({
-      estadoAnterior,
-      estadoNuevo: newStatus,
-      cambiadoPor: actor.uid,
-      cambiadoPorNombre: actor.nombre,
-      fecha: Timestamp.now(),
-    }),
+    historialEstados: arrayUnion(entrada),
   });
 }
 

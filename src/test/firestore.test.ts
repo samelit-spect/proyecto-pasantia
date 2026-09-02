@@ -297,6 +297,14 @@ describe('firestore services — incidentes', () => {
     expect(entry.estadoAnterior).toBe('en_analisis');
     expect(entry.cambiadoPor).toBe('sup-1');
   });
+
+  it('updateIncidentStatus sin estadoAnterior omite el campo', async () => {
+    await updateIncidentStatus('inc-1', 'resuelto', { uid: 'sup-1', nombre: 'Supervisor' });
+    const entry = mocks.arrayUnion.mock.calls[0][0] as Record<string, unknown>;
+    expect(entry.estadoAnterior).toBeUndefined();
+    expect(entry.estadoNuevo).toBe('resuelto');
+    expect(entry.cambiadoPor).toBe('sup-1');
+  });
 });
 
 describe('firestore services — docentes', () => {
