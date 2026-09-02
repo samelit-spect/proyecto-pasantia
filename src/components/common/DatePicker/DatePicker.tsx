@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { todayISO } from '@/utils/validation';
 import './DatePicker.css';
 
@@ -18,13 +19,15 @@ const DatePicker = ({
   min,
   max,
 }: DatePickerProps) => {
+  const inputId = useId();
+
   return (
     <div className="date-picker">
-      <label htmlFor="date-picker" className="date-picker__label">
+      <label htmlFor={inputId} className="date-picker__label">
         {label}
       </label>
       <input
-        id="date-picker"
+        id={inputId}
         type="date"
         className="date-picker__input"
         value={value}
