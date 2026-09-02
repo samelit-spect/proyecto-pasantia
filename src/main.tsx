@@ -11,8 +11,6 @@ import router from '@/routes';
 import '@/styles/global.css';
 import './index.css';
 
-console.info('[sipnam] build', 'diag-20260902-2');
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App>

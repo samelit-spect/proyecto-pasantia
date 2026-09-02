@@ -251,7 +251,6 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
   };
 
   const handleStatusChange = async (incidentId: string, newStatus: IncidentStatus) => {
-    console.debug('[inc-status] start', { incidentId, newStatus, hasProfile: !!profile });
     if (!profile) return;
     const estadoAnterior = incidents.find((inc) => inc.id === incidentId)?.estado;
     statusOp.start(incidentId);
@@ -266,13 +265,11 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
         ),
         INCIDENT_STATUS_CHANGE_TIMEOUT_MS
       );
-      console.debug('[inc-status] ok');
       setIncidents((prev) =>
         prev.map((inc) => (inc.id === incidentId ? { ...inc, estado: newStatus } : inc))
       );
       statusOp.end({ type: 'success', message: 'Estado del incidente actualizado.' });
     } catch (err) {
-      console.error('[inc-status] error', err);
       statusOp.end({
         type: 'error',
         message:

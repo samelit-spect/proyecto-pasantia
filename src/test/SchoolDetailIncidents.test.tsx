@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SchoolDetailIncidents from '@/components/supervisor/SchoolDetailIncidents/SchoolDetailIncidents';
 import type { Incident, IncidentStatus } from '@/types';
@@ -18,45 +18,32 @@ const makeIncident = (id = 'inc-1', estado: IncidentStatus = 'pendiente'): Incid
     estado,
   }) as unknown as Incident;
 
-beforeEach(() => {
-  // matchMedia con "matches: true" → reduced motion → AnimatePresence sin
-  // animaciones de salida (evita depender de timers reales en los tests).
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: true,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  });
-});
-
 interface HarnessProps {
-  initialIncidents: Incident[];
+  initialState?: IncidentStatus;
   handler: (id: string, status: IncidentStatus) => Promise<void>;
+  pending?: boolean;
 }
 
 // Simula al parent real (useSchoolDetailData): mantiene el estado optimista y
 // el updatingId mientras la escritura no termina.
-function Harness({ initialIncidents, handler }: HarnessProps) {
-  const [incidents, setIncidents] = useState<Incident[]>(initialIncidents);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+function Harness({ initialState, handler, pending }: HarnessProps) {
+  const [incidents, setIncidents] = useState<Incident[]>(() => [
+    makeIncident('inc-1', initialState ?? 'pendiente'),
+  ]);
+  const [updatingId, setUpdatingId] = useState<string | null>(pending ? 'inc-1' : null);
 
-  const onChange = async (id: string, status: IncidentStatus) => {
+  const onChange = (id: string, status: IncidentStatus) => {
     setUpdatingId(id);
-    try {
-      await handler(id, status);
-      setIncidents((prev) => prev.map((inc) => (inc.id === id ? { ...inc, estado: status } : inc)));
-    } catch {
-      // el componente debe recuperarse solo aunque el parent falle
-    } finally {
-      setUpdatingId(null);
-    }
+    return handler(id, status)
+      .then(() => {
+        setIncidents((prev) =>
+          prev.map((inc) => (inc.id === id ? { ...inc, estado: status } : inc))
+        );
+      })
+      .catch(() => {
+        // el componente debe recuperarse solo aunque el parent falle
+      })
+      .finally(() => setUpdatingId(null));
   };
 
   return (
@@ -71,73 +58,68 @@ function Harness({ initialIncidents, handler }: HarnessProps) {
   );
 }
 
-const renderHarness = (handler: HarnessProps['handler'], incidents?: Incident[]) =>
-  render(<Harness initialIncidents={incidents ?? [makeIncident()]} handler={handler} />);
+const renderHarness = (props: HarnessProps) => render(<Harness {...props} />);
 
-describe('SchoolDetailIncidents — cambio de estado', () => {
-  it('abre el ConfirmDialog al cambiar el estado y muestra el destino', () => {
-    renderHarness(() => Promise.resolve());
-    const select = screen.getByRole('combobox');
-    expect((select as HTMLSelectElement).value).toBe('pendiente');
+describe('SchoolDetailIncidents — cambio de estado por botones', () => {
+  it('muestra los estados alcanzables como botones y el actual solo como badge', () => {
+    renderHarness({ handler: () => Promise.resolve() });
 
-    fireEvent.change(select, { target: { value: 'en_gestion' } });
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(/¿Cambiar el estado a "En gestión"\?/)).toBeInTheDocument();
+    expect(screen.getByText('Pendiente')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'En análisis' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'En gestión' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Resuelto' })).toBeInTheDocument();
   });
 
-  it('cancelar cierra el diálogo y el select vuelve al estado real', () => {
-    renderHarness(() => Promise.resolve());
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'resuelto' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+  it('no muestra transiciones previas ni el estado actual como botón', () => {
+    renderHarness({ initialState: 'en_gestion', handler: () => Promise.resolve() });
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('pendiente');
+    expect(screen.getByRole('button', { name: 'Resuelto' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Pendiente' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'En análisis' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'En gestión' })).not.toBeInTheDocument();
   });
 
-  it('confirma, llama al handler y deja el select con el nuevo estado', async () => {
+  it('un toque llama al handler con el destino correcto', async () => {
     const handler = vi.fn().mockResolvedValue(undefined);
-    renderHarness(handler);
-    const select = screen.getByRole('combobox');
+    renderHarness({ handler });
 
-    fireEvent.change(select, { target: { value: 'en_gestion' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Cambiar estado' }));
+    fireEvent.click(screen.getByRole('button', { name: 'En gestión' }));
 
     expect(handler).toHaveBeenCalledWith('inc-1', 'en_gestion');
-
     await waitFor(() => {
-      expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('en_gestion');
+      expect(screen.getByText('En gestión')).toBeInTheDocument();
     });
-    expect((screen.getByRole('combobox') as HTMLSelectElement).disabled).toBe(false);
+    expect(screen.getByRole('button', { name: 'Resuelto' })).toBeInTheDocument();
   });
 
-  it('si la escritura falla, el select se rehabilita y vuelve al estado real', async () => {
+  it('si la escritura falla, los botones se rehabilitan y no hay nuevo estado', async () => {
     const handler = vi.fn().mockRejectedValue(new Error('denied'));
-    renderHarness(handler);
-    const select = screen.getByRole('combobox');
+    renderHarness({ handler });
 
-    fireEvent.change(select, { target: { value: 'en_gestion' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Cambiar estado' }));
+    fireEvent.click(screen.getByRole('button', { name: 'En gestión' }));
 
     await waitFor(() => {
-      expect((screen.getByRole('combobox') as HTMLSelectElement).disabled).toBe(false);
+      expect(
+        (screen.getByRole('button', { name: 'En gestión' }) as HTMLButtonElement).disabled
+      ).toBe(false);
     });
-    expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('pendiente');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByText('Pendiente')).toBeInTheDocument();
   });
 
-  it('mientras la escritura no termina el select queda deshabilitado y luego se libera', async () => {
-    let resolveOp!: () => void;
-    const pending = new Promise<void>((res) => (resolveOp = res));
-    renderHarness(() => pending);
-    const select = screen.getByRole('combobox');
+  it('mientras la escritura no termina los botones quedan deshabilitados', () => {
+    renderHarness({ handler: () => Promise.resolve(), pending: true });
 
-    fireEvent.change(select, { target: { value: 'en_gestion' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Cambiar estado' }));
+    for (const name of ['En análisis', 'En gestión', 'Resuelto']) {
+      expect((screen.getByRole('button', { name }) as HTMLButtonElement).disabled).toBe(true);
+    }
+  });
 
-    await waitFor(() => expect((select as HTMLSelectElement).disabled).toBe(true));
+  it('cuando el incidente está resuelto no hay transiciones disponibles', () => {
+    renderHarness({ initialState: 'resuelto', handler: () => Promise.resolve() });
 
-    resolveOp();
-    await waitFor(() => expect((select as HTMLSelectElement).disabled).toBe(false));
-    expect((select as HTMLSelectElement).value).toBe('en_gestion');
+    expect(screen.getByText('Sin transiciones disponibles')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'En análisis' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'En gestión' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Resuelto' })).not.toBeInTheDocument();
   });
 });

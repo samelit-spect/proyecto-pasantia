@@ -794,3 +794,37 @@ bloqueado para siempre.
 **Suite:** **186/186 en verde**, `tsc -b --noEmit` sin errores, `vite build` OK
 (PWA v1.3.0), lint en **16 errores + 665 warnings** (prettier re-formateó los
 archivos; no hay problemas nuevos).
+
+## Completado — Select de estado reemplazado por botones directos (02/09/2026)
+
+**Contexto:** tras el fix del timeout/finally el combo seguía sin responder en
+producción para el usuario (en incógnito no disparaba la escritura ni mostraba
+toast), mientras que la verificación de asistencia (escritura directa sin
+diálogo intermedio) funcionaba. Se decidió **eliminar el `<select>` + el
+ConfirmDialog** del flujo de cambio de estado y reemplazarlo por **botones
+directos** (un toque por estado alcanzable), siguiendo el mismo patrón que la
+verificación de asistencia que sí funciona en el entorno del usuario.
+
+**Cambios (commit):**
+- `SchoolDetailIncidents.tsx`: se eliminan `pendingChange`, `applying`, el
+  `<select>` con `name` único y el `ConfirmDialog`. Ahora para cada incidente se
+  muestra el `StatusBadge` (estado actual) y un grupo de botones `role="group"`
+  con los estados alcanzables (vía `INCIDENT_STATUS_ORDER` +
+  `canTransitionIncidentStatus`). Si no hay transiciones, se muestra "Sin
+  transiciones disponibles". El toque llama `onStatusChange(inc.id, estado)`
+  directamente; los botones quedan `disabled` mientras `statusUpdatingId === id`.
+- `SupervisorSchoolDetail.css`: `.status-select` reemplazado por
+  `.status-actions` (flex wrap) + `.status-btn` (píldoras con hover azul) +
+  `.status-none`.
+- Se retiró la instrumentación temporal (`[inc-*]` logs en
+  `useSchoolDetailData.ts` y huella de build en `main.tsx`).
+- Hook `useSchoolDetailData.ts` sin cambios de lógica: conserva el timeout de
+  15 s y el `setIncidents` optimista vía `statusOp`.
+
+**Tests (7 → 6) reescritos:** `SchoolDetailIncidents.test.tsx` (6) cubre:
+botones por estado alcanzable, ausencia de transiciones previas/actuales como
+botón, un toque llama al handler y actualiza el badge, rechazo rehabilita los
+botones sin cambiar el estado, botones deshabilitados mientras la escritura
+pende, e incidente resuelto sin transiciones.
+
+**Suite:** **187/187 en verde**, `tsc -b --noEmit` sin errores, `vite build` OK.
