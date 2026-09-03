@@ -246,6 +246,7 @@ const Historial = () => {
           <label className="historial__filter-label">
             Tipo novedad
             <select
+              name="tipo-novedad"
               className="historial__filter-select"
               value={tipoFilter}
               onChange={(e) => setTipoFilter(e.target.value as NovedadTipo | '')}
@@ -262,6 +263,7 @@ const Historial = () => {
           <label className="historial__filter-label">
             Categoría
             <select
+              name="categoria"
               className="historial__filter-select"
               value={categoriaFilter}
               onChange={(e) => setCategoriaFilter(e.target.value as IncidentCategoria | '')}
@@ -278,6 +280,7 @@ const Historial = () => {
           <label className="historial__filter-label">
             Urgencia
             <select
+              name="urgencia"
               className="historial__filter-select"
               value={urgenciaFilter}
               onChange={(e) => setUrgenciaFilter(e.target.value as IncidentUrgencia | '')}

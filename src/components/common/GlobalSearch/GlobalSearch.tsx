@@ -231,6 +231,7 @@ const GlobalSearch = ({ open, onClose }: { open: boolean; onClose: () => void })
           <Search size={18} className="global-search__icon" />
           <input
             ref={inputRef}
+            name="q"
             className="global-search__input"
             type="text"
             placeholder="Buscar escuelas, usuarios, docentes..."

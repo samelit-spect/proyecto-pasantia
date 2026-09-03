@@ -31,6 +31,7 @@ const AttendanceRow = ({
       <div className="attendance-row__info">
         {nombreEditable && onNombreChange ? (
           <input
+            name="nombre-docente"
             type="text"
             className="attendance-row__name-input"
             value={nombre}
@@ -57,6 +58,7 @@ const AttendanceRow = ({
         {!presente && (
           <div className="attendance-row__motivo">
             <input
+              name="motivo-ausencia"
               type="text"
               className={`attendance-row__motivo-input ${motivoError ? 'attendance-row__motivo-input--error' : ''}`}
               placeholder="Motivo de ausencia..."

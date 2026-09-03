@@ -278,6 +278,7 @@ const SupervisorUsers = () => {
           <label className="supervisor-users__filter">
             <span className="supervisor-users__filter-label">Escuela</span>
             <select
+              name="filter-escuela"
               className="supervisor-users__filter-select"
               value={filterSchoolId}
               onChange={(e) => setFilterSchoolId(e.target.value)}
@@ -295,6 +296,7 @@ const SupervisorUsers = () => {
             <label className="supervisor-users__filter">
               <span className="supervisor-users__filter-label">Ordenar</span>
               <select
+                name="ordenar"
                 className="supervisor-users__filter-select"
                 value={sortKey}
                 onChange={(e) => setSortKey(e.target.value as SortKey)}

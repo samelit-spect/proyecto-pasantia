@@ -57,6 +57,7 @@ const SchoolDetailIncidents = ({
         {resolvedCount > 0 && (
           <label className="supervisor-detail__filter">
             <input
+              name="mostrar-resueltos"
               type="checkbox"
               checked={showResolved}
               onChange={(e) => setShowResolved(e.target.checked)}

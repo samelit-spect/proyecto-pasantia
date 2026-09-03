@@ -55,6 +55,7 @@ const SchoolDetailDocentes = ({
       <label className="supervisor-detail__docente-field">
         Nombre
         <input
+          name="nombre"
           className="supervisor-detail__docente-input"
           type="text"
           placeholder="Nombre del docente"
@@ -65,6 +66,7 @@ const SchoolDetailDocentes = ({
       <label className="supervisor-detail__docente-field">
         Materia (opcional)
         <input
+          name="materia"
           className="supervisor-detail__docente-input"
           type="text"
           placeholder="Ej: Matemática"
