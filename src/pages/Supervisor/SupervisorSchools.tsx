@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type CSSProperties } from 'react';
 import { Link, useNavigate, useViewTransitionState } from 'react-router-dom';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useForm } from 'react-hook-form';
@@ -48,6 +48,17 @@ const schoolSchema = z.object({
 
 type SchoolFormData = z.infer<typeof schoolSchema>;
 
+/** Paleta de acentos por escuela (id -> color estable entre renders). */
+const SCHOOL_ACCENTS = ['blue', 'green', 'purple', 'teal', 'yellow', 'red'] as const;
+
+const schoolAccent = (id: string): (typeof SCHOOL_ACCENTS)[number] => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  return SCHOOL_ACCENTS[hash % SCHOOL_ACCENTS.length];
+};
+
 interface SchoolCardProps {
   school: SchoolType;
   att: number;
@@ -77,11 +88,22 @@ const LiveCount = ({ value, suffix = '' }: { value: number; suffix?: string }) =
 const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps) => {
   const to = `/supervisor/escuela/${school.id}`;
   const isTransitioning = useViewTransitionState(to);
+  const accent = schoolAccent(school.id);
 
   return (
     <div
-      className={`supervisor-schools__card ${isTransitioning ? 'supervisor-schools__card--transitioning' : ''}`}
+      className={`supervisor-schools__card supervisor-schools__card--${accent} ${
+        isTransitioning ? 'supervisor-schools__card--transitioning' : ''
+      }`}
+      style={
+        {
+          '--school-accent': `var(--accent-${accent}-text)`,
+          '--school-accent-surface': `var(--accent-${accent}-surface)`,
+          '--school-accent-bg': `var(--accent-${accent}-bg)`,
+        } as CSSProperties
+      }
     >
+      <div className="supervisor-schools__card-accent" aria-hidden="true" />
       <Link viewTransition to={to} className="supervisor-schools__card-link">
         <div className="supervisor-schools__card-icon">
           <School size={24} strokeWidth={1.5} />
