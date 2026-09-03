@@ -260,7 +260,7 @@ const SupervisorSchools = () => {
         onProgress: ({ label, current, total }) =>
           setExportProgressLabel(`Exportando ${label.toLowerCase()} (${current}/${total})...`),
       });
-      addToast('success', 'Respaldo generado: se descargaron los archivos CSV.');
+      addToast('success', 'Respaldo generado: se descargó el archivo ZIP con los CSV.');
     } catch {
       addToast('error', 'No se pudo completar la exportación. Intentá de nuevo.');
     } finally {
@@ -504,7 +504,7 @@ const SupervisorSchools = () => {
       <ConfirmDialog
         open={confirmExport}
         title="Exportar todos los datos"
-        message="Se descargarán 4 archivos CSV con los registros de todas las escuelas (asistencias, docentes, novedades e incidentes). Las fotos no se incluyen en el respaldo."
+        message="Se descargará un archivo ZIP con 4 CSV (asistencias, docentes, novedades e incidentes). Las fotos no se incluyen en el respaldo."
         confirmLabel="Descargar"
         variant="warning"
         onConfirm={handleExportAllConfirm}

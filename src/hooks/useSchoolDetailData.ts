@@ -347,7 +347,7 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
 
       if (type === 'asistencias') {
         const rows = await getAttendancesBySchool(schoolId, from, to);
-        downloadCsv(
+        await downloadCsv(
           `asistencias-${schoolSlug}-${rangeLabel}.csv`,
           ['Fecha', 'Cargado por', 'Presentes', 'Ausentes', 'Verificada'],
           rows.map((a) => {
@@ -363,7 +363,7 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
         );
       } else if (type === 'docentes') {
         const rows = await getDocenteAttendancesBySchool(schoolId, from, to);
-        downloadCsv(
+        await downloadCsv(
           `asistencia-docentes-${schoolSlug}-${rangeLabel}.csv`,
           ['Fecha', 'Cargado por', 'Foto', 'Verificada'],
           rows.map((a) => [
@@ -375,7 +375,7 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
         );
       } else if (type === 'novedades') {
         const rows = await getNewsBySchool(schoolId, from, to);
-        downloadCsv(
+        await downloadCsv(
           `novedades-${schoolSlug}-${rangeLabel}.csv`,
           ['Fecha', 'Tipo', 'Hora', 'Descripción', 'Cargado por'],
           rows.map((n) => [
@@ -388,7 +388,7 @@ export const useSchoolDetailData = ({ schoolId, profile }: UseSchoolDetailDataOp
         );
       } else {
         const rows = await getIncidentsBySchoolRange(schoolId, from, to);
-        downloadCsv(
+        await downloadCsv(
           `incidentes-${schoolSlug}-${rangeLabel}.csv`,
           ['Fecha', 'Categoría', 'Urgencia', 'Ubicación', 'Estado', 'Descripción', 'Cargado por'],
           rows.map((i) => [

@@ -1,4 +1,5 @@
-import { downloadCsv } from '@/utils/exportCsv';
+import { buildCsvString } from '@/utils/exportCsv';
+import { downloadZip } from '@/utils/downloadZip';
 import {
   getSchools,
   getAllAttendances,
@@ -63,82 +64,94 @@ export async function exportAllData({
   const schoolNames = new Map(schools.map((s) => [s.id, s.nombre]));
   const schoolNameOf = (escuelaId: string) => schoolNames.get(escuelaId) ?? 'Escuela desconocida';
 
+  const files: { name: string; content: string }[] = [];
+
   await report('Asistencias de gestión');
   const attendances = await getAllAttendances(parseDate(dateFrom), parseDate(dateTo, true));
-  downloadCsv(
-    `${filenameBase}-asistencias-gestion.csv`,
-    ['Escuela', 'Fecha', 'Cargado por', 'Presentes', 'Ausentes', 'Detalle', 'Verificada'],
-    attendances.map((a) => {
-      const presentes = a.registros.filter((r) => r.presente).length;
-      return [
-        schoolNameOf(a.escuelaId),
-        toDateLabel(a.fecha.toDate()),
-        a.cargadoPorNombre,
-        presentes,
-        a.registros.length - presentes,
-        attendanceDetail(a),
-        a.verificada ? 'Sí' : 'No',
-      ];
-    })
-  );
+  files.push({
+    name: `${filenameBase}-asistencias-gestion.csv`,
+    content: await buildCsvString(
+      ['Escuela', 'Fecha', 'Cargado por', 'Presentes', 'Ausentes', 'Detalle', 'Verificada'],
+      attendances.map((a) => {
+        const presentes = a.registros.filter((r) => r.presente).length;
+        return [
+          schoolNameOf(a.escuelaId),
+          toDateLabel(a.fecha.toDate()),
+          a.cargadoPorNombre,
+          presentes,
+          a.registros.length - presentes,
+          attendanceDetail(a),
+          a.verificada ? 'Sí' : 'No',
+        ];
+      })
+    ),
+  });
 
   await report('Asistencias de docentes');
   const docenteAttendances = await getAllDocenteAttendances(
     parseDate(dateFrom),
     parseDate(dateTo, true)
   );
-  downloadCsv(
-    `${filenameBase}-asistencia-docentes.csv`,
-    ['Escuela', 'Fecha', 'Cargado por', 'Con foto', 'Verificada'],
-    docenteAttendances.map((a: DocenteAttendance) => [
-      schoolNameOf(a.escuelaId),
-      toDateLabel(a.fecha.toDate()),
-      a.cargadoPorNombre,
-      a.fotoDataUrl ? 'Sí' : 'No',
-      a.verificada ? 'Sí' : 'No',
-    ])
-  );
+  files.push({
+    name: `${filenameBase}-asistencia-docentes.csv`,
+    content: await buildCsvString(
+      ['Escuela', 'Fecha', 'Cargado por', 'Con foto', 'Verificada'],
+      docenteAttendances.map((a: DocenteAttendance) => [
+        schoolNameOf(a.escuelaId),
+        toDateLabel(a.fecha.toDate()),
+        a.cargadoPorNombre,
+        a.fotoDataUrl ? 'Sí' : 'No',
+        a.verificada ? 'Sí' : 'No',
+      ])
+    ),
+  });
 
   await report('Novedades');
   const news = await getAllNews(parseDate(dateFrom), parseDate(dateTo, true));
-  downloadCsv(
-    `${filenameBase}-novedades.csv`,
-    ['Escuela', 'Fecha', 'Tipo', 'Hora', 'Descripción', 'Cargado por'],
-    news.map((n: News) => [
-      schoolNameOf(n.escuelaId),
-      toDateLabel(n.fecha.toDate()),
-      novedadTipoLabel(n.tipo),
-      n.hora || '',
-      n.descripcion,
-      n.cargadoPorNombre,
-    ])
-  );
+  files.push({
+    name: `${filenameBase}-novedades.csv`,
+    content: await buildCsvString(
+      ['Escuela', 'Fecha', 'Tipo', 'Hora', 'Descripción', 'Cargado por'],
+      news.map((n: News) => [
+        schoolNameOf(n.escuelaId),
+        toDateLabel(n.fecha.toDate()),
+        novedadTipoLabel(n.tipo),
+        n.hora || '',
+        n.descripcion,
+        n.cargadoPorNombre,
+      ])
+    ),
+  });
 
   await report('Incidentes');
   const incidents = await getAllIncidents(parseDate(dateFrom), parseDate(dateTo, true));
-  downloadCsv(
-    `${filenameBase}-incidentes.csv`,
-    [
-      'Escuela',
-      'Fecha',
-      'Categoría',
-      'Urgencia',
-      'Ubicación',
-      'Estado',
-      'Descripción',
-      'Cargado por',
-    ],
-    incidents.map((i: Incident) => [
-      schoolNameOf(i.escuelaId),
-      toDateLabel(i.fecha.toDate()),
-      incidentCategoriaLabel(i.categoria),
-      i.urgencia ? incidentUrgenciaLabel(i.urgencia) : '',
-      i.ubicacion || '',
-      incidentStatusLabel(i.estado),
-      i.descripcion,
-      i.cargadoPorNombre,
-    ])
-  );
+  files.push({
+    name: `${filenameBase}-incidentes.csv`,
+    content: await buildCsvString(
+      [
+        'Escuela',
+        'Fecha',
+        'Categoría',
+        'Urgencia',
+        'Ubicación',
+        'Estado',
+        'Descripción',
+        'Cargado por',
+      ],
+      incidents.map((i: Incident) => [
+        schoolNameOf(i.escuelaId),
+        toDateLabel(i.fecha.toDate()),
+        incidentCategoriaLabel(i.categoria),
+        i.urgencia ? incidentUrgenciaLabel(i.urgencia) : '',
+        i.ubicacion || '',
+        incidentStatusLabel(i.estado),
+        i.descripcion,
+        i.cargadoPorNombre,
+      ])
+    ),
+  });
+
+  downloadZip(`${filenameBase}.zip`, files);
 
   return TOTAL_STEPS;
 }
