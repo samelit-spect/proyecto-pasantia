@@ -10,6 +10,7 @@ import {
 } from '@/services/api/firestore';
 import type { Attendance, DocenteAttendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
+import EmptyState from '@/components/common/EmptyState/EmptyState';
 import SwipeableRow from '@/components/common/SwipeableRow/SwipeableRow';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import Pagination from '@/components/common/Pagination/Pagination';
@@ -323,7 +324,11 @@ const Historial = () => {
                 return (
                   <div className="historial__section-body">
                     {items.length === 0 ? (
-                      <div className="historial__empty">No hay registros.</div>
+                      <EmptyState
+                        icon="clipboard"
+                        title="Sin registros de asistencia"
+                        description="Aún no hay asistencias cargadas en el período seleccionado."
+                      />
                     ) : (
                       items.map((att) => (
                         <div key={att.id} className="historial__record">
@@ -381,7 +386,11 @@ const Historial = () => {
                 return (
                   <div className="historial__section-body">
                     {items.length === 0 ? (
-                      <div className="historial__empty">No hay registros.</div>
+                      <EmptyState
+                        icon="users"
+                        title="Sin asistencias de docentes"
+                        description="Aún no hay asistencias de docentes en el período seleccionado."
+                      />
                     ) : (
                       items.map((att) => (
                         <div key={att.id} className="historial__record">
@@ -442,7 +451,11 @@ const Historial = () => {
                 return (
                   <div className="historial__section-body">
                     {items.length === 0 ? (
-                      <div className="historial__empty">No hay registros.</div>
+                      <EmptyState
+                        icon="news"
+                        title="Sin novedades"
+                        description="Aún no hay novedades cargadas en el período seleccionado."
+                      />
                     ) : (
                       items.map((n) => (
                         <div key={n.id} className="historial__record">
@@ -492,7 +505,11 @@ const Historial = () => {
                 return (
                   <div className="historial__section-body">
                     {items.length === 0 ? (
-                      <div className="historial__empty">No hay registros.</div>
+                      <EmptyState
+                        icon="alert"
+                        title="Sin incidentes"
+                        description="Aún no hay incidentes cargados en el período seleccionado."
+                      />
                     ) : (
                       items.map((inc) => (
                         <SwipeableRow key={inc.id}>

@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import HolidayNotice from '@/components/common/HolidayNotice/HolidayNotice';
 import AttendanceRow from '@/components/common/AttendanceRow/AttendanceRow';
+import EmptyState from '@/components/common/EmptyState/EmptyState';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { todayISO } from '@/utils/validation';
 import { markOfflineWrite } from '@/utils/offlineQueue';
@@ -282,8 +283,15 @@ const AttendanceForm = ({
               <div className="attendance-form__loading">Cargando integrantes...</div>
             ) : entries.length === 0 ? (
               <div className="attendance-form__empty">
-                No se encontraron integrantes para esta escuela.
-                {mode === 'list' && ' Podés agregarlos con el botón + Agregar.'}
+                <EmptyState
+                  icon="users"
+                  title="Sin integrantes"
+                  description={
+                    mode === 'list'
+                      ? 'No se encontraron integrantes. Podés agregarlos con el botón + Agregar.'
+                      : 'No se encontraron integrantes para esta escuela.'
+                  }
+                />
               </div>
             ) : (
               <>

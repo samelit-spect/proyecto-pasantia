@@ -7,6 +7,8 @@ import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
 import HolidayNotice from '@/components/common/HolidayNotice/HolidayNotice';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
+import EmptyState from '@/components/common/EmptyState/EmptyState';
+import { ImagePlus } from 'lucide-react';
 import { todayISO } from '@/utils/validation';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { Foto } from '@/types';
@@ -165,7 +167,8 @@ const Fotos = () => {
 
         <div className="fotos__file">
           <label htmlFor="foto-file" className="fotos__file-label">
-            {file ? file.name : 'Seleccionar foto'}
+            <ImagePlus size={22} strokeWidth={1.5} className="fotos__file-icon" />
+            <span className="fotos__file-text">{file ? file.name : 'Seleccionar foto'}</span>
           </label>
           <input
             id="foto-file"
@@ -202,7 +205,11 @@ const Fotos = () => {
         ) : fotos === null ? (
           <FotosSkeleton />
         ) : fotos.length === 0 ? (
-          <div className="fotos__empty">No hay fotos cargadas para esta escuela y fecha.</div>
+          <EmptyState
+            icon="camera"
+            title="No hay fotos cargadas"
+            description="Aún no se registraron fotos para esta escuela y fecha."
+          />
         ) : (
           fotos.map((foto) => (
             <div key={foto.id} className="fotos__item">
