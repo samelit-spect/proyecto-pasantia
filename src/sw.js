@@ -1,4 +1,4 @@
-import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -14,7 +14,29 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
+// Navegación con NetworkFirst: siempre se intenta el index.html actual del
+// servidor para que los chunks dinámicos coincidan con el bundle recién
+// desplegado. Si hubo un nuevo deploy, el HTML viejo (que referenciaba
+// chunks que ya no existen) queda descartado y se evita el error
+// "Failed to fetch dynamically imported module". El precache solo se usa
+// como respaldo offline si no hay red.
+registerRoute(
+  new NavigationRoute(
+    new NetworkFirst({
+      cacheName: 'pages-cache',
+      plugins: [
+        {
+          cacheWillUpdate: async ({ response }) => {
+            if (!response || response.status !== 200 || response.type === 'opaque') {
+              return null;
+            }
+            return response;
+          },
+        },
+      ],
+    })
+  )
+);
 
 // Cache de lectura de Firestore (SÓLO GET): las escrituras (POST/PATCH, los
 // update de estado/verificación) salen directo por red para no interferir.
