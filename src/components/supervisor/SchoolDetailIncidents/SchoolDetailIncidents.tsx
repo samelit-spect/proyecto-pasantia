@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { Incident, IncidentStatus } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import FotoThumb from '@/components/common/FotoThumb/FotoThumb';
@@ -23,7 +23,7 @@ interface SchoolDetailIncidentsProps {
   exporting?: boolean;
 }
 
-const schoolDetailIncidents = ({
+const SchoolDetailIncidents = ({
   incidents,
   expandedSection,
   onToggle,
@@ -33,6 +33,12 @@ const schoolDetailIncidents = ({
   onExport,
   exporting,
 }: SchoolDetailIncidentsProps) => {
+  const [showResolved, setShowResolved] = useState(false);
+  const resolvedCount = incidents.filter((inc) => inc.estado === 'resuelto').length;
+  const visibleIncidents = showResolved
+    ? incidents
+    : incidents.filter((inc) => inc.estado !== 'resuelto');
+
   const reachableStatuses = (current: IncidentStatus): IncidentStatus[] =>
     INCIDENT_STATUS_ORDER.filter(
       (status) => status !== current && canTransitionIncidentStatus(current, status)
@@ -42,16 +48,28 @@ const schoolDetailIncidents = ({
     <>
       <AccordionSection
         title="Incidentes"
-        count={`${incidents.length} registros`}
+        count={`${visibleIncidents.length} registros`}
         isExpanded={expandedSection === 'incidentes'}
         onToggle={onToggle}
         onExport={onExport}
         exporting={exporting}
       >
-        {incidents.length === 0 ? (
-          <div className="supervisor-sub__empty">No hay registros de incidentes.</div>
+        {resolvedCount > 0 && (
+          <label className="supervisor-detail__filter">
+            <input
+              type="checkbox"
+              checked={showResolved}
+              onChange={(e) => setShowResolved(e.target.checked)}
+            />
+            Mostrar resueltos ({resolvedCount})
+          </label>
+        )}
+        {visibleIncidents.length === 0 ? (
+          <div className="supervisor-sub__empty">
+            {resolvedCount > 0 ? 'No hay incidentes abiertos.' : 'No hay registros de incidentes.'}
+          </div>
         ) : (
-          incidents.map((inc) => (
+          visibleIncidents.map((inc) => (
             <div key={inc.id} className="supervisor-sub__record supervisor-detail__incident">
               <div className="supervisor-sub__record-header">
                 <span className="supervisor-sub__record-date">
@@ -126,4 +144,4 @@ const schoolDetailIncidents = ({
   );
 };
 
-export default memo(schoolDetailIncidents);
+export default memo(SchoolDetailIncidents);

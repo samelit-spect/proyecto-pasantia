@@ -117,6 +117,8 @@ describe('SchoolDetailIncidents — cambio de estado por botones', () => {
   it('cuando el incidente está resuelto no hay transiciones disponibles', () => {
     renderHarness({ initialState: 'resuelto', handler: () => Promise.resolve() });
 
+    fireEvent.click(screen.getByRole('checkbox', { name: /Mostrar resueltos/i }));
+
     expect(screen.getByText('Sin transiciones disponibles')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'En análisis' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'En gestión' })).not.toBeInTheDocument();
