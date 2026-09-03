@@ -98,25 +98,6 @@
   color: var(--text-secondary);
 }
 
-.supervisor-schools__backup-controls {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.supervisor-schools__backup-controls > :first-child,
-.supervisor-schools__backup-controls > :nth-child(2) {
-  flex: 1;
-  min-width: 130px;
-}
-
-@media (max-width: 480px) {
-  .supervisor-schools__backup-controls .btn {
-    width: 100%;
-  }
-}
-
 .supervisor-schools__form {
   display: flex;
   flex-direction: column;
@@ -213,6 +194,96 @@
   color: var(--text-color);
   margin: 0 0 0.75rem;
 }
+
+.supervisor-schools__coverage {
+  padding: 1.25rem;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+}
+
+.supervisor-schools__coverage-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.supervisor-schools__coverage-title {
+  margin-bottom: 0.25rem;
+}
+
+.supervisor-schools__coverage-sub {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.supervisor-schools__coverage-badge {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent-blue-text);
+  background-color: var(--accent-blue-surface);
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-sm);
+}
+
+.supervisor-schools__coverage-bar {
+  height: 8px;
+  background-color: var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.875rem 0 1rem;
+}
+
+.supervisor-schools__coverage-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-blue-text));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.supervisor-schools__coverage-pending {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.supervisor-schools__coverage-pending-label {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: var(--accent-red-text);
+}
+
+.supervisor-schools__coverage-pending-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.supervisor-schools__coverage-pending-item {
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.125rem 0.625rem;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.supervisor-schools__coverage-pending-item:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
 
 .supervisor-schools__summary {
   display: grid;

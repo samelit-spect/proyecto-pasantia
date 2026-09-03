@@ -54,11 +54,11 @@ const RetentionBanner = () => {
               <p className="retention-banner__title">Borrado anual de datos programado</p>
               <p className="retention-banner__text">
                 El {purgeDate} se vaciarán los registros del sistema para liberar la base de datos.{' '}
-                {daysLabel(days)} Revisá la información y exportá un respaldo antes de esa fecha.
+                {daysLabel(days)} Descargá los registros de cada escuela antes de esa fecha.
               </p>
             </div>
             <Link viewTransition to="/supervisor" className="retention-banner__action">
-              Exportar respaldo
+              Ver cómo exportar
             </Link>
             <button
               className="retention-banner__close"

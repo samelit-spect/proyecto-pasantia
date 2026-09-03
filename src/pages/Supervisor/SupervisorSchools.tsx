@@ -35,8 +35,6 @@ import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
 import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
-import DatePicker from '@/components/common/DatePicker/DatePicker';
-import { exportAllData } from '@/utils/exportAll';
 import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
 import './SupervisorSchools.css';
 
@@ -67,7 +65,10 @@ interface SchoolCardProps {
 const LiveCount = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
   const ambient = useAmbientMotion();
   return (
-    <span key={ambient ? value : 'static'} className={`supervisor-schools__summary-count ${ambient ? 'supervisor-schools__bump' : ''}`}>
+    <span
+      key={ambient ? value : 'static'}
+      className={`supervisor-schools__summary-count ${ambient ? 'supervisor-schools__bump' : ''}`}
+    >
       {value} {suffix}
     </span>
   );
@@ -145,12 +146,6 @@ const SupervisorSchools = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<SchoolType | null>(null);
-
-  const [backupDateFrom, setBackupDateFrom] = useState('');
-  const [backupDateTo, setBackupDateTo] = useState('');
-  const [confirmExport, setConfirmExport] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportProgressLabel, setExportProgressLabel] = useState('');
 
   const [attListRef] = useAutoAnimate();
   const [newsListRef] = useAutoAnimate();
@@ -249,26 +244,6 @@ const SupervisorSchools = () => {
     }
   };
 
-  const handleExportAllConfirm = async () => {
-    setConfirmExport(false);
-    setIsExporting(true);
-
-    try {
-      await exportAllData({
-        dateFrom: backupDateFrom || undefined,
-        dateTo: backupDateTo || undefined,
-        onProgress: ({ label, current, total }) =>
-          setExportProgressLabel(`Exportando ${label.toLowerCase()} (${current}/${total})...`),
-      });
-      addToast('success', 'Respaldo generado: se descargó el archivo ZIP con los CSV.');
-    } catch {
-      addToast('error', 'No se pudo completar la exportación. Intentá de nuevo.');
-    } finally {
-      setIsExporting(false);
-      setExportProgressLabel('');
-    }
-  };
-
   const countBySchool = (items: { escuelaId: string }[]) => {
     const map: Record<string, number> = {};
     items.forEach((item) => {
@@ -280,6 +255,11 @@ const SupervisorSchools = () => {
   const attBySchool = countBySchool(recentAttendances);
   const newsBySchool = countBySchool(recentNews);
   const incBySchool = countBySchool(recentIncidents);
+
+  const schoolsWithAttendance = new Set(Object.keys(attBySchool));
+  const pendingSchools = schools.filter((s) => !schoolsWithAttendance.has(s.id));
+  const coveragePercent =
+    schools.length > 0 ? Math.round((schoolsWithAttendance.size / schools.length) * 100) : 0;
 
   return (
     <>
@@ -319,18 +299,13 @@ const SupervisorSchools = () => {
             <Download size={18} strokeWidth={1.5} />
           </div>
           <div className="supervisor-schools__backup-info">
-            <h3 className="supervisor-schools__backup-title">Respaldo de datos</h3>
+            <h3 className="supervisor-schools__backup-title">Exportación de datos</h3>
             <p className="supervisor-schools__backup-desc">
-              Descargá todos los registros de la jurisdicción en archivos CSV.
+              Ingresá a cada escuela y usá la opción "Exportar" del historial para descargar sus
+              registros en CSV. El respaldo global fue reemplazado por esta forma de descarga por
+              escuela, más confiable.
             </p>
           </div>
-        </div>
-        <div className="supervisor-schools__backup-controls">
-          <DatePicker label="Desde" value={backupDateFrom} onChange={setBackupDateFrom} />
-          <DatePicker label="Hasta" value={backupDateTo} onChange={setBackupDateTo} />
-          <Button onClick={() => setConfirmExport(true)} loading={isExporting}>
-            {exportProgressLabel || 'Exportar todo'}
-          </Button>
         </div>
       </div>
 
@@ -475,6 +450,49 @@ const SupervisorSchools = () => {
             </div>
           </div>
 
+          <section
+            className="supervisor-schools__coverage"
+            aria-label="Cobertura diaria de asistencias"
+          >
+            <div className="supervisor-schools__coverage-head">
+              <div>
+                <h3 className="supervisor-schools__section-title supervisor-schools__coverage-title">
+                  Cobertura diaria de asistencias
+                </h3>
+                <p className="supervisor-schools__coverage-sub">
+                  {schoolsWithAttendance.size} de {schools.length} escuelas cargaron asistencia hoy
+                  ({coveragePercent}%).
+                </p>
+              </div>
+              <span className="supervisor-schools__coverage-badge">{coveragePercent}%</span>
+            </div>
+            <div className="supervisor-schools__coverage-bar" role="presentation">
+              <span
+                className="supervisor-schools__coverage-fill"
+                style={{ width: `${coveragePercent}%` }}
+              />
+            </div>
+            {pendingSchools.length > 0 && (
+              <div className="supervisor-schools__coverage-pending">
+                <span className="supervisor-schools__coverage-pending-label">
+                  Faltan cargar hoy:
+                </span>
+                <div className="supervisor-schools__coverage-pending-list">
+                  {pendingSchools.map((s) => (
+                    <Link
+                      key={s.id}
+                      viewTransition
+                      to={`/supervisor/escuela/${s.id}`}
+                      className="supervisor-schools__coverage-pending-item"
+                    >
+                      {s.nombre}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
           <h3 className="supervisor-schools__section-title">Escuelas</h3>
           <div className="supervisor-schools__grid" ref={schoolGridRef}>
             {schools.map((school) => (
@@ -499,16 +517,6 @@ const SupervisorSchools = () => {
         confirmLabel="Eliminar"
         onConfirm={handleDeleteConfirm}
         onCancel={() => setConfirmDelete(null)}
-      />
-
-      <ConfirmDialog
-        open={confirmExport}
-        title="Exportar todos los datos"
-        message="Se descargará un archivo ZIP con 4 CSV (asistencias, docentes, novedades e incidentes). Las fotos no se incluyen en el respaldo."
-        confirmLabel="Descargar"
-        variant="warning"
-        onConfirm={handleExportAllConfirm}
-        onCancel={() => setConfirmExport(false)}
       />
     </>
   );
