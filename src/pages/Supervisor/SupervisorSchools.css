@@ -429,27 +429,6 @@
     border-color 0.2s ease;
 }
 
-/* Fondo con degradé verde: arranca verde fuerte en la parte superior
-   (zona sin texto, donde está el icono) y se desvanece hacia el contenido. */
-.supervisor-schools__card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(22, 163, 74, 0.55) 0%,
-    rgba(22, 163, 74, 0.22) 42%,
-    transparent 75%
-  );
-  pointer-events: none;
-}
-
-.supervisor-schools__card > * {
-  position: relative;
-  z-index: 1;
-}
-
 .supervisor-schools__card:nth-child(1) {
   animation-delay: 0.05s;
 }
