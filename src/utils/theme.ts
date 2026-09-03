@@ -11,8 +11,11 @@ export interface ThemeState {
 const DARK_VARS: Record<string, string> = {
   '--background-color': '#0f172a',
   '--surface-color': '#1e293b',
+  '--card-bg': '#243244',
+  '--card-shadow': '0 1px 3px -1px rgba(0,0,0,0.5), 0 2px 8px -2px rgba(0,0,0,0.5)',
   '--text-color': '#f1f5f9',
   '--text-secondary': '#94a3b8',
+  '--text-primary': '#f1f5f9',
   '--border-color': '#334155',
   '--accent-green-bg': '#052e16',
   '--accent-green-surface': '#14532d',
@@ -37,8 +40,11 @@ const DARK_VARS: Record<string, string> = {
 const LIGHT_VARS: Record<string, string> = {
   '--background-color': '#f8fafc',
   '--surface-color': '#ffffff',
+  '--card-bg': '#ffffff',
+  '--card-shadow': '0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.08)',
   '--text-color': '#1e293b',
   '--text-secondary': '#64748b',
+  '--text-primary': '#1e293b',
   '--border-color': '#e2e8f0',
   '--accent-green-bg': '#f0fdf4',
   '--accent-green-surface': '#dcfce7',
