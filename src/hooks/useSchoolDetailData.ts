@@ -59,7 +59,7 @@ const withStatusChangeTimeout = (op: Promise<void>, ms: number): Promise<void> =
     );
   });
 
-export type ViewMode = 'hoy' | 'historico';
+export type ViewMode = 'hoy' | 'historico' | 'gestion';
 export type ExportType = 'asistencias' | 'docentes' | 'novedades' | 'incidentes';
 
 const dateToLabel = (d: Date) => d.toLocaleDateString('es-AR');

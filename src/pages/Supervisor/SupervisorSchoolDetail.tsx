@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'motion/react';
+import { useState } from 'react';
 import { useParams, useNavigate, useViewTransitionState } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, History } from 'lucide-react';
+import { ArrowLeft, CalendarDays, History, Settings } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import SchoolDetailAttendances from '@/components/supervisor/SchoolDetailAttendances/SchoolDetailAttendances';
@@ -75,6 +76,18 @@ const SupervisorSchoolDetail = () => {
   // True mientras la navegación entrante proviene del click en una card de escuela.
   const isEnteringViaCard = useViewTransitionState(`/supervisor/escuela/${schoolId}`);
 
+  // Tipo de registro enfocado en el tab "Historico" (uno a la vez).
+  const [histType, setHistType] = useState<
+    'asistencias' | 'asistencia-docentes' | 'novedades' | 'incidentes'
+  >('asistencias');
+
+  const histTypes: { id: typeof histType; label: string }[] = [
+    { id: 'asistencias', label: 'Asistencia de gestión' },
+    { id: 'asistencia-docentes', label: 'Asistencia del profesorado' },
+    { id: 'novedades', label: 'Novedades' },
+    { id: 'incidentes', label: 'Incidentes' },
+  ];
+
   if (isLoading) {
     return <SupervisorDetailSkeleton />;
   }
@@ -142,6 +155,17 @@ const SupervisorSchoolDetail = () => {
           <History size={15} strokeWidth={1.5} />
           Histórico
         </button>
+        <button
+          id="supervisor-detail-tab-gestion"
+          role="tab"
+          aria-selected={viewMode === 'gestion'}
+          aria-controls="supervisor-detail-panel-gestion"
+          className={`supervisor-detail__tab ${viewMode === 'gestion' ? 'supervisor-detail__tab--active' : ''}`}
+          onClick={() => setViewMode('gestion')}
+        >
+          <Settings size={15} strokeWidth={1.5} />
+          Gestión
+        </button>
       </div>
 
       {viewMode === 'hoy' && (
@@ -183,50 +207,89 @@ const SupervisorSchoolDetail = () => {
             )}
           </div>
 
+          <div
+            className="supervisor-detail__hist-tabs"
+            role="tablist"
+            aria-label="Tipo de registro"
+          >
+            {histTypes.map((t) => (
+              <button
+                key={t.id}
+                role="tab"
+                aria-selected={histType === t.id}
+                className={`supervisor-detail__hist-tab ${
+                  histType === t.id ? 'supervisor-detail__hist-tab--active' : ''
+                }`}
+                onClick={() => setHistType(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
           <div className="supervisor-detail__sections">
-            <SchoolDetailAttendances
-              sectionId="asistencias"
-              title="Asistencia de gestión"
-              records={filteredAttendances}
-              expandedSection={expandedSection ?? ''}
-              onToggle={() => toggleSection('asistencias')}
-              onVerify={handleVerifyAttendance}
-              verifyUpdatingId={verifyOp.updatingId}
-              onExport={() => handleExport('asistencias')}
-              exporting={exporting === 'asistencias'}
-            />
+            {histType === 'asistencias' && (
+              <SchoolDetailAttendances
+                sectionId="asistencias"
+                title="Asistencia de gestión"
+                records={filteredAttendances}
+                expandedSection="asistencias"
+                onToggle={() => toggleSection('asistencias')}
+                onVerify={handleVerifyAttendance}
+                verifyUpdatingId={verifyOp.updatingId}
+                onExport={() => handleExport('asistencias')}
+                exporting={exporting === 'asistencias'}
+              />
+            )}
 
-            <SchoolDetailAttendances
-              sectionId="asistencia-docentes"
-              title="Asistencia del profesorado"
-              records={filteredDocenteAttendances}
-              expandedSection={expandedSection ?? ''}
-              onToggle={() => toggleSection('asistencia-docentes')}
-              onVerify={handleVerifyDocenteAttendance}
-              verifyUpdatingId={verifyOp.updatingId}
-              onExport={() => handleExport('docentes')}
-              exporting={exporting === 'docentes'}
-            />
+            {histType === 'asistencia-docentes' && (
+              <SchoolDetailAttendances
+                sectionId="asistencia-docentes"
+                title="Asistencia del profesorado"
+                records={filteredDocenteAttendances}
+                expandedSection="asistencia-docentes"
+                onToggle={() => toggleSection('asistencia-docentes')}
+                onVerify={handleVerifyDocenteAttendance}
+                verifyUpdatingId={verifyOp.updatingId}
+                onExport={() => handleExport('docentes')}
+                exporting={exporting === 'docentes'}
+              />
+            )}
 
-            <SchoolDetailNews
-              news={filteredNews}
-              expandedSection={expandedSection ?? ''}
-              onToggle={() => toggleSection('novedades')}
-              onExport={() => handleExport('novedades')}
-              exporting={exporting === 'novedades'}
-            />
+            {histType === 'novedades' && (
+              <SchoolDetailNews
+                news={filteredNews}
+                expandedSection="novedades"
+                onToggle={() => toggleSection('novedades')}
+                onExport={() => handleExport('novedades')}
+                exporting={exporting === 'novedades'}
+              />
+            )}
 
-            <SchoolDetailIncidents
-              incidents={filteredIncidents}
-              expandedSection={expandedSection ?? ''}
-              onToggle={() => toggleSection('incidentes')}
-              onStatusChange={handleStatusChange}
-              statusUpdatingId={statusOp.updatingId}
-              onLightbox={setLightbox}
-              onExport={() => handleExport('incidentes')}
-              exporting={exporting === 'incidentes'}
-            />
+            {histType === 'incidentes' && (
+              <SchoolDetailIncidents
+                incidents={filteredIncidents}
+                expandedSection="incidentes"
+                onToggle={() => toggleSection('incidentes')}
+                onStatusChange={handleStatusChange}
+                statusUpdatingId={statusOp.updatingId}
+                onLightbox={setLightbox}
+                onExport={() => handleExport('incidentes')}
+                exporting={exporting === 'incidentes'}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
+      {viewMode === 'gestion' && (
+        <div
+          id="supervisor-detail-panel-gestion"
+          role="tabpanel"
+          aria-labelledby="supervisor-detail-tab-gestion"
+          className="supervisor-detail__view animate-fade-in"
+        >
+          <div className="supervisor-detail__sections">
             <SchoolDetailUsers
               users={users}
               expandedSection={expandedSection ?? ''}

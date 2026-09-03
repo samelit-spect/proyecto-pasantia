@@ -4,6 +4,45 @@
   gap: 0.75rem;
 }
 
+/* Selector de tipo de registro en el historico: enfoca UN tipo a la vez. */
+.supervisor-detail__hist-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.supervisor-detail__hist-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-secondary);
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+.supervisor-detail__hist-tab:hover {
+  color: var(--text-color);
+  border-color: var(--text-secondary);
+}
+
+.supervisor-detail__hist-tab--active {
+  color: #fff;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-weight: 600;
+}
+
+
 .supervisor-detail__tabs {
   position: relative;
   display: flex;
@@ -15,15 +54,15 @@
   margin-bottom: 0.75rem;
 }
 
-/* Píldora deslizante bajo la pestaña activa: ocupa exactamente la primera
-   pestaña (left/right calculados sobre el content-box del contenedor) y se
-   traslada el 100% de su ancho al pasar a "Historico". */
+/* Píldora deslizante bajo la pestaña activa: ocupa exactamente una pestaña
+   (un tercio del content-box del contenedor) y se traslada un ancho por
+   posición: 0 (Hoy), 100% (Histórico), 200% (Gestión). */
 .supervisor-detail__tab-indicator {
   position: absolute;
   top: 0.25rem;
   bottom: 0.25rem;
   left: 0.25rem;
-  right: calc(50% - 0.125rem);
+  width: calc((100% - 0.5rem) / 3);
   background-color: var(--background-color);
   border-radius: 0.5rem;
   box-shadow: var(--shadow-xs);
@@ -35,6 +74,10 @@
 
 .supervisor-detail__tab-indicator[data-view='historico'] {
   transform: translateX(100%);
+}
+
+.supervisor-detail__tab-indicator[data-view='gestion'] {
+  transform: translateX(200%);
 }
 
 .supervisor-detail__tab {
