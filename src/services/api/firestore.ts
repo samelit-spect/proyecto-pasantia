@@ -878,7 +878,10 @@ export interface DailyCounts {
 const localISODate = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void): Unsubscribe {
+export function subscribeLast7DaysCounts(
+  callback: (data: DailyCounts) => void,
+  schoolId?: string
+): Unsubscribe {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   sevenDaysAgo.setHours(0, 0, 0, 0);
@@ -925,16 +928,31 @@ export function subscribeLast7DaysCounts(callback: (data: DailyCounts) => void):
 
   const tsStart = Timestamp.fromDate(sevenDaysAgo);
 
+  const attRef = collection(db, COLLECTIONS.attendances);
+  const attQuery = schoolId
+    ? query(attRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    : query(attRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
+
+  const newsRef = collection(db, COLLECTIONS.news);
+  const newsQuery = schoolId
+    ? query(newsRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    : query(newsRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
+
+  const incRef = collection(db, COLLECTIONS.incidents);
+  const incQuery = schoolId
+    ? query(incRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    : query(incRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
+
   const unsubAtt = onSnapshot(
-    query(collection(db, COLLECTIONS.attendances), where('fecha', '>=', tsStart), orderBy('fecha', 'asc')),
+    attQuery,
     (snap) => { attData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance); emit(); }
   );
   const unsubNews = onSnapshot(
-    query(collection(db, COLLECTIONS.news), where('fecha', '>=', tsStart), orderBy('fecha', 'asc')),
+    newsQuery,
     (snap) => { newsData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News); emit(); }
   );
   const unsubInc = onSnapshot(
-    query(collection(db, COLLECTIONS.incidents), where('fecha', '>=', tsStart), orderBy('fecha', 'asc')),
+    incQuery,
     (snap) => { incData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident); emit(); }
   );
 
@@ -951,7 +969,8 @@ export interface DailyAttendanceCount {
 }
 
 export function subscribeLast30DaysAttendance(
-  callback: (data: DailyAttendanceCount[]) => void
+  callback: (data: DailyAttendanceCount[]) => void,
+  schoolId?: string
 ): Unsubscribe {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
@@ -966,12 +985,13 @@ export function subscribeLast30DaysAttendance(
 
   const tsStart = Timestamp.fromDate(thirtyDaysAgo);
 
+  const attRef = collection(db, COLLECTIONS.attendances);
+  const attQuery = schoolId
+    ? query(attRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    : query(attRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
+
   return onSnapshot(
-    query(
-      collection(db, COLLECTIONS.attendances),
-      where('fecha', '>=', tsStart),
-      orderBy('fecha', 'asc')
-    ),
+    attQuery,
     (snap) => {
       const counts = dates.map((date) => ({ date, count: 0 }));
       snap.docs.forEach((d) => {

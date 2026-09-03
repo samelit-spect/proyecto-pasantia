@@ -222,6 +222,7 @@
   text-decoration: none;
   color: inherit;
   box-shadow: var(--shadow-sm);
+  position: relative;
   transition:
     transform 0.2s,
     box-shadow 0.2s,
@@ -296,6 +297,41 @@
 
 .home__card:hover .home__card-arrow {
   transform: translateX(4px);
+}
+
+.home__card-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.6563rem;
+  font-weight: 600;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.home__card-badge--success {
+  background-color: var(--accent-green-bg);
+  color: var(--accent-green-text);
+}
+
+.home__card-badge--info {
+  background-color: var(--accent-blue-bg);
+  color: var(--accent-blue-text);
+}
+
+.home__card-badge--warning {
+  background-color: var(--accent-yellow-bg);
+  color: var(--accent-yellow-text);
+}
+
+.home__card-badge--danger {
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red-text);
+}
+
+.home__card--has-badge {
+  padding-right: 4.5rem;
 }
 
 .home__card-icon--blue {

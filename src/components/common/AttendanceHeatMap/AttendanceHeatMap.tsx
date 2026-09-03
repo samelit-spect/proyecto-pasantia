@@ -2,17 +2,22 @@ import { useEffect, useState } from 'react';
 import { subscribeLast30DaysAttendance, type DailyAttendanceCount } from '@/services/api/firestore';
 import './AttendanceHeatMap.css';
 
-export default function AttendanceHeatMap() {
+interface AttendanceHeatMapProps {
+  schoolId?: string;
+}
+
+export default function AttendanceHeatMap({ schoolId }: AttendanceHeatMapProps) {
   const [data, setData] = useState<DailyAttendanceCount[]>([]);
 
   useEffect(() => {
-    const unsub = subscribeLast30DaysAttendance(setData);
+    const unsub = subscribeLast30DaysAttendance(setData, schoolId);
     return unsub;
-  }, []);
+  }, [schoolId]);
 
   if (data.length === 0) return null;
 
   const maxCount = Math.max(1, ...data.map((d) => d.count));
+  const hasActivity = data.some((d) => d.count > 0);
 
   const getLevel = (count: number): number => {
     if (count === 0) return 0;
@@ -22,6 +27,8 @@ export default function AttendanceHeatMap() {
     if (ratio <= 0.75) return 3;
     return 4;
   };
+
+  if (!hasActivity) return null;
 
   return (
     <div className="heatmap">

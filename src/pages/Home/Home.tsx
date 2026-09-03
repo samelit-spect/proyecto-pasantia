@@ -52,6 +52,7 @@ interface CardItem {
   icon: React.ReactNode;
   title: string;
   description: string;
+  badge?: { text: string; kind: 'success' | 'info' | 'warning' | 'danger' };
 }
 
 const AnimatedStat = ({ value, label, sparkline, sparklineColor }: { value: number; label: string; sparkline?: number[]; sparklineColor?: string }) => {
@@ -181,6 +182,8 @@ const Home = () => {
 
     let unmounted = false;
 
+    const unsubWeekly = subscribeLast7DaysCounts(setWeeklyCounts, profile.escuelaId);
+
     const loadSchool = async () => {
       try {
         const school = await getSchoolById(profile.escuelaId);
@@ -234,6 +237,7 @@ const Home = () => {
 
     return () => {
       unmounted = true;
+      unsubWeekly();
       document.removeEventListener('visibilitychange', onVisibility);
       if (interval) clearInterval(interval);
     };
@@ -248,6 +252,10 @@ const Home = () => {
       icon: <ClipboardCheck size={28} strokeWidth={1.5} />,
       title: 'Asistencia de Gestión',
       description: 'Registrar la asistencia diaria del personal de gestión.',
+      badge:
+        myAttendances.length > 0
+          ? { text: 'Cargada hoy', kind: 'success' }
+          : undefined,
     });
     attendanceCards.push({
       to: '/asistencia-docentes',
@@ -278,23 +286,41 @@ const Home = () => {
       icon: <Newspaper size={28} strokeWidth={1.5} />,
       title: 'Novedades',
       description: 'Registrar novedades institucionales del día.',
+      badge:
+        myNews.length > 0
+          ? { text: `${myNews.length} hoy`, kind: 'info' }
+          : undefined,
     });
     managementCards.push({
       to: '/incidentes',
       icon: <AlertTriangle size={28} strokeWidth={1.5} />,
       title: 'Incidentes Edilicios',
       description: 'Registrar incidentes para seguimiento del Supervisor.',
+      badge:
+        myIncidents.length > 0
+          ? { text: `${myIncidents.length} hoy`, kind: 'warning' }
+          : undefined,
     });
   }
 
   const renderCard = (card: CardItem) => (
-    <Link viewTransition key={card.to} to={card.to} className="home__card">
+    <Link
+      viewTransition
+      key={card.to}
+      to={card.to}
+      className={`home__card ${card.badge ? 'home__card--has-badge' : ''}`}
+    >
       <div className="home__card-icon">{card.icon}</div>
       <div className="home__card-content">
         <h3 className="home__card-title">{card.title}</h3>
         <p className="home__card-desc">{card.description}</p>
       </div>
       <span className="home__card-arrow">Ir →</span>
+      {card.badge && (
+        <span className={`home__card-badge home__card-badge--${card.badge.kind}`}>
+          {card.badge.text}
+        </span>
+      )}
     </Link>
   );
 
@@ -441,6 +467,46 @@ const Home = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {!isLoading && !hasRole('supervisor') && mySchool && (
+        <div className="home__section animate-fade-in">
+          <h3 className="home__section-title">
+            Resumen del día
+            {ambientLive && (
+              <span className="home__live-badge">
+                <span className="home__live-dot" />
+                En vivo
+              </span>
+            )}
+          </h3>
+          <div className="home__stats">
+            <AnimatedStat
+              value={myAttendances.length}
+              label="Asistencias"
+              sparkline={weeklyCounts?.asistencias}
+              sparklineColor="#166534"
+            />
+            <AnimatedStat
+              value={myNews.length}
+              label="Novedades"
+              sparkline={weeklyCounts?.novedades}
+              sparklineColor="#1e40af"
+            />
+            <AnimatedStat
+              value={myIncidents.length}
+              label="Incidentes"
+              sparkline={weeklyCounts?.incidentes}
+              sparklineColor="#dc2626"
+            />
+          </div>
+        </div>
+      )}
+
+      {!isLoading && !hasRole('supervisor') && mySchool && (
+        <div className="home__section animate-fade-in">
+          <AttendanceHeatMap schoolId={profile?.escuelaId} />
         </div>
       )}
 
