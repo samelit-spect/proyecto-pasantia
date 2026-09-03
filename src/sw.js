@@ -28,6 +28,17 @@ registerRoute(
         maxEntries: 50,
         maxAgeSeconds: 60 * 60,
       }),
+      {
+        cacheWillUpdate: async ({ response }) => {
+          // Evita el "Cache.put() encountered a network error": no se guardan
+          // en caché respuestas de error (5xx, CORS roto, opaque, sin cuerpo).
+          // Se devuelve null para que Workbox simplemente no cachee y no falle.
+          if (!response || response.status !== 200 || response.type === 'opaque') {
+            return null;
+          }
+          return response;
+        },
+      },
     ],
   })
 );
