@@ -7,6 +7,7 @@ import WelcomeTour from '@/components/common/WelcomeTour/WelcomeTour';
 import SupervisorLiveAlerts from '@/components/common/SupervisorLiveAlerts/SupervisorLiveAlerts';
 import RealtimeNotifications from '@/components/common/RealtimeNotifications/RealtimeNotifications';
 import ChangelogModal from '@/components/common/ChangelogModal/ChangelogModal';
+import LoadingScreen from '@/components/common/LoadingScreen/LoadingScreen';
 import './MainLayout.css';
 
 const PROTECTED_ROUTES = [
@@ -24,13 +25,7 @@ const MainLayout = () => {
   const location = useLocation();
 
   if (isLoading) {
-    return (
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
-      >
-        <p>Cargando...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!isAuthenticated) {
