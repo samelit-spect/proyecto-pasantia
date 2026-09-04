@@ -202,6 +202,33 @@
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: 0.625rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Barra de acento superior: color estable por escuela (igual que las escuelas). */
+.supervisor-users__item-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--user-accent-surface),
+    var(--user-accent),
+    var(--user-accent-surface)
+  );
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.supervisor-users__item:hover {
+  border-color: var(--user-accent);
+}
+
+.supervisor-users__item:hover .supervisor-users__item-accent {
+  opacity: 1;
 }
 
 .supervisor-users__item--inactive {
@@ -231,8 +258,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--accent-blue-text);
-  background-color: var(--accent-blue-surface);
+  color: var(--user-accent, var(--accent-blue-text));
+  background-color: var(--user-accent-surface, var(--accent-blue-surface));
   padding: 0.125rem 0.5rem;
   border-radius: 1rem;
 }

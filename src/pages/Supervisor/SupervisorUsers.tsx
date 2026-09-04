@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,6 +48,17 @@ const editUserSchema = z.object({
 });
 
 type EditUserFormData = z.infer<typeof editUserSchema>;
+
+/** Paleta de acentos por escuela (coherente con el panel de escuelas). */
+const USER_ACCENTS = ['blue', 'green', 'purple', 'teal', 'yellow', 'red'] as const;
+
+const userAccent = (schoolId: string): (typeof USER_ACCENTS)[number] => {
+  let hash = 0;
+  for (let i = 0; i < schoolId.length; i += 1) {
+    hash = (hash * 31 + schoolId.charCodeAt(i)) >>> 0;
+  }
+  return USER_ACCENTS[hash % USER_ACCENTS.length];
+};
 
 interface UserEditFormProps {
   user: UserProfile;
@@ -511,11 +522,22 @@ const SupervisorUsers = () => {
               {sortedUsers.map((user) => {
                 const isActive = user.activo ?? true;
                 const isEditing = editingUser?.uid === user.uid;
+                const accent = userAccent(user.escuelaId);
                 return (
                   <div
                     key={user.uid}
-                    className={`supervisor-users__item ${isActive ? '' : 'supervisor-users__item--inactive'} ${isEditing ? 'supervisor-users__item--editing' : ''}`}
+                    className={`supervisor-users__item supervisor-users__item--accent-${accent} ${isActive ? '' : 'supervisor-users__item--inactive'} ${isEditing ? 'supervisor-users__item--editing' : ''}`}
+                    style={
+                      {
+                        '--user-accent': `var(--accent-${accent}-text)`,
+                        '--user-accent-surface': `var(--accent-${accent}-surface)`,
+                        '--user-accent-bg': `var(--accent-${accent}-bg)`,
+                      } as CSSProperties
+                    }
                   >
+                    {!isEditing && (
+                      <div className="supervisor-users__item-accent" aria-hidden="true" />
+                    )}
                     {isEditing ? (
                       <UserEditForm
                         user={user}
