@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/services/firebase';
+import { updateOwnProfile } from '@/services/api/firestore';
 import type { UserProfile, UserRole } from '@/types/models/user';
 
 interface AuthState {
@@ -16,6 +17,7 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   hasRole: (...roles: UserRole[]) => boolean;
   canAccess: (route: string) => boolean;
+  updateProfile: (data: { nombre: string; fotoDataUrl?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -112,6 +114,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const updateProfile = useCallback(
+    async (data: { nombre: string; fotoDataUrl?: string }) => {
+      if (!state.user || !state.profile) return;
+      await updateOwnProfile(state.user.uid, data, {
+        uid: state.user.uid,
+        nombre: state.profile.nombre,
+      });
+      setState((prev) =>
+        prev.profile
+          ? {
+              ...prev,
+              profile: { ...prev.profile, nombre: data.nombre, fotoDataUrl: data.fotoDataUrl },
+            }
+          : prev
+      );
+    },
+    [state.user, state.profile]
+  );
+
   const hasRole = useCallback(
     (...roles: UserRole[]) => {
       if (!state.profile) return false;
@@ -165,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         hasRole,
         canAccess,
+        updateProfile,
       }}
     >
       {children}

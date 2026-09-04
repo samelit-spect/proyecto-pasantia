@@ -232,7 +232,15 @@ const Navbar = () => {
           onClick={() => setIsMenuOpen(false)}
         >
           <div className="navbar__drawer-avatar">
-            <User size={20} strokeWidth={1.5} />
+            {profile.fotoDataUrl ? (
+              <img
+                src={profile.fotoDataUrl}
+                alt={profile.nombre}
+                className="navbar__drawer-avatar-img"
+              />
+            ) : (
+              <User size={20} strokeWidth={1.5} />
+            )}
           </div>
           <div className="navbar__drawer-user-info">
             <span className="navbar__drawer-name">{profile.nombre}</span>

@@ -202,6 +202,21 @@ export async function updateUserProfile(
   });
 }
 
+export async function updateOwnProfile(
+  uid: string,
+  data: { nombre: string; fotoDataUrl?: string },
+  actor: { uid: string; nombre: string }
+): Promise<void> {
+  const payload: Record<string, unknown> = {
+    nombre: data.nombre,
+    editadoPor: actor.uid,
+    editadoPorNombre: actor.nombre,
+    editadoEn: Timestamp.now(),
+  };
+  if (data.fotoDataUrl !== undefined) payload.fotoDataUrl = data.fotoDataUrl;
+  await updateDoc(doc(db, COLLECTIONS.users, uid), payload);
+}
+
 export async function addAttendance(data: AddAttendanceDTO): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS.attendances), {
     escuelaId: data.escuelaId,
@@ -930,31 +945,46 @@ export function subscribeLast7DaysCounts(
 
   const attRef = collection(db, COLLECTIONS.attendances);
   const attQuery = schoolId
-    ? query(attRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    ? query(
+        attRef,
+        where('escuelaId', '==', schoolId),
+        where('fecha', '>=', tsStart),
+        orderBy('fecha', 'asc')
+      )
     : query(attRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
 
   const newsRef = collection(db, COLLECTIONS.news);
   const newsQuery = schoolId
-    ? query(newsRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    ? query(
+        newsRef,
+        where('escuelaId', '==', schoolId),
+        where('fecha', '>=', tsStart),
+        orderBy('fecha', 'asc')
+      )
     : query(newsRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
 
   const incRef = collection(db, COLLECTIONS.incidents);
   const incQuery = schoolId
-    ? query(incRef, where('escuelaId', '==', schoolId), where('fecha', '>=', tsStart), orderBy('fecha', 'asc'))
+    ? query(
+        incRef,
+        where('escuelaId', '==', schoolId),
+        where('fecha', '>=', tsStart),
+        orderBy('fecha', 'asc')
+      )
     : query(incRef, where('fecha', '>=', tsStart), orderBy('fecha', 'asc'));
 
-  const unsubAtt = onSnapshot(
-    attQuery,
-    (snap) => { attData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance); emit(); }
-  );
-  const unsubNews = onSnapshot(
-    newsQuery,
-    (snap) => { newsData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News); emit(); }
-  );
-  const unsubInc = onSnapshot(
-    incQuery,
-    (snap) => { incData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident); emit(); }
-  );
+  const unsubAtt = onSnapshot(attQuery, (snap) => {
+    attData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attendance);
+    emit();
+  });
+  const unsubNews = onSnapshot(newsQuery, (snap) => {
+    newsData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as News);
+    emit();
+  });
+  const unsubInc = onSnapshot(incQuery, (snap) => {
+    incData = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Incident);
+    emit();
+  });
 
   return () => {
     unsubAtt();

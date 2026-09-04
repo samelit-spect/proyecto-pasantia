@@ -11,6 +11,7 @@ export interface UserProfile {
   cargo: string;
   activo: boolean;
   fechaCreacion: Date;
+  fotoDataUrl?: string;
   creadoPor?: string;
   creadoPorNombre?: string;
   editadoPor?: string;

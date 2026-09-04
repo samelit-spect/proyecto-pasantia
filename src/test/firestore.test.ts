@@ -59,6 +59,7 @@ import {
   addUserProfile,
   setUserActive,
   updateUserProfile,
+  updateOwnProfile,
   addAttendance,
   setAttendanceVerified,
   addIncident,
@@ -213,6 +214,25 @@ describe('firestore services — usuarios', () => {
     const payload = mocks.updateDoc.mock.calls[0][1] as Record<string, unknown>;
     expect(payload.rol).toBe('vice');
     expect(payload.escuelaId).toBe('esc-2');
+  });
+
+  it('updateOwnProfile guarda nombre y foto', async () => {
+    await updateOwnProfile(
+      'u-1',
+      { nombre: 'Samuel', fotoDataUrl: 'data:image/png;base64,AAA' },
+      { uid: 'u-1', nombre: 'Viejo' }
+    );
+    const payload = mocks.updateDoc.mock.calls[0][1] as Record<string, unknown>;
+    expect(payload.nombre).toBe('Samuel');
+    expect(payload.fotoDataUrl).toBe('data:image/png;base64,AAA');
+    expect(payload.editadoPor).toBe('u-1');
+  });
+
+  it('updateOwnProfile sin foto no toca el campo fotoDataUrl', async () => {
+    await updateOwnProfile('u-1', { nombre: 'Samuel' }, { uid: 'u-1', nombre: 'Viejo' });
+    const payload = mocks.updateDoc.mock.calls[0][1] as Record<string, unknown>;
+    expect(payload.nombre).toBe('Samuel');
+    expect(payload.fotoDataUrl).toBeUndefined();
   });
 });
 
