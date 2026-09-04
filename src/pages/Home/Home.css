@@ -870,3 +870,28 @@
 .home__incident-done:hover {
   background-color: var(--accent-blue-bg);
 }
+
+.home__incident-statemeta {
+  align-items: center;
+}
+
+.home__incident-state {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.home__incident-state:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.home__incident-error {
+  font-size: 0.75rem;
+  color: var(--accent-red-text);
+}

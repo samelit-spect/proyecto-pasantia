@@ -28,8 +28,9 @@ import {
   getTodayAttendancesBySchool,
   getTodayNewsBySchool,
   getTodayIncidentsBySchool,
+  updateIncidentStatus,
 } from '@/services/api/firestore';
-import type { Attendance, News, Incident, School } from '@/types';
+import type { Attendance, News, Incident, School, IncidentStatus } from '@/types';
 import type { DailyCounts } from '@/services/api/firestore';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
@@ -42,7 +43,12 @@ import Sparkline from '@/components/common/Sparkline/Sparkline';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import { todayISO } from '@/utils/validation';
-import { incidentCategoriaLabel, incidentUrgenciaLabel } from '@/utils/constants';
+import {
+  incidentCategoriaLabel,
+  incidentUrgenciaLabel,
+  incidentStatusLabel,
+  INCIDENT_STATUS_ORDER,
+} from '@/utils/constants';
 import { getHoliday } from '@/utils/holidays';
 import HomeSkeleton from './HomeSkeleton';
 import './Home.css';
@@ -98,6 +104,8 @@ const Home = () => {
   const [recentIncidents, setRecentIncidents] = useState<Incident[]>([]);
   const [openIncidents, setOpenIncidents] = useState<Incident[]>([]);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [incidentError, setIncidentError] = useState<string | null>(null);
+  const [incidentUpdating, setIncidentUpdating] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [weeklyCounts, setWeeklyCounts] = useState<DailyCounts | null>(null);
 
@@ -362,6 +370,28 @@ const Home = () => {
     setMyNews(news);
     setMyIncidents(incidents);
   }, [hasRole, profile?.escuelaId]);
+
+  const handleIncidentStatusChange = async (incidentId: string, newStatus: IncidentStatus) => {
+    if (!profile || !selectedIncident || incidentUpdating) return;
+    setIncidentUpdating(true);
+    setIncidentError(null);
+    const estadoAnterior = selectedIncident.estado;
+    try {
+      await updateIncidentStatus(
+        incidentId,
+        newStatus,
+        { uid: profile.uid, nombre: profile.nombre },
+        estadoAnterior
+      );
+      const updated = { ...selectedIncident, estado: newStatus };
+      setSelectedIncident(updated);
+      setOpenIncidents((prev) => prev.map((inc) => (inc.id === incidentId ? updated : inc)));
+    } catch {
+      setIncidentError('No se pudo actualizar el estado. Intentalo de nuevo.');
+    } finally {
+      setIncidentUpdating(false);
+    }
+  };
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -672,6 +702,29 @@ const Home = () => {
                       <span className="home__incident-meta-label">Estado</span>
                       <StatusBadge status={selectedIncident.estado} />
                     </div>
+                    {hasRole('supervisor') && (
+                      <div className="home__incident-meta home__incident-statemeta">
+                        <span className="home__incident-meta-label">Cambiar estado</span>
+                        <select
+                          className="home__incident-state"
+                          value={selectedIncident.estado}
+                          disabled={incidentUpdating}
+                          onChange={(e) =>
+                            handleIncidentStatusChange(
+                              selectedIncident.id,
+                              e.target.value as IncidentStatus
+                            )
+                          }
+                        >
+                          {INCIDENT_STATUS_ORDER.map((st) => (
+                            <option key={st} value={st}>
+                              {incidentStatusLabel(st)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    {incidentError && <span className="home__incident-error">{incidentError}</span>}
                     <div className="home__incident-meta">
                       <span className="home__incident-meta-label">Escuela</span>
                       <span className="home__incident-meta-value">
