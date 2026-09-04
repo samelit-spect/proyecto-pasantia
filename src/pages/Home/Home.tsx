@@ -39,7 +39,6 @@ import Timeline, { type TimelineEvent } from '@/components/common/Timeline/Timel
 import DashboardCharts from '@/components/common/DashboardCharts/DashboardCharts';
 import PullToRefresh from '@/components/common/PullToRefresh/PullToRefresh';
 import Sparkline from '@/components/common/Sparkline/Sparkline';
-import AttendanceHeatMap from '@/components/common/AttendanceHeatMap/AttendanceHeatMap';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useAmbientMotion } from '@/hooks/useAmbientMotion';
 import { todayISO } from '@/utils/validation';
@@ -504,12 +503,6 @@ const Home = () => {
         </div>
       )}
 
-      {!isLoading && !hasRole('supervisor') && mySchool && (
-        <div className="home__section animate-fade-in">
-          <AttendanceHeatMap schoolId={profile?.escuelaId} />
-        </div>
-      )}
-
       {!isLoading && !hasRole('supervisor') && (
         <div className="home__section animate-fade-in">
           <h3 className="home__section-title">
@@ -584,10 +577,6 @@ const Home = () => {
               <AnimatedStat value={stats.novedades} label="Novedades" sparkline={weeklyCounts?.novedades} sparklineColor="#1e40af" />
               <AnimatedStat value={stats.incidentes} label="Incidentes" sparkline={weeklyCounts?.incidentes} sparklineColor="#dc2626" />
             </div>
-          </div>
-
-          <div className="home__section">
-            <AttendanceHeatMap />
           </div>
 
           <div className="home__section">
