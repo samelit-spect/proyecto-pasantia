@@ -848,3 +848,19 @@ usuario, mientras que en vitest/jsdom sí.
 
 **Verificación:** `tsc -b --noEmit` OK, `vitest run` 189/189 en verde, `vite build`
 OK; lint sin errores nuevos (16 preexistentes).
+
+## Completado — Edición inline de escuelas en la tarjeta (04/09/2026)
+
+**Síntoma:** el botón "Editar" de una escuela abría el formulario en la parte
+superior de la página, y si había que editar varias escuelas o no se veía bien,
+daba la sensación de que el botón no funcionaba.
+
+**Fix (commit):** se movió la edición inline dentro de la propia tarjeta (igual
+que la confirmación para eliminar). Al tocar el lápiz, la tarjeta se convierte en
+un mini-formulario (Nombre, Turno, Dirección) con botones "Cancelar"/"Guardar".
+Nuevo componente `SchoolEditForm` con `key={school.id}` para remontar siempre el
+formulario con los valores reales de la escuela. El formulario superior global
+queda solo para "Nueva escuela".
+
+**Verificación:** `tsc -b --noEmit` OK, `vitest run` 189/189, `vite build` OK,
+sin errores de lint nuevos.

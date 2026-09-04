@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from 'react';
-import { Link, useNavigate, useViewTransitionState } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,7 +64,11 @@ interface SchoolCardProps {
   nov: number;
   inc: number;
   confirming: boolean;
+  editing: boolean;
+  saving: boolean;
   onEdit: (school: SchoolType) => void;
+  onCancelEdit: () => void;
+  onSaveEdit: (school: SchoolType, data: SchoolFormData) => void;
   onRequestDelete: (school: SchoolType) => void;
   onConfirmDelete: (school: SchoolType) => void;
 }
@@ -86,19 +90,128 @@ const LiveCount = ({ value, suffix = '' }: { value: number; suffix?: string }) =
   );
 };
 
+interface SchoolEditFormProps {
+  school: SchoolType;
+  saving: boolean;
+  onCancel: () => void;
+  onSave: (data: SchoolFormData) => void;
+}
+
+const SchoolEditForm = ({ school, saving, onCancel, onSave }: SchoolEditFormProps) => {
+  const [nombre, setNombre] = useState(school.nombre);
+  const [turno, setTurno] = useState<SchoolFormData['turno']>(school.turno as SchoolFormData['turno']);
+  const [direccion, setDireccion] = useState(school.direccion || '');
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (nombre.trim().length === 0) return;
+    onSave({ nombre: nombre.trim(), turno, direccion: direccion.trim() || undefined });
+  };
+
+  return (
+    <form className="supervisor-schools__edit" onSubmit={submit}>
+      <h4 className="supervisor-schools__edit-title">Editar escuela</h4>
+      <label className="supervisor-schools__edit-label">
+        Nombre *
+        <input
+          className="supervisor-schools__input"
+          type="text"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Ej: Escuela N° 1"
+        />
+      </label>
+      <label className="supervisor-schools__edit-label">
+        Turno
+        <select
+          className="supervisor-schools__select"
+          value={turno}
+          onChange={(e) => setTurno(e.target.value as SchoolFormData['turno'])}
+        >
+          {TURNOS.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="supervisor-schools__edit-label">
+        Dirección (opcional)
+        <input
+          className="supervisor-schools__input"
+          type="text"
+          value={direccion}
+          onChange={(e) => setDireccion(e.target.value)}
+          placeholder="Ej: Av. Principal 1234"
+        />
+      </label>
+      <div className="supervisor-schools__edit-actions">
+        <button
+          type="button"
+          className="supervisor-schools__edit-btn supervisor-schools__edit-btn--cancel"
+          onClick={onCancel}
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="supervisor-schools__edit-btn supervisor-schools__edit-btn--save"
+          disabled={saving || nombre.trim().length === 0}
+        >
+          {saving ? 'Guardando...' : 'Guardar'}
+        </button>
+      </div>
+    </form>
+  );
+};
+
 const SchoolCard = ({
   school,
   att,
   nov,
   inc,
   confirming,
+  editing,
+  saving,
   onEdit,
+  onCancelEdit,
+  onSaveEdit,
   onRequestDelete,
   onConfirmDelete,
 }: SchoolCardProps) => {
   const to = `/supervisor/escuela/${school.id}`;
-  const isTransitioning = useViewTransitionState(to);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const accent = schoolAccent(school.id);
+
+  useEffect(() => {
+    if (!isTransitioning) return;
+    const t = setTimeout(() => setIsTransitioning(false), 300);
+    return () => clearTimeout(t);
+  }, [isTransitioning]);
+
+  if (editing) {
+    return (
+      <div
+        className={`supervisor-schools__card supervisor-schools__card--${accent} supervisor-schools__card--editing`}
+        style={
+          {
+            '--school-accent': `var(--accent-${accent}-text)`,
+            '--school-accent-surface': `var(--accent-${accent}-surface)`,
+            '--school-accent-bg': `var(--accent-${accent}-bg)`,
+          } as CSSProperties
+        }
+      >
+        <div className="supervisor-schools__card-accent" aria-hidden="true" />
+        <SchoolEditForm
+          key={school.id}
+          school={school}
+          saving={saving}
+          onCancel={onCancelEdit}
+          onSave={(data) => onSaveEdit(school, data)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -206,8 +319,9 @@ const SupervisorSchools = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState(false);
-  const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingSaving, setEditingSaving] = useState(false);
 
   const [attListRef] = useAutoAnimate();
   const [newsListRef] = useAutoAnimate();
@@ -258,24 +372,14 @@ const SupervisorSchools = () => {
 
   const onSubmit = async (data: SchoolFormData) => {
     try {
-      if (editingSchool) {
-        await updateSchool(editingSchool.id, {
-          nombre: data.nombre.trim(),
-          turno: data.turno,
-          direccion: data.direccion?.trim() || undefined,
-        });
-        addToast('success', 'Escuela actualizada correctamente.');
-      } else {
-        await addSchool({
-          nombre: data.nombre.trim(),
-          turno: data.turno,
-          direccion: data.direccion?.trim() || undefined,
-        });
-        addToast('success', 'Escuela creada correctamente.');
-      }
+      await addSchool({
+        nombre: data.nombre.trim(),
+        turno: data.turno,
+        direccion: data.direccion?.trim() || undefined,
+      });
+      addToast('success', 'Escuela creada correctamente.');
       haptic.success();
       reset();
-      setEditingSchool(null);
       setShowForm(false);
       await loadSchools();
     } catch {
@@ -284,13 +388,31 @@ const SupervisorSchools = () => {
   };
 
   const handleEdit = (school: SchoolType) => {
-    setEditingSchool(school);
-    reset({
-      nombre: school.nombre,
-      turno: school.turno as SchoolFormData['turno'],
-      direccion: school.direccion || '',
-    });
-    setShowForm(true);
+    setEditingId(school.id);
+    setConfirmDeleteId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+  };
+
+  const handleSaveEdit = async (school: SchoolType, data: SchoolFormData) => {
+    setEditingSaving(true);
+    try {
+      await updateSchool(school.id, {
+        nombre: data.nombre,
+        turno: data.turno,
+        direccion: data.direccion,
+      });
+      addToast('success', 'Escuela actualizada correctamente.');
+      haptic.success();
+      setEditingId(null);
+      await loadSchools();
+    } catch {
+      addToast('error', 'Error al guardar la escuela. Intentá de nuevo.');
+    } finally {
+      setEditingSaving(false);
+    }
   };
 
   const handleRequestDelete = (school: SchoolType) => {
@@ -344,12 +466,11 @@ const SupervisorSchools = () => {
           className="supervisor-schools__add-btn"
           onClick={() => {
             reset();
-            setEditingSchool(null);
             setShowForm(!showForm);
           }}
         >
           {showForm ? <X size={16} strokeWidth={1.5} /> : <Plus size={16} strokeWidth={1.5} />}
-          {showForm ? 'Cancelar' : editingSchool ? 'Editar escuela' : 'Nueva escuela'}
+          {showForm ? 'Cancelar' : 'Nueva escuela'}
         </button>
 
         <Link viewTransition to="/supervisor/usuarios" className="supervisor-schools__users-link">
@@ -411,7 +532,7 @@ const SupervisorSchools = () => {
           </label>
 
           <Button type="submit" loading={isSubmitting} className="supervisor-schools__submit">
-            {editingSchool ? 'Actualizar' : 'Crear escuela'}
+            Crear escuela
           </Button>
         </form>
       )}
@@ -568,7 +689,11 @@ const SupervisorSchools = () => {
                 nov={newsBySchool[school.id] || 0}
                 inc={incBySchool[school.id] || 0}
                 confirming={confirmDeleteId === school.id}
+                editing={editingId === school.id}
+                saving={editingSaving}
                 onEdit={handleEdit}
+                onCancelEdit={handleCancelEdit}
+                onSaveEdit={handleSaveEdit}
                 onRequestDelete={handleRequestDelete}
                 onConfirmDelete={handleConfirmDelete}
               />

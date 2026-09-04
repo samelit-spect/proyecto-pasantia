@@ -769,3 +769,85 @@
 .supervisor-schools__confirm-btn--danger:hover {
   opacity: 0.9;
 }
+
+/* Modo edición inline dentro de la tarjeta. */
+.supervisor-schools__card--editing {
+  border-color: var(--accent-blue-text);
+  box-shadow: 0 6px 20px -4px color-mix(in srgb, var(--accent-blue-text) 30%, transparent);
+}
+
+.supervisor-schools__card--editing .supervisor-schools__card-accent {
+  background: linear-gradient(
+    90deg,
+    var(--accent-blue-surface),
+    var(--accent-blue-text),
+    var(--accent-blue-surface)
+  );
+  opacity: 1;
+}
+
+.supervisor-schools__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1.125rem 1.25rem 1.25rem;
+  animation: fadeInUp 0.2s ease-out both;
+}
+
+.supervisor-schools__edit-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.supervisor-schools__edit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.supervisor-schools__edit-actions {
+  display: flex;
+  gap: 0.625rem;
+  margin-top: 0.375rem;
+}
+
+.supervisor-schools__edit-btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s;
+}
+
+.supervisor-schools__edit-btn--cancel {
+  background-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.supervisor-schools__edit-btn--cancel:hover {
+  opacity: 0.8;
+}
+
+.supervisor-schools__edit-btn--save {
+  background-color: var(--accent-blue-text);
+  color: white;
+}
+
+.supervisor-schools__edit-btn--save:hover {
+  opacity: 0.9;
+}
+
+.supervisor-schools__edit-btn--save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
