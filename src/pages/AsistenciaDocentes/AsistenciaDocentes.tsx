@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ImagePlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useHaptic } from '@/hooks/useHaptic';
 import { addDocenteAttendance, getDocenteAttendanceByUserAndDate } from '@/services/api/firestore';
 import { fileToCompressedDataUrl, isSafeDataUrl, validateImageFile } from '@/utils/image';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
+import SuccessAnimation from '@/components/common/SuccessAnimation/SuccessAnimation';
 import { todayISO } from '@/utils/validation';
 import { markOfflineWrite } from '@/utils/offlineQueue';
 import { FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
@@ -24,6 +25,7 @@ const AsistenciaDocentes = () => {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -96,6 +98,7 @@ const AsistenciaDocentes = () => {
       if (savedOffline) markOfflineWrite();
 
       haptic.success();
+      setShowSuccess(true);
       setFeedback({
         type: 'success',
         message: savedOffline
@@ -118,6 +121,7 @@ const AsistenciaDocentes = () => {
 
   return (
     <section className="asist-docentes">
+      <SuccessAnimation show={showSuccess} />
       <button className="supervisor__back" onClick={() => navigate('/', { viewTransition: true })}>
         <ArrowLeft size={18} strokeWidth={1.5} />
         Volver
@@ -141,7 +145,10 @@ const AsistenciaDocentes = () => {
 
         <div className="asist-docentes__field">
           <label htmlFor="foto-docentes" className="asist-docentes__file-label">
-            {foto ? foto.name : 'Seleccionar foto de la planilla'}
+            <ImagePlus size={28} strokeWidth={1.5} className="asist-docentes__file-icon" />
+            <span className="asist-docentes__file-text">
+              {foto ? foto.name : 'Seleccionar foto de la planilla firmada'}
+            </span>
           </label>
           <input
             id="foto-docentes"

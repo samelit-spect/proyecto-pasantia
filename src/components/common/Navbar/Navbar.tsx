@@ -29,6 +29,15 @@ import NotificationBell from '@/components/common/NotificationBell/NotificationB
 import BottomNav from '@/components/common/BottomNav/BottomNav';
 import './Navbar.css';
 
+const ROL_LABELS: Record<string, string> = {
+  director: 'Director/a',
+  vice: 'Vice-director/a',
+  preceptor: 'Preceptor/a',
+  secretario: 'Secretario/a',
+  conserje: 'Conserje',
+  supervisor: 'Supervisor/a',
+};
+
 const Navbar = () => {
   const { profile, logout, hasRole } = useAuth();
   const { isDark, toggleMode } = useTheme();
@@ -57,6 +66,9 @@ const Navbar = () => {
 
   const drawerLinkClass = (to: string) =>
     `navbar__drawer-link ${isActive(to) ? 'navbar__drawer-link--active' : ''}`;
+
+  const desktopLinkClass = (to: string) =>
+    `navbar__desktop-link ${isActive(to) ? 'navbar__desktop-link--active' : ''}`;
 
   const handleLogout = async () => {
     await logout();
@@ -115,39 +127,43 @@ const Navbar = () => {
       </nav>
 
       <nav className="navbar__desktop">
-        <Link viewTransition to="/" className="navbar__desktop-link">
+        <Link viewTransition to="/" className={desktopLinkClass('/')}>
           <Home size={16} strokeWidth={1.5} />
           Inicio
         </Link>
         {hasRole('director', 'vice', 'preceptor') && (
           <>
-            <Link viewTransition to="/asistencia" className="navbar__desktop-link">
+            <Link viewTransition to="/asistencia" className={desktopLinkClass('/asistencia')}>
               <ClipboardCheck size={16} strokeWidth={1.5} />
               Asistencia
             </Link>
-            <Link viewTransition to="/asistencia-docentes" className="navbar__desktop-link">
+            <Link
+              viewTransition
+              to="/asistencia-docentes"
+              className={desktopLinkClass('/asistencia-docentes')}
+            >
               <Users size={16} strokeWidth={1.5} />
               Docentes
             </Link>
-            <Link viewTransition to="/historial" className="navbar__desktop-link">
+            <Link viewTransition to="/historial" className={desktopLinkClass('/historial')}>
               <History size={16} strokeWidth={1.5} />
               Historial
             </Link>
           </>
         )}
         {hasRole('director', 'vice', 'preceptor') && (
-          <Link viewTransition to="/fotos" className="navbar__desktop-link">
+          <Link viewTransition to="/fotos" className={desktopLinkClass('/fotos')}>
             <Camera size={16} strokeWidth={1.5} />
             Fotos
           </Link>
         )}
         {hasRole('director', 'vice') && (
           <>
-            <Link viewTransition to="/novedades" className="navbar__desktop-link">
+            <Link viewTransition to="/novedades" className={desktopLinkClass('/novedades')}>
               <Newspaper size={16} strokeWidth={1.5} />
               Novedades
             </Link>
-            <Link viewTransition to="/incidentes" className="navbar__desktop-link">
+            <Link viewTransition to="/incidentes" className={desktopLinkClass('/incidentes')}>
               <AlertTriangle size={16} strokeWidth={1.5} />
               Incidentes
             </Link>
@@ -155,18 +171,22 @@ const Navbar = () => {
         )}
         {hasRole('supervisor') && (
           <>
-            <Link viewTransition to="/supervisor" className="navbar__desktop-link">
+            <Link viewTransition to="/supervisor" className={desktopLinkClass('/supervisor')}>
               <Eye size={16} strokeWidth={1.5} />
               Supervisión
             </Link>
-            <Link viewTransition to="/supervisor/usuarios" className="navbar__desktop-link">
+            <Link
+              viewTransition
+              to="/supervisor/usuarios"
+              className={desktopLinkClass('/supervisor/usuarios')}
+            >
               <Settings size={16} strokeWidth={1.5} />
               Usuarios
             </Link>
           </>
         )}
         <div className="navbar__desktop-spacer" />
-        <Link viewTransition to="/ayuda" className="navbar__desktop-link">
+        <Link viewTransition to="/ayuda" className={desktopLinkClass('/ayuda')}>
           <HelpCircle size={16} strokeWidth={1.5} />
           Ayuda
         </Link>
@@ -181,7 +201,7 @@ const Navbar = () => {
             <kbd>⌘K</kbd>
           </button>
         )}
-        <Link viewTransition to="/perfil" className="navbar__desktop-link">
+        <Link viewTransition to="/perfil" className={desktopLinkClass('/perfil')}>
           <CircleUser size={16} strokeWidth={1.5} />
           Mi Perfil
         </Link>
@@ -216,7 +236,7 @@ const Navbar = () => {
           </div>
           <div className="navbar__drawer-user-info">
             <span className="navbar__drawer-name">{profile.nombre}</span>
-            <span className="navbar__drawer-role">{profile.rol}</span>
+            <span className="navbar__drawer-role">{ROL_LABELS[profile.rol] || profile.rol}</span>
           </div>
         </Link>
 

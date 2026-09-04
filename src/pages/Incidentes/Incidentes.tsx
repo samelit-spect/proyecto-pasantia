@@ -13,6 +13,7 @@ import { markOfflineWrite } from '@/utils/offlineQueue';
 import { friendlyFirestoreError } from '@/utils/firestoreErrors';
 import DatePicker from '@/components/common/DatePicker/DatePicker';
 import ContextHint from '@/components/common/ContextHint/ContextHint';
+import SuccessAnimation from '@/components/common/SuccessAnimation/SuccessAnimation';
 import { incidenteSchema, todayISO } from '@/utils/validation';
 import { INCIDENT_CATEGORIAS, INCIDENT_URGENCIAS, FEEDBACK_AUTO_CLEAR_MS } from '@/utils/constants';
 import type { IncidentCategoria, IncidentUrgencia } from '@/types';
@@ -29,6 +30,7 @@ const Incidentes = () => {
   );
   const [foto, setFoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const defaults = {
     fecha: todayISO(),
@@ -126,6 +128,7 @@ const Incidentes = () => {
       if (savedOffline) markOfflineWrite();
 
       haptic.success();
+      setShowSuccess(true);
       setFeedback({
         type: 'success',
         message: savedOffline
@@ -146,6 +149,7 @@ const Incidentes = () => {
 
   return (
     <section className="incidentes">
+      <SuccessAnimation show={showSuccess} />
       <button className="supervisor__back" onClick={() => navigate('/', { viewTransition: true })}>
         <ArrowLeft size={18} strokeWidth={1.5} />
         Volver
