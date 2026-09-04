@@ -1,24 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Share, Shield, X } from 'lucide-react';
+import { getDeferredPrompt, consumeDeferredPrompt } from '@/utils/installPrompt';
 import './InstallPrompt.css';
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
 
 const DISMISS_KEY = 'sipnam-install-dismissed';
 const SHOW_DELAY_MS = 2500;
-
-let deferredPrompt: BeforeInstallPromptEvent | null = null;
-
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e as BeforeInstallPromptEvent;
-  });
-}
 
 const isStandalone = (): boolean =>
   window.matchMedia('(display-mode: standalone)').matches ||
@@ -44,7 +31,7 @@ const InstallPrompt = () => {
       if (isIOS()) {
         setIosMode(true);
         setVisible(true);
-      } else if (deferredPrompt) {
+      } else if (getDeferredPrompt()) {
         setVisible(true);
       }
     }, SHOW_DELAY_MS);
@@ -55,7 +42,6 @@ const InstallPrompt = () => {
   useEffect(() => {
     const onInstalled = () => {
       setVisible(false);
-      deferredPrompt = null;
       try {
         localStorage.setItem(DISMISS_KEY, Date.now().toString());
       } catch {
@@ -76,13 +62,13 @@ const InstallPrompt = () => {
   };
 
   const handleInstall = async () => {
-    if (!deferredPrompt) {
+    const deferred = consumeDeferredPrompt();
+    if (!deferred) {
       dismiss();
       return;
     }
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
+    await deferred.prompt();
+    const { outcome } = await deferred.userChoice;
     if (outcome === 'accepted') {
       setVisible(false);
     } else {

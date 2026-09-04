@@ -3,6 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { LazyMotion, domAnimation } from 'motion/react';
+import '@/utils/installPrompt';
 import App from '@/App';
 import ErrorBoundary from '@/components/common/ErrorBoundary/ErrorBoundary';
 import LoadingScreen from '@/components/common/LoadingScreen/LoadingScreen';

@@ -9,7 +9,31 @@
       ]
     },
     {
+      "collectionGroup": "asistencias",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "escuelaId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "novedades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "escuelaId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "novedades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "escuelaId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "incidentes",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "escuelaId", "order": "ASCENDING" },
@@ -21,7 +45,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "escuelaId", "order": "ASCENDING" },
-        { "fieldPath": "fecha", "order": "DESCENDING" }
+        { "fieldPath": "fecha", "order": "ASCENDING" }
       ]
     },
     {
