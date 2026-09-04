@@ -74,9 +74,9 @@ const SchoolDetailAttendances = ({
               {att.registros.map((r, i) => (
                 <span
                   key={`${r.nombre}-${i}`}
-                  className={`supervisor-sub__member ${r.presente ? 'supervisor-sub__member--present' : 'supervisor-sub__member--absent'}`}
+                  className={`supervisor-sub__member ${r.existe === false ? 'supervisor-sub__member--no-existe' : r.presente ? 'supervisor-sub__member--present' : 'supervisor-sub__member--absent'}`}
                 >
-                  {r.nombre} ({r.presente ? 'P' : 'A'})
+                  {r.nombre} ({r.existe === false ? '—' : r.presente ? 'P' : 'A'})
                 </span>
               ))}
             </div>

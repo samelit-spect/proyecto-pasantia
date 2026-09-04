@@ -5,6 +5,7 @@ export interface AttendanceRecord {
   cargo: string;
   presente: boolean;
   motivo?: string;
+  existe?: boolean;
 }
 
 export interface Attendance {

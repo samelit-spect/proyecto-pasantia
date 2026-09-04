@@ -84,6 +84,11 @@
   color: var(--accent-red-text);
 }
 
+.attendance-form__summary-item--none {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
 .attendance-form__list {
   display: flex;
   flex-direction: column;
@@ -109,6 +114,37 @@
   gap: 0.75rem;
   padding-bottom: 0.375rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.attendance-form__section-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.attendance-form__existe-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  user-select: none;
+}
+
+.attendance-form__existe-toggle input[type='checkbox'] {
+  width: 0.875rem;
+  height: 0.875rem;
+  accent-color: var(--secondary-color);
+  cursor: pointer;
+}
+
+.attendance-form__existe-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.attendance-form__existe-toggle input[type='checkbox']:checked + .attendance-form__existe-label {
+  color: var(--accent-green-text);
 }
 
 .attendance-form__section-title {

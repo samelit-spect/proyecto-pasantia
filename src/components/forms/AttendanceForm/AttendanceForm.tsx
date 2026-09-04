@@ -17,6 +17,7 @@ export interface AttendanceFormEntry {
   label: string;
   presente: boolean;
   motivo: string;
+  existe: boolean;
 }
 
 export interface AttendanceFormRecord {
@@ -24,12 +25,14 @@ export interface AttendanceFormRecord {
   cargo: string;
   presente: boolean;
   motivo?: string;
+  existe?: boolean;
 }
 
 export interface AttendanceSectionDef {
   cargo: string;
   label: string;
   multiple?: boolean;
+  required?: boolean;
 }
 
 interface AttendanceFormProps {
@@ -105,6 +108,7 @@ const AttendanceForm = ({
           label: s.label,
           presente: true,
           motivo: '',
+          existe: true,
         }))
       );
       return;
@@ -120,7 +124,7 @@ const AttendanceForm = ({
   const addRow = (cargo: string, label: string) => {
     setEntries((prev) => [
       ...prev,
-      { id: nextId(), nombre: '', cargo, label, presente: true, motivo: '' },
+      { id: nextId(), nombre: '', cargo, label, presente: true, motivo: '', existe: true },
     ]);
   };
 
@@ -136,6 +140,21 @@ const AttendanceForm = ({
   const handleToggle = (id: string, presente: boolean) => {
     setEntries((prev) =>
       prev.map((e) => (e.id === id ? { ...e, presente, motivo: presente ? '' : e.motivo } : e))
+    );
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
+  const handleExisteToggle = (id: string, existe: boolean) => {
+    setEntries((prev) =>
+      prev.map((e) =>
+        e.id === id
+          ? { ...e, existe, presente: existe ? e.presente : true, motivo: existe ? e.motivo : '' }
+          : e
+      )
     );
     setErrors((prev) => {
       const next = { ...prev };
@@ -177,6 +196,7 @@ const AttendanceForm = ({
     entries.forEach((e) => countByCargo.set(e.cargo, (countByCargo.get(e.cargo) ?? 0) + 1));
 
     entries.forEach((e) => {
+      if (!e.existe) return;
       if (!e.presente && e.motivo.trim().length < 3) {
         newErrors[e.id] = 'Ingresá el motivo';
         hasError = true;
@@ -228,9 +248,12 @@ const AttendanceForm = ({
           const registro: AttendanceFormRecord = {
             nombre: m.nombre.trim() || m.label,
             cargo: m.cargo,
-            presente: m.presente,
+            presente: m.existe ? m.presente : false,
+            existe: m.existe,
           };
-          if (!m.presente) {
+          if (!m.existe) {
+            registro.motivo = 'No existe el cargo en esta escuela';
+          } else if (!m.presente) {
             registro.motivo = m.motivo;
           }
           return registro;
@@ -256,8 +279,9 @@ const AttendanceForm = ({
     }
   };
 
-  const presentes = entries.filter((m) => m.presente).length;
-  const ausentes = entries.filter((m) => !m.presente).length;
+  const presentes = entries.filter((m) => m.existe && m.presente).length;
+  const ausentes = entries.filter((m) => m.existe && !m.presente).length;
+  const noExistentes = entries.filter((m) => !m.existe).length;
 
   return (
     <section className="attendance-form">
@@ -305,6 +329,11 @@ const AttendanceForm = ({
                   <span className="attendance-form__summary-item attendance-form__summary-item--absent">
                     Ausentes: {ausentes}
                   </span>
+                  {noExistentes > 0 && (
+                    <span className="attendance-form__summary-item attendance-form__summary-item--none">
+                      Sin cargo: {noExistentes}
+                    </span>
+                  )}
                 </div>
 
                 {mode === 'sections' ? (
@@ -316,15 +345,29 @@ const AttendanceForm = ({
                         <div key={s.cargo} className="attendance-form__section">
                           <div className="attendance-form__section-header">
                             <span className="attendance-form__section-title">{s.label}</span>
-                            {s.multiple && (
-                              <button
-                                type="button"
-                                className="attendance-form__section-add"
-                                onClick={() => addRow(s.cargo, s.label)}
-                              >
-                                + Agregar
-                              </button>
-                            )}
+                            <div className="attendance-form__section-actions">
+                              {s.required === false && (
+                                <label className="attendance-form__existe-toggle">
+                                  <input
+                                    type="checkbox"
+                                    checked={rows[0]?.existe ?? true}
+                                    onChange={(e) => {
+                                      if (rows[0]) handleExisteToggle(rows[0].id, e.target.checked);
+                                    }}
+                                  />
+                                  <span className="attendance-form__existe-label">Existe</span>
+                                </label>
+                              )}
+                              {s.multiple && (rows[0]?.existe ?? true) && (
+                                <button
+                                  type="button"
+                                  className="attendance-form__section-add"
+                                  onClick={() => addRow(s.cargo, s.label)}
+                                >
+                                  + Agregar
+                                </button>
+                              )}
+                            </div>
                           </div>
                           <div className="attendance-form__section-rows">
                             {rows.map((m) => (
@@ -335,6 +378,7 @@ const AttendanceForm = ({
                                 presente={m.presente}
                                 motivo={m.motivo}
                                 motivoError={errors[m.id]}
+                                existe={m.existe}
                                 nombreEditable
                                 onNombreChange={(n) => handleNombreChange(m.id, n)}
                                 onToggle={(p) => handleToggle(m.id, p)}

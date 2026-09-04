@@ -6,6 +6,7 @@ interface AttendanceRowProps {
   cargo: string;
   presente: boolean;
   motivo: string;
+  existe?: boolean;
   onToggle: (presente: boolean) => void;
   onMotivoChange: (motivo: string) => void;
   motivoError?: string;
@@ -19,6 +20,7 @@ const AttendanceRow = ({
   cargo,
   presente,
   motivo,
+  existe = true,
   onToggle,
   onMotivoChange,
   motivoError,
@@ -26,6 +28,30 @@ const AttendanceRow = ({
   onNombreChange,
   onRemove,
 }: AttendanceRowProps) => {
+  if (!existe) {
+    return (
+      <div className="attendance-row attendance-row--no-existe">
+        <div className="attendance-row__info">
+          <span className="attendance-row__name attendance-row__name--disabled">{nombre || cargo}</span>
+          <span className="attendance-row__role">{cargo}</span>
+        </div>
+        <div className="attendance-row__actions">
+          <span className="attendance-row__no-existe-badge">No existe</span>
+          {onRemove && (
+            <button
+              type="button"
+              className="attendance-row__remove"
+              onClick={onRemove}
+              title="Quitar integrante"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`attendance-row ${!presente ? 'attendance-row--absent' : ''}`}>
       <div className="attendance-row__info">

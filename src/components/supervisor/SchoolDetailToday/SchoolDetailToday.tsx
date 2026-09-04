@@ -43,7 +43,7 @@ const SchoolDetailToday = ({
               <div key={a.id} className="supervisor-detail__today-item">
                 <span>{a.cargadoPorNombre}</span>
                 <span className="supervisor-detail__today-item-detail">
-                  {a.registros.filter((r) => r.presente).length}/{a.registros.length} presentes
+                  {a.registros.filter((r) => r.existe !== false && r.presente).length}/{a.registros.filter((r) => r.existe !== false).length} presentes
                 </span>
               </div>
             ))}

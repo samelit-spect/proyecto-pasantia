@@ -13,6 +13,28 @@
   border-color: var(--accent-red-surface);
 }
 
+.attendance-row--no-existe {
+  background-color: var(--background-color);
+  border-style: dashed;
+  opacity: 0.65;
+}
+
+.attendance-row__name--disabled {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.attendance-row__no-existe-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-full);
+  background-color: var(--background-color);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
 .attendance-row__info {
   display: flex;
   flex-direction: column;

@@ -72,4 +72,15 @@ describe('AttendanceRow', () => {
     render(<AttendanceRow {...defaultProps} />);
     expect(screen.queryByTitle('Quitar integrante')).toBeNull();
   });
+
+  it('muestra estado "No existe" cuando existe es false', () => {
+    render(<AttendanceRow {...defaultProps} existe={false} />);
+    expect(screen.getByText('No existe')).toBeDefined();
+  });
+
+  it('no muestra toggle de presencia cuando existe es false', () => {
+    render(<AttendanceRow {...defaultProps} existe={false} />);
+    expect(screen.queryByText('Presente')).toBeNull();
+    expect(screen.queryByText('Ausente')).toBeNull();
+  });
 });

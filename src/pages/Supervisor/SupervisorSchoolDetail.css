@@ -695,6 +695,12 @@
   color: var(--accent-red-text);
 }
 
+.supervisor-sub__member--no-existe {
+  background-color: var(--background-color);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
+}
+
 .supervisor-detail__user {
   border-left: 3px solid var(--accent-green-text);
 }

@@ -344,9 +344,9 @@ const Historial = () => {
                             {att.registros.map((r, i) => (
                               <span
                                 key={`${r.nombre}-${i}`}
-                                className={`historial__member ${r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
+                                className={`historial__member ${r.existe === false ? 'historial__member--no-existe' : r.presente ? 'historial__member--present' : 'historial__member--absent'}`}
                               >
-                                {r.nombre} ({r.presente ? 'P' : 'A'})
+                                {r.nombre} ({r.existe === false ? '—' : r.presente ? 'P' : 'A'})
                               </span>
                             ))}
                           </div>
