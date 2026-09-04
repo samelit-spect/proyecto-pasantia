@@ -358,15 +358,6 @@ const AttendanceForm = ({
                                   <span className="attendance-form__existe-label">Existe</span>
                                 </label>
                               )}
-                              {s.multiple && (rows[0]?.existe ?? true) && (
-                                <button
-                                  type="button"
-                                  className="attendance-form__section-add"
-                                  onClick={() => addRow(s.cargo, s.label)}
-                                >
-                                  + Agregar
-                                </button>
-                              )}
                             </div>
                           </div>
                           <div className="attendance-form__section-rows">
