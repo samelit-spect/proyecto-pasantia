@@ -389,6 +389,15 @@ const AttendanceForm = ({
                               />
                             ))}
                           </div>
+                          {s.multiple && (rows[0]?.existe ?? true) && (
+                            <button
+                              type="button"
+                              className="attendance-form__section-add attendance-form__section-add--below"
+                              onClick={() => addRow(s.cargo, s.label)}
+                            >
+                              + Agregar {s.label.toLowerCase()}
+                            </button>
+                          )}
                         </div>
                       );
                     })}
