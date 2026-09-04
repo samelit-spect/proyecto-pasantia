@@ -8,6 +8,7 @@ import ContextHint from '@/components/common/ContextHint/ContextHint';
 import type { AttendanceSectionDef } from '@/components/forms/AttendanceForm/AttendanceForm';
 
 const GESTION_SECTIONS: AttendanceSectionDef[] = [
+  { cargo: 'director', label: 'Director' },
   { cargo: 'vice', label: 'Vice-director', required: false },
   { cargo: 'preceptor', label: 'Preceptores', multiple: true },
   { cargo: 'secretario', label: 'Secretario/a', required: false },
