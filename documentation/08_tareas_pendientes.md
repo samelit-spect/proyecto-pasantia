@@ -879,3 +879,48 @@ formulario de edición global; el formulario superior queda solo para crear.
 
 **Verificación:** `tsc -b --noEmit` OK, `vitest run` 189/189, `vite build` OK,
 sin errores de lint nuevos.
+
+## Completado — Colores de acento por escuela en los usuarios (04/09/2026)
+
+Cada item de usuario en `SupervisorUsers` muestra una barra de acento superior y
+una píldora de rol coloreada con el color de **su escuela** (misma paleta de 6
+acentos que las tarjetas de escuelas, patrón `USER_ACCENTS`/`userAccent` con el
+mismo hashing que `schoolAccent`). Coherencia visual entre escuelas y usuarios.
+
+**Verificación:** `tsc` OK, `vitest` 189/189, `vite build` OK, sin errores de
+lint nuevos.
+
+## Completado — Ventana emergente de alertas de incidentes en Home (04/09/2026)
+
+Al pulsar una alerta de la sección "Alertas de incidentes" de `Home` se abre un
+**modal en CSS puro** (sin motion, patrón robusto de ConfirmDialog) que muestra
+el incidente: descripción, estado (`StatusBadge`), escuela, fecha, categoría,
+urgencia y ubicación. Se cierra con la X, el botón "Cerrar" o tocando el fondo.
+
+## Completado — Cambiar estado del incidente desde la alerta de Home (04/09/2026)
+
+El modal de alertas de incidentes del Home ahora permite al **supervisor** cambiar
+el estado del incidente mediante un selector (Pendiente → En análisis → En
+gestión → Resuelto). Usa `updateIncidentStatus` con historial, refleja el cambio
+al instante en la alerta y maneja errores deshabilitando el selector mientras
+guarda.
+
+## Completado — Editar nombre y foto de perfil (04/09/2026)
+
+- Campo `fotoDataUrl` agregado al modelo `UserProfile`.
+- Nueva función `updateOwnProfile(uid, {nombre, fotoDataUrl}, actor)` en
+  `firestore.ts` (escribe nombre + opcional foto, y registra `editadoPor/En`).
+- `AuthContext` expone `updateProfile({nombre, fotoDataUrl})` que persiste en
+  Firestore y actualiza el perfil local.
+- Página `/perfil`: botón "Editar perfil" con formulario para cambiar el nombre
+  y subir/quitar una **foto de perfil** (comprimida y validada con `@/utils/image`,
+  guardada como data URL en Firestore — mismo patrón que las fotos de incidentes).
+- El avatar del **menú hamburguesa** muestra la foto si existe (o el ícono por
+  defecto). Tests nuevos para `updateOwnProfile` (con y sin foto) → 191 tests.
+
+## Completado — Foto de perfil en navbar desktop "Mi Perfil" (04/09/2026)
+
+El link "Mi Perfil" del **navbar desktop** ahora muestra el avatar del usuario
+(foto de perfil si existe, o la inicial) en lugar del ícono `CircleUser`.
+Coherente con el avatar del menú hamburguesa. Se quitó el import `CircleUser`
+que quedó sin uso.

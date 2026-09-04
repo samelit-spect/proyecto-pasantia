@@ -22,7 +22,6 @@ import {
   HelpCircle,
   Moon,
   Sun,
-  CircleUser,
 } from 'lucide-react';
 import GlobalSearch from '@/components/common/GlobalSearch/GlobalSearch';
 import NotificationBell from '@/components/common/NotificationBell/NotificationBell';
@@ -202,7 +201,19 @@ const Navbar = () => {
           </button>
         )}
         <Link viewTransition to="/perfil" className={desktopLinkClass('/perfil')}>
-          <CircleUser size={16} strokeWidth={1.5} />
+          <span className="navbar__desktop-avatar">
+            {profile.fotoDataUrl ? (
+              <img
+                src={profile.fotoDataUrl}
+                alt={profile.nombre}
+                className="navbar__desktop-avatar-img"
+              />
+            ) : (
+              <span className="navbar__desktop-avatar-initial">
+                {(profile.nombre || '?').charAt(0).toUpperCase()}
+              </span>
+            )}
+          </span>
           Mi Perfil
         </Link>
         <button onClick={handleLogout} className="navbar__desktop-logout">
