@@ -418,3 +418,36 @@
     display: none;
   }
 }
+
+/* Modo edición inline dentro del item de usuario. */
+.supervisor-users__item--editing {
+  align-items: stretch;
+  border-color: var(--accent-blue-text);
+  box-shadow: 0 4px 16px -6px color-mix(in srgb, var(--accent-blue-text) 35%, transparent);
+}
+
+.supervisor-users__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.25rem;
+}
+
+.supervisor-users__edit-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.supervisor-users__edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.supervisor-users__edit-save {
+  align-self: auto;
+}

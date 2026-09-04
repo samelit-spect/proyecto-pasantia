@@ -864,3 +864,18 @@ queda solo para "Nueva escuela".
 
 **Verificación:** `tsc -b --noEmit` OK, `vitest run` 189/189, `vite build` OK,
 sin errores de lint nuevos.
+
+## Completado — Edición inline de usuarios en el item (04/09/2026)
+
+**Síntoma:** el botón "Editar" de un usuario abría el formulario en la parte
+superior de la página (lejos del usuario en cuestión), igual que pasaba con las
+escuelas.
+
+**Fix (commit):** se movió la edición inline dentro del propio item de usuario.
+Al tocar "Editar", el item se convierte en un formulario (Nombre, Rol, Email,
+Escuela) con "Cancelar"/"Guardar cambios". Nuevo componente `UserEditForm` con
+su propio `useForm` (react-hook-form) y `key` por usuario. Se eliminó el
+formulario de edición global; el formulario superior queda solo para crear.
+
+**Verificación:** `tsc -b --noEmit` OK, `vitest run` 189/189, `vite build` OK,
+sin errores de lint nuevos.

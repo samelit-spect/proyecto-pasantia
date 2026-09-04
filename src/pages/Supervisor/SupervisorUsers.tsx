@@ -49,6 +49,89 @@ const editUserSchema = z.object({
 
 type EditUserFormData = z.infer<typeof editUserSchema>;
 
+interface UserEditFormProps {
+  user: UserProfile;
+  onCancel: () => void;
+  onSave: (uid: string, data: EditUserFormData) => void;
+}
+
+const UserEditForm = ({ user, onCancel, onSave }: UserEditFormProps) => {
+  const { register, handleSubmit, control, formState } = useForm<EditUserFormData>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: {
+      nombre: user.nombre,
+      email: user.email,
+      rol: user.rol,
+      escuelaId: user.escuelaId,
+    },
+  });
+
+  return (
+    <form
+      className="supervisor-users__edit"
+      onSubmit={handleSubmit((data) => onSave(user.uid, data))}
+    >
+      <h4 className="supervisor-users__edit-title">Editar usuario</h4>
+      <div className="supervisor-users__form-row">
+        <label className="supervisor-users__label">
+          Nombre completo *
+          <input className="supervisor-users__input" type="text" {...register('nombre')} />
+          {formState.errors.nombre && (
+            <span className="supervisor-users__error">{formState.errors.nombre.message}</span>
+          )}
+        </label>
+        <label className="supervisor-users__label">
+          Rol *
+          <select className="supervisor-users__select" {...register('rol')}>
+            {ROLES.map((rol) => (
+              <option key={rol} value={rol}>
+                {rol}
+              </option>
+            ))}
+          </select>
+          {formState.errors.rol && (
+            <span className="supervisor-users__error">{formState.errors.rol.message}</span>
+          )}
+        </label>
+      </div>
+      <label className="supervisor-users__label">
+        Email *
+        <input className="supervisor-users__input" type="email" {...register('email')} />
+        {formState.errors.email && (
+          <span className="supervisor-users__error">{formState.errors.email.message}</span>
+        )}
+      </label>
+      <Controller
+        name="escuelaId"
+        control={control}
+        render={({ field }) => (
+          <div className="supervisor-users__form-school">
+            <SchoolSelect value={field.value} onChange={field.onChange} />
+            {formState.errors.escuelaId && (
+              <span className="supervisor-users__error">{formState.errors.escuelaId.message}</span>
+            )}
+          </div>
+        )}
+      />
+      <p className="supervisor-users__hint">
+        Para cambiar la contraseña, usá el botón "Contraseña" de la lista de usuarios.
+      </p>
+      <div className="supervisor-users__edit-actions">
+        <button type="button" className="supervisor-users__cancel" onClick={onCancel}>
+          Cancelar
+        </button>
+        <Button
+          type="submit"
+          loading={formState.isSubmitting}
+          className="supervisor-users__edit-save"
+        >
+          Guardar cambios
+        </Button>
+      </div>
+    </form>
+  );
+};
+
 const SupervisorUsers = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -83,10 +166,6 @@ const SupervisorUsers = () => {
       rol: 'director',
       escuelaId: '',
     },
-  });
-
-  const editForm = useForm<EditUserFormData>({
-    resolver: zodResolver(editUserSchema),
   });
 
   const loadUsers = async () => {
@@ -129,11 +208,10 @@ const SupervisorUsers = () => {
     }
   };
 
-  const handleEdit = async (data: EditUserFormData) => {
-    if (!editingUser) return;
+  const handleEdit = async (uid: string, data: EditUserFormData) => {
     try {
       await updateUserProfile(
-        editingUser.uid,
+        uid,
         {
           nombre: data.nombre,
           email: data.email,
@@ -154,12 +232,6 @@ const SupervisorUsers = () => {
   const startEditing = (user: UserProfile) => {
     setEditingUser(user);
     setShowForm(false);
-    editForm.reset({
-      nombre: user.nombre,
-      email: user.email,
-      rol: user.rol,
-      escuelaId: user.escuelaId,
-    });
   };
 
   const handleToggleActive = async (user: UserProfile) => {
@@ -421,94 +493,6 @@ const SupervisorUsers = () => {
         </form>
       )}
 
-      {editingUser && (
-        <form className="supervisor-users__form" onSubmit={editForm.handleSubmit(handleEdit)}>
-          <h3 className="supervisor-users__form-title">Editar usuario — {editingUser.nombre}</h3>
-
-          <div className="supervisor-users__form-row">
-            <label className="supervisor-users__label">
-              Nombre completo *
-              <input
-                className="supervisor-users__input"
-                type="text"
-                {...editForm.register('nombre')}
-              />
-              {editForm.formState.errors.nombre && (
-                <span className="supervisor-users__error">
-                  {editForm.formState.errors.nombre.message}
-                </span>
-              )}
-            </label>
-
-            <label className="supervisor-users__label">
-              Rol *
-              <select className="supervisor-users__select" {...editForm.register('rol')}>
-                {ROLES.map((rol) => (
-                  <option key={rol} value={rol}>
-                    {rol}
-                  </option>
-                ))}
-              </select>
-              {editForm.formState.errors.rol && (
-                <span className="supervisor-users__error">
-                  {editForm.formState.errors.rol.message}
-                </span>
-              )}
-            </label>
-          </div>
-
-          <label className="supervisor-users__label">
-            Email *
-            <input
-              className="supervisor-users__input"
-              type="email"
-              {...editForm.register('email')}
-            />
-            {editForm.formState.errors.email && (
-              <span className="supervisor-users__error">
-                {editForm.formState.errors.email.message}
-              </span>
-            )}
-          </label>
-
-          <Controller
-            name="escuelaId"
-            control={editForm.control}
-            render={({ field }) => (
-              <div className="supervisor-users__form-school">
-                <SchoolSelect value={field.value} onChange={field.onChange} />
-                {editForm.formState.errors.escuelaId && (
-                  <span className="supervisor-users__error">
-                    {editForm.formState.errors.escuelaId.message}
-                  </span>
-                )}
-              </div>
-            )}
-          />
-
-          <p className="supervisor-users__hint">
-            Para cambiar la contraseña, usá el botón "Restablecer" en la lista de usuarios.
-          </p>
-
-          <div className="supervisor-users__form-actions">
-            <Button
-              type="submit"
-              loading={editForm.formState.isSubmitting}
-              className="supervisor-users__submit"
-            >
-              Guardar cambios
-            </Button>
-            <button
-              type="button"
-              className="supervisor-users__cancel"
-              onClick={() => setEditingUser(null)}
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
-      )}
-
       {!error && isLoading && <SupervisorUsersSkeleton />}
 
       {!error && !isLoading && (
@@ -526,76 +510,91 @@ const SupervisorUsers = () => {
             <div className="supervisor-users__list">
               {sortedUsers.map((user) => {
                 const isActive = user.activo ?? true;
+                const isEditing = editingUser?.uid === user.uid;
                 return (
                   <div
                     key={user.uid}
-                    className={`supervisor-users__item ${isActive ? '' : 'supervisor-users__item--inactive'}`}
+                    className={`supervisor-users__item ${isActive ? '' : 'supervisor-users__item--inactive'} ${isEditing ? 'supervisor-users__item--editing' : ''}`}
                   >
-                    <div className="supervisor-users__item-info">
-                      <div className="supervisor-users__item-header">
-                        <span className="supervisor-users__item-name">{user.nombre}</span>
-                        <span className="supervisor-users__item-role">{user.rol}</span>
-                        {!isActive && (
-                          <span className="supervisor-users__item-badge">Desactivado</span>
-                        )}
-                      </div>
-                      <div className="supervisor-users__item-meta">
-                        <span>{user.email}</span>
-                        <span>·</span>
-                        <span>{schoolNameById(user.escuelaId)}</span>
-                        {user.creadoPorNombre && (
-                          <>
+                    {isEditing ? (
+                      <UserEditForm
+                        user={user}
+                        onCancel={() => setEditingUser(null)}
+                        onSave={handleEdit}
+                      />
+                    ) : (
+                      <>
+                        <div className="supervisor-users__item-info">
+                          <div className="supervisor-users__item-header">
+                            <span className="supervisor-users__item-name">{user.nombre}</span>
+                            <span className="supervisor-users__item-role">{user.rol}</span>
+                            {!isActive && (
+                              <span className="supervisor-users__item-badge">Desactivado</span>
+                            )}
+                          </div>
+                          <div className="supervisor-users__item-meta">
+                            <span>{user.email}</span>
                             <span>·</span>
-                            <span>Creado por {user.creadoPorNombre}</span>
-                          </>
-                        )}
-                        {user.editadoPorNombre && user.editadoEn && (
-                          <>
-                            <span>·</span>
-                            <span>
-                              Editado por {user.editadoPorNombre} ·{' '}
-                              {user.editadoEn.toDate().toLocaleDateString('es-AR')}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                            <span>{schoolNameById(user.escuelaId)}</span>
+                            {user.creadoPorNombre && (
+                              <>
+                                <span>·</span>
+                                <span>Creado por {user.creadoPorNombre}</span>
+                              </>
+                            )}
+                            {user.editadoPorNombre && user.editadoEn && (
+                              <>
+                                <span>·</span>
+                                <span>
+                                  Editado por {user.editadoPorNombre} ·{' '}
+                                  {user.editadoEn.toDate().toLocaleDateString('es-AR')}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
 
-                    {user.rol !== 'supervisor' && (
-                      <div className="supervisor-users__item-actions">
-                        <button
-                          className="supervisor-users__action-btn"
-                          data-tooltip="Editar nombre, email, rol o escuela"
-                          onClick={() => startEditing(user)}
-                        >
-                          <Pencil size={14} strokeWidth={1.5} />
-                          <span className="supervisor-users__action-label">Editar</span>
-                        </button>
-                        <button
-                          className="supervisor-users__action-btn"
-                          data-tooltip="Enviar email para restablecer la contraseña"
-                          onClick={() => setConfirmAction({ type: 'reset', user })}
-                          disabled={resettingId === user.uid}
-                        >
-                          <RotateCcw size={14} strokeWidth={1.5} />
-                          <span className="supervisor-users__action-label">Contraseña</span>
-                        </button>
-                        <button
-                          className="supervisor-users__toggle"
-                          data-tooltip={
-                            isActive
-                              ? 'Desactivar acceso del usuario'
-                              : 'Activar acceso del usuario'
-                          }
-                          onClick={() => setConfirmAction({ type: 'toggle', user })}
-                          disabled={togglingId === user.uid}
-                        >
-                          <Power size={16} strokeWidth={1.5} />
-                          <span className="supervisor-users__toggle-text">
-                            {togglingId === user.uid ? '...' : isActive ? 'Desactivar' : 'Activar'}
-                          </span>
-                        </button>
-                      </div>
+                        {user.rol !== 'supervisor' && (
+                          <div className="supervisor-users__item-actions">
+                            <button
+                              className="supervisor-users__action-btn"
+                              data-tooltip="Editar nombre, email, rol o escuela"
+                              onClick={() => startEditing(user)}
+                            >
+                              <Pencil size={14} strokeWidth={1.5} />
+                              <span className="supervisor-users__action-label">Editar</span>
+                            </button>
+                            <button
+                              className="supervisor-users__action-btn"
+                              data-tooltip="Enviar email para restablecer la contraseña"
+                              onClick={() => setConfirmAction({ type: 'reset', user })}
+                              disabled={resettingId === user.uid}
+                            >
+                              <RotateCcw size={14} strokeWidth={1.5} />
+                              <span className="supervisor-users__action-label">Contraseña</span>
+                            </button>
+                            <button
+                              className="supervisor-users__toggle"
+                              data-tooltip={
+                                isActive
+                                  ? 'Desactivar acceso del usuario'
+                                  : 'Activar acceso del usuario'
+                              }
+                              onClick={() => setConfirmAction({ type: 'toggle', user })}
+                              disabled={togglingId === user.uid}
+                            >
+                              <Power size={16} strokeWidth={1.5} />
+                              <span className="supervisor-users__toggle-text">
+                                {togglingId === user.uid
+                                  ? '...'
+                                  : isActive
+                                    ? 'Desactivar'
+                                    : 'Activar'}
+                              </span>
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 );
