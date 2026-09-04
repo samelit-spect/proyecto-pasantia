@@ -10,9 +10,9 @@ import type { AttendanceSectionDef } from '@/components/forms/AttendanceForm/Att
 const GESTION_SECTIONS: AttendanceSectionDef[] = [
   { cargo: 'director', label: 'Director' },
   { cargo: 'vice', label: 'Vice-director', required: false },
-  { cargo: 'preceptor', label: 'Preceptores', multiple: true },
+  { cargo: 'preceptor', label: 'Preceptores', multiple: true, required: false },
   { cargo: 'secretario', label: 'Secretario/a', required: false },
-  { cargo: 'conserje', label: 'Conserje', multiple: true },
+  { cargo: 'conserje', label: 'Conserje', multiple: true, required: false },
 ];
 
 const Asistencia = () => {
