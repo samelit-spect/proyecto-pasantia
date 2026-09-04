@@ -828,3 +828,23 @@ botones sin cambiar el estado, botones deshabilitados mientras la escritura
 pende, e incidente resuelto sin transiciones.
 
 **Suite:** **187/187 en verde**, `tsc -b --noEmit` sin errores, `vite build` OK.
+
+## Completado — ConfirmDialog se reescribió sin motion (04/09/2026)
+
+**Síntoma reportado:** al eliminar una escuela desde el Panel de Supervisión,
+la pantalla quedaba borrosa/negra y "trabada" sin que apareciera el aviso de
+confirmación. Es el mismo patrón que ya había ocurrido en dos flujos previos
+(incidentes y WelcomeTour) donde los modales con `motion` (`AnimatePresence` +
+`m.*` bajo `LazyMotion domAnimation strict`) no se mostraban en producción del
+usuario, mientras que en vitest/jsdom sí.
+
+**Fix (commit):**
+- `ConfirmDialog.tsx`: se removieron `AnimatePresence`, `m` y `useReducedMotion`;
+  ahora usa render condicional simple (`if (!open) return null`) y `onCancel` por
+  Escape igual que antes.
+- `ConfirmDialog.css`: la animación de entrada (fade del overlay + fade/scale del
+  diálogo) ahora usa keyframes de CSS puro, con guarda `prefers-reduced-motion`.
+- Patrón consistente con WelcomeTour (reescrito a CSS puro por el mismo conflicto).
+
+**Verificación:** `tsc -b --noEmit` OK, `vitest run` 189/189 en verde, `vite build`
+OK; lint sin errores nuevos (16 preexistentes).
