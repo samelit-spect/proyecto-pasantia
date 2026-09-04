@@ -34,7 +34,6 @@ import type { School as SchoolType, Attendance, News, Incident } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 import EmptyState from '@/components/common/EmptyState/EmptyState';
 import Breadcrumb from '@/components/common/Breadcrumb/Breadcrumb';
-import ConfirmDialog from '@/components/common/ConfirmDialog/ConfirmDialog';
 import { SupervisorSchoolsSkeleton } from './SupervisorSkeleton';
 import './SupervisorSchools.css';
 
@@ -64,8 +63,10 @@ interface SchoolCardProps {
   att: number;
   nov: number;
   inc: number;
+  confirming: boolean;
   onEdit: (school: SchoolType) => void;
-  onDelete: (school: SchoolType) => void;
+  onRequestDelete: (school: SchoolType) => void;
+  onConfirmDelete: (school: SchoolType) => void;
 }
 
 /**
@@ -85,7 +86,16 @@ const LiveCount = ({ value, suffix = '' }: { value: number; suffix?: string }) =
   );
 };
 
-const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps) => {
+const SchoolCard = ({
+  school,
+  att,
+  nov,
+  inc,
+  confirming,
+  onEdit,
+  onRequestDelete,
+  onConfirmDelete,
+}: SchoolCardProps) => {
   const to = `/supervisor/escuela/${school.id}`;
   const isTransitioning = useViewTransitionState(to);
   const accent = schoolAccent(school.id);
@@ -94,7 +104,7 @@ const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps
     <div
       className={`supervisor-schools__card supervisor-schools__card--${accent} ${
         isTransitioning ? 'supervisor-schools__card--transitioning' : ''
-      }`}
+      } ${confirming ? 'supervisor-schools__card--confirming' : ''}`}
       style={
         {
           '--school-accent': `var(--accent-${accent}-text)`,
@@ -104,52 +114,82 @@ const SchoolCard = ({ school, att, nov, inc, onEdit, onDelete }: SchoolCardProps
       }
     >
       <div className="supervisor-schools__card-accent" aria-hidden="true" />
-      <Link viewTransition to={to} className="supervisor-schools__card-link">
-        <div className="supervisor-schools__card-icon">
-          <School size={24} strokeWidth={1.5} />
+      {confirming ? (
+        <div className="supervisor-schools__confirm" role="alertdialog" aria-label="Confirmar eliminación">
+          <p className="supervisor-schools__confirm-text">
+            ¿Eliminar {school.nombre}? Esta acción no se puede deshacer.
+          </p>
+          <div className="supervisor-schools__confirm-actions">
+            <button
+              className="supervisor-schools__confirm-btn supervisor-schools__confirm-btn--cancel"
+              onClick={(e) => {
+                e.preventDefault();
+                onRequestDelete(school);
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              className="supervisor-schools__confirm-btn supervisor-schools__confirm-btn--danger"
+              onClick={(e) => {
+                e.preventDefault();
+                onConfirmDelete(school);
+              }}
+            >
+              Confirmar
+            </button>
+          </div>
         </div>
-        <div className="supervisor-schools__card-content">
-          <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
-          <span className="supervisor-schools__card-turno">{school.turno}</span>
-        </div>
-        <div className="supervisor-schools__card-stats">
-          <span className="supervisor-schools__card-stat" title="Asistencias hoy">
-            <ClipboardCheck size={12} strokeWidth={2} />
-            {att}
-          </span>
-          <span className="supervisor-schools__card-stat" title="Novedades hoy">
-            <Newspaper size={12} strokeWidth={2} />
-            {nov}
-          </span>
-          <span className="supervisor-schools__card-stat" title="Incidentes hoy">
-            <AlertTriangle size={12} strokeWidth={2} />
-            {inc}
-          </span>
-        </div>
-        <span className="supervisor-schools__card-arrow">→</span>
-      </Link>
-      <div className="supervisor-schools__card-actions">
-        <button
-          className="supervisor-schools__card-btn"
-          title="Editar"
-          onClick={(e) => {
-            e.preventDefault();
-            onEdit(school);
-          }}
-        >
-          <Pencil size={14} strokeWidth={1.5} />
-        </button>
-        <button
-          className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
-          title="Eliminar"
-          onClick={(e) => {
-            e.preventDefault();
-            onDelete(school);
-          }}
-        >
-          <Trash2 size={14} strokeWidth={1.5} />
-        </button>
-      </div>
+      ) : (
+        <>
+          <Link viewTransition to={to} className="supervisor-schools__card-link">
+            <div className="supervisor-schools__card-icon">
+              <School size={24} strokeWidth={1.5} />
+            </div>
+            <div className="supervisor-schools__card-content">
+              <h4 className="supervisor-schools__card-name">{school.nombre}</h4>
+              <span className="supervisor-schools__card-turno">{school.turno}</span>
+            </div>
+            <div className="supervisor-schools__card-stats">
+              <span className="supervisor-schools__card-stat" title="Asistencias hoy">
+                <ClipboardCheck size={12} strokeWidth={2} />
+                {att}
+              </span>
+              <span className="supervisor-schools__card-stat" title="Novedades hoy">
+                <Newspaper size={12} strokeWidth={2} />
+                {nov}
+              </span>
+              <span className="supervisor-schools__card-stat" title="Incidentes hoy">
+                <AlertTriangle size={12} strokeWidth={2} />
+                {inc}
+              </span>
+            </div>
+            <span className="supervisor-schools__card-arrow">→</span>
+          </Link>
+          <div className="supervisor-schools__card-actions">
+            <button
+              className="supervisor-schools__card-btn"
+              title="Editar"
+              onClick={(e) => {
+                e.preventDefault();
+                onEdit(school);
+              }}
+            >
+              <Pencil size={14} strokeWidth={1.5} />
+            </button>
+            <button
+              className="supervisor-schools__card-btn supervisor-schools__card-btn--danger"
+              title="Eliminar"
+              onClick={(e) => {
+                e.preventDefault();
+                onRequestDelete(school);
+              }}
+            >
+              <Trash2 size={14} strokeWidth={1.5} />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -167,7 +207,7 @@ const SupervisorSchools = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<SchoolType | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const [attListRef] = useAutoAnimate();
   const [newsListRef] = useAutoAnimate();
@@ -253,10 +293,13 @@ const SupervisorSchools = () => {
     setShowForm(true);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!confirmDelete) return;
-    const school = confirmDelete;
-    setConfirmDelete(null);
+  const handleRequestDelete = (school: SchoolType) => {
+    // Primer toque: entrar en modo confirmación en la tarjeta.
+    setConfirmDeleteId((current) => (current === school.id ? null : school.id));
+  };
+
+  const handleConfirmDelete = async (school: SchoolType) => {
+    setConfirmDeleteId(null);
     try {
       await deleteSchool(school.id);
       addToast('success', 'Escuela eliminada.');
@@ -524,22 +567,15 @@ const SupervisorSchools = () => {
                 att={attBySchool[school.id] || 0}
                 nov={newsBySchool[school.id] || 0}
                 inc={incBySchool[school.id] || 0}
+                confirming={confirmDeleteId === school.id}
                 onEdit={handleEdit}
-                onDelete={setConfirmDelete}
+                onRequestDelete={handleRequestDelete}
+                onConfirmDelete={handleConfirmDelete}
               />
             ))}
           </div>
         </div>
       )}
-
-      <ConfirmDialog
-        open={!!confirmDelete}
-        title="Eliminar escuela"
-        message={`¿Eliminar la escuela "${confirmDelete?.nombre}"? Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setConfirmDelete(null)}
-      />
     </>
   );
 };

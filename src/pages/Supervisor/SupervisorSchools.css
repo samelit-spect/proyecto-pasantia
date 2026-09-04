@@ -698,3 +698,74 @@
     animation: none;
   }
 }
+
+/* Modo confirmación de eliminación dentro de la tarjeta (2 pasos, sin modal). */
+.supervisor-schools__confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1.25rem;
+  animation: fadeInUp 0.2s ease-out both;
+}
+
+.supervisor-schools__card--confirming {
+  border-color: var(--accent-red-text);
+  box-shadow: 0 6px 20px -4px color-mix(in srgb, var(--accent-red-text) 35%, transparent);
+}
+
+.supervisor-schools__card--confirming .supervisor-schools__card-accent {
+  background: linear-gradient(
+    90deg,
+    var(--accent-red-bg),
+    var(--accent-red-text),
+    var(--accent-red-bg)
+  );
+  opacity: 1;
+}
+
+.supervisor-schools__confirm-text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.supervisor-schools__confirm-actions {
+  display: flex;
+  gap: 0.625rem;
+  width: 100%;
+}
+
+.supervisor-schools__confirm-btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s;
+}
+
+.supervisor-schools__confirm-btn--cancel {
+  background-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.supervisor-schools__confirm-btn--cancel:hover {
+  opacity: 0.8;
+}
+
+.supervisor-schools__confirm-btn--danger {
+  background-color: var(--accent-red-text);
+  color: white;
+}
+
+.supervisor-schools__confirm-btn--danger:hover {
+  opacity: 0.9;
+}
